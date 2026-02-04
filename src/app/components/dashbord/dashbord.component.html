@@ -1,0 +1,3523 @@
+<!-- <p-confirmDialog
+  [style]="{ width: '40vw' }"
+  [baseZIndex]="10000"
+></p-confirmDialog>
+<div class="childComponent">
+  <ngx-spinner
+    [fullScreen]="false"
+    type="ball-clip-rotate-multiple"
+    size="medium"
+  >
+    <p class="loading">Loading...</p>
+  </ngx-spinner>
+</div> -->
+<div class="row">
+  <div class="col-md-12">
+    <div class="panel top">
+      <div class="panel-heading d-flex flex-column">
+        <h3 class="panel-title">Dashboard</h3>
+        <div class="right text-end">
+          <button
+            class="btn btn-toggle-collapse"
+            data-bs-toggle="collapse"
+            data-bs-target="#dashboardMenu"
+            type="button"
+            aria-expanded="true"
+            aria-controls="dashboardMenu"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+      <div class="panel-separator"></div>
+      <div id="dashboardMenu" class="accordion-collapse collapse show">
+        <div class="accordion-body no-padding">
+          <div class="row">
+            <div class="col-md-2 col-sm-6 col-12 pcol">
+              <div class="dbox" [ngClass]="{ activeSubMenu: showApprovalData, inactiveSubMenu: !showApprovalData }">
+                <a (click)="getApprovalData()" class="curson_pointer">
+                  <i class="pi pi-users" style="font-size: 5rem"></i>
+                  <h5>Pending Approvals</h5>
+                </a>
+              </div>
+            </div>
+
+            <div class="col-md-2 col-sm-6 col-12 pcol" *ngIf="salseCrmAccess && statusCheckService.isActiveSalesCrm">
+              <div class="dbox" [ngClass]="{ activeSubMenu: leadDashboardView, inactiveSubMenu: !leadDashboardView }">
+                <a (click)="viewLeadDashboard()" class="curson_pointer">
+                  <img src="../../../assets/img/i01.png" style="width: 32px" />
+                  <h5>Lead Dashboard</h5>
+                </a>
+              </div>
+            </div>
+
+            <div class="col-md-2 col-sm-6 col-12 pcol" *ngIf="inventoryAccess && statusCheckService.isActiveInventoryService">
+              <div class="dbox" [ngClass]="{ activeSubMenu: showProductQtyData, inactiveSubMenu: !showProductQtyData }">
+                <a (click)="viewInventoryDashboard()" class="curson_pointer">
+                  <img src="../assets/img/All_Icons/17_Inventory_Management/A_Inventory Management_B.png" style="width: 32px" />
+                  <h5>Inventory Dashboard</h5>
+                </a>
+              </div>
+            </div>
+          </div> <!-- End Row -->
+        </div> <!-- End Accordion Body -->
+      </div> <!-- End Collapse -->
+    </div> <!-- End Panel -->
+  </div> <!-- End Col -->
+</div> <!-- End Row -->
+
+  <div *ngIf="this.showCustomerGraphs" class="col-md-6">
+    <p-panel header="CAF Customer Details">
+      <p-chart [data]="this.newCustomerTypeWiseData" type="pie"></p-chart>
+    </p-panel>
+  </div>
+  <div *ngIf="this.showCustomerGraphs" class="col-md-6">
+    <p-panel header="Type Wise Customer Details">
+      <p-chart
+        [data]="this.customerTypeWiseData"
+        [options]="this.customerTypeWiseDataOptions"
+        type="bar"
+      ></p-chart>
+    </p-panel>
+  </div>
+  <div *ngIf="this.showCustomerGraphs" class="col-md-6">
+    <p-panel header="Status Wise Customer Details">
+      <p-chart
+        [data]="this.customerStatusWiseData"
+        [options]="this.customerTypeWiseDataOptions"
+        type="bar"
+      ></p-chart>
+    </p-panel>
+  </div>
+  <div *ngIf="this.showCustomerGraphs" class="col-md-6">
+    <p-panel header="Top 10 Plan ">
+      <p-chart
+        [data]="this.newCustomerPlanWiseData"
+        [options]="this.customerTypeWiseDataOptions"
+        type="bar"
+      ></p-chart>
+    </p-panel>
+  </div>
+  
+  <!-- payment graphs -->
+  <div class="row">
+    <div *ngIf="this.showPaymentGraphs" class="col-md-4">
+      <p-panel header="Total Pending Payment Aprroval">
+        <div style="font-size: 5rem; color: #4ea365; text-align: center">
+          {{ this.pendingData.Total }}
+        </div>
+      </p-panel>
+    </div>
+    <div *ngIf="this.showPaymentGraphs" class="col-md-4">
+      <p-panel header="Total Pending Payment Aprroval Amount">
+        <div style="font-size: 5rem; color: #4ea365; text-align: center">
+          {{ this.pendingData.pending }}{{ this.currency }}
+        </div>
+      </p-panel>
+    </div>
+    <div *ngIf="this.showPaymentGraphs" class="col-md-4">
+      <p-panel header="Payment Receivable in next 10 Days">
+        <div style="font-size: 5rem; color: #4ea365; text-align: center">
+          {{ this.nextReceiveable }}{{ this.currency }}
+        </div>
+      </p-panel>
+    </div>
+  </div>
+  <div class="row">
+    <div *ngIf="this.showPaymentGraphs" class="col-md-6">
+      <p-panel header="Top 10 Partner amount wise ">
+        <div>
+          <ng-template pTemplate="header">
+            <div class="left" style="visibility: hidden">
+              <div class="p-inputgroup">
+                <input class="form-control" pInputText />
+  
+                <a class="p-inputgroup-addon"><i class="fa fa-refresh"></i></a>
+              </div>
+            </div>
+          </ng-template>
+        </div>
+        <p-chart
+          [data]="this.partnerwisePayment"
+          [options]="this.customerTypeWiseDataOptions"
+          type="bar"
+        ></p-chart>
+      </p-panel>
+    </div>
+    <div *ngIf="this.showPaymentGraphs" class="col-md-6">
+      <p-panel header="Payment Collection Month Wise ">
+        <ng-template pTemplate="header">
+          <div class="left">
+            <div class="p-inputgroup">
+              <input
+                [(ngModel)]="date10"
+                class="form-control"
+                id="paymentYear"
+                name="OTP"
+                pInputText
+                placeholder="Enter year"
+                type="text"
+              />
+  
+              <a
+                (click)="getDataAccordingtoYear()"
+                class="p-inputgroup-addon"
+                data-title="Resend OTP"
+              >
+                <i class="fa fa-refresh"></i>
+              </a>
+            </div>
+          </div>
+        </ng-template>
+        <p-chart
+          [data]="this.paymentMonthWiseData"
+          [options]="this.customerTypeWiseDataOptions"
+          type="bar"
+        ></p-chart>
+      </p-panel>
+    </div>
+  </div>
+  <div class="row">
+    <div *ngIf="this.showPaymentGraphs" class="col-md-12">
+      <p-panel header="Customer Due for Renewal in next 10 days">
+        <p-progressSpinner *ngIf="this.showLoader"></p-progressSpinner>
+        <p-table
+          *ngIf="!this.showLoader"
+          [paginator]="true"
+          [rows]="5"
+          [showCurrentPageReport]="true"
+          [value]="this.nextTenDaysRenewableCustomerArray"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+          responsiveLayout="scroll"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Name</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Type</th>
+              <th>Mobile Number</th>
+              <th>Account No</th>
+              <th>Partner Name</th>
+              <th>Service Area</th>
+            </tr>
+          </ng-template>
+          <ng-template let-product pTemplate="body">
+            <tr *ngIf="!this.showLoader">
+              <td>
+                {{ product.firstname }}
+              </td>
+              <td>{{ product.username }}</td>
+              <td>{{ product.email }}</td>
+              <td>{{ product.custtype }}</td>
+              <td>{{ product.mobile }}</td>
+              <td>{{ product.acctno }}</td>
+              <td>{{ product.partnerName }}</td>
+              <td>{{ product.serviceAreName }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-panel>
+    </div>
+  </div>
+  <div class="row">
+    <div *ngIf="this.showTicketGraphs" class="col-md-12">
+      <p-panel header="Total Open Tickets">
+        <div style="font-size: 10rem; color: #4ea365; text-align: center">
+          {{ this.totalOpenTicket }}
+        </div>
+      </p-panel>
+    </div>
+  </div>
+  <div class="row">
+    <div *ngIf="this.showTicketGraphs" class="col-md-6">
+      <p-panel header="Staff Wise Tickets Details">
+        <p-chart
+          [data]="staffwiseTicketCount"
+          [options]="monthwiseTicketCountOptions"
+          type="bar"
+        ></p-chart>
+      </p-panel>
+    </div>
+    <div *ngIf="this.showTicketGraphs" class="col-md-6">
+      <p-panel header="Team Wise Tickets Details">
+        <p-chart
+          [data]="teamwiseTicketCount"
+          [options]="monthwiseTicketCountOptions"
+          type="bar"
+        ></p-chart>
+      </p-panel>
+    </div>
+  </div>
+  <div class="row">
+    <div *ngIf="this.showTicketGraphs" class="col-md-6">
+      <p-panel header="Monthwise Tickets Details">
+        <ng-template pTemplate="header">
+          <div class="left">
+            <div class="p-inputgroup">
+              <input
+                [(ngModel)]="date10"
+                class="form-control"
+                id="TicketYear"
+                name="OTP"
+                pInputText
+                placeholder="Enter year"
+                type="text"
+              />
+  
+              <a
+                (click)="getDataAccordingtoYearForTicket()"
+                class="p-inputgroup-addon"
+                data-title="Resend OTP"
+              >
+                <i class="fa fa-refresh"></i>
+              </a>
+            </div>
+          </div>
+        </ng-template>
+        <p-chart
+          [data]="monthwiseTicketCount"
+          [options]="monthwiseTicketCountOptions"
+          type="bar"
+        ></p-chart>
+      </p-panel>
+    </div>
+    <div *ngIf="this.showTicketGraphs" class="col-md-6">
+      <p-panel header="Overdue Ticket List ">
+        <p-progressSpinner *ngIf="this.showTicketLoader"></p-progressSpinner>
+        <!-- <div
+                      *ngIf="this.nextTenDaysRenewableCustomerArray.length == 0 && !showLoader"
+                    >
+                      No data found.
+                    </div> -->
+  
+        <p *ngIf="!this.showTicketLoader && this.overDueticketList.length == 0">No data found.</p>
+        <p-table
+          *ngIf="!this.showTicketLoader && this.overDueticketList.length > 0"
+          [paginator]="true"
+          [rowsPerPageOptions]="[5, 10, 25, 50]"
+          [rows]="5"
+          [showCurrentPageReport]="true"
+          [value]="this.overDueticketList"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+          responsiveLayout="scroll"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Case Number</th>
+              <th>Customer Name</th>
+              <th>Assigne Name</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Priority</th>
+              <th>Follow Up Date</th>
+            </tr>
+          </ng-template>
+          <ng-template let-product pTemplate="body">
+            <tr *ngIf="!this.showTicketLoader">
+              <td>
+                {{ product.caseNumber }}
+              </td>
+              <td>{{ product.customerName }}</td>
+              <td>{{ product.assigneeName }}</td>
+              <td>{{ product.caseType }}</td>
+              <td>{{ product.caseStatus }}</td>
+              <td>{{ product.priority }}</td>
+              <td>{{ product.nextFollowupDate }}</td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="summary"></ng-template>
+        </p-table>
+      </p-panel>
+    </div>
+  </div>
+  <div class="row">
+    <div *ngIf="this.radiusGraph" class="col-md-12">
+      <p-panel header="Connected User">
+        <div style="font-size: 10rem; color: #4ea365; text-align: center">
+          {{ this.connecteduser }}
+        </div>
+      </p-panel>
+    </div>
+  </div>
+  <div class="row">
+    <div *ngIf="this.radiusGraph" class="col-md-6">
+      <p-panel header="Month Wise Time Usage Details">
+        <ng-template pTemplate="header">
+          <div class="left">
+            <div class="p-inputgroup">
+              <input
+                [(ngModel)]="date101"
+                class="form-control"
+                id="monthWiseTimeYear"
+                name="OTP"
+                pInputText
+                placeholder="Enter year"
+                type="text"
+              />
+  
+              <a
+                (click)="this.monthWiseTimeUsages(date101)"
+                class="p-inputgroup-addon"
+                data-title="Resend OTP"
+              >
+                <i class="fa fa-refresh"></i>
+              </a>
+            </div>
+          </div>
+        </ng-template>
+        <p-chart
+          [data]="this.monthWisetimeUsages"
+          [options]="this.customerTypeWiseDataOptions"
+          type="bar"
+        ></p-chart>
+      </p-panel>
+    </div>
+    <div *ngIf="this.radiusGraph" class="col-md-6">
+      <p-panel header="Month Wise Volume Usage Details">
+        <ng-template pTemplate="header">
+          <div class="left">
+            <div class="p-inputgroup">
+              <input
+                [(ngModel)]="date10"
+                class="form-control"
+                id="monthWiseVolumeYear"
+                name="OTP"
+                pInputText
+                placeholder="Enter year"
+                type="text"
+              />
+  
+              <a
+                (click)="this.monthWiseVolumeUsages(date10)"
+                class="p-inputgroup-addon"
+                data-title="Resend OTP"
+              >
+                <i class="fa fa-refresh"></i>
+              </a>
+            </div>
+          </div>
+        </ng-template>
+        <p-chart
+          [data]="this.monthWisevolumeUsages"
+          [options]="this.customerTypeWiseDataOptions"
+          type="bar"
+        ></p-chart>
+      </p-panel>
+    </div>
+  </div>
+  <div *ngIf="this.commissionGraph" class="col-md-6">
+    <p-panel header="Month Wise AGR Payable">
+      <ng-template pTemplate="header">
+        <div class="left">
+          <div class="p-inputgroup">
+            <input
+              [(ngModel)]="date10"
+              class="form-control"
+              id="monthWiseVolumeYear"
+              name="OTP"
+              pInputText
+              placeholder="Enter year"
+              type="text"
+            />
+  
+            <a
+              (click)="this.monthWiseAGRPayable(date10)"
+              class="p-inputgroup-addon"
+              data-title="Resend OTP"
+            >
+              <i class="fa fa-refresh"></i>
+            </a>
+          </div>
+        </div>
+      </ng-template>
+      <p-chart
+        [data]="this.monthWiseAGRDetails"
+        [options]="this.customerTypeWiseDataOptions"
+        type="bar"
+      ></p-chart>
+    </p-panel>
+  </div>
+  <div *ngIf="this.commissionGraph" class="col-md-6">
+    <p-panel header="Month Wise TDS Payable">
+      <ng-template pTemplate="header">
+        <div class="left">
+          <div class="p-inputgroup">
+            <input
+              [(ngModel)]="date10"
+              class="form-control"
+              id="monthWiseVolumeYear"
+              name="OTP"
+              pInputText
+              placeholder="Enter year"
+              type="text"
+            />
+  
+            <a
+              (click)="this.monthWiseTDSPayable(date10)"
+              class="p-inputgroup-addon"
+              data-title="Resend OTP"
+            >
+              <i class="fa fa-refresh"></i>
+            </a>
+          </div>
+        </div>
+      </ng-template>
+      <p-chart
+        [data]="this.monthWiseTDSDetails"
+        [options]="this.customerTypeWiseDataOptions"
+        type="bar"
+      ></p-chart>
+    </p-panel>
+  </div>
+  <div *ngIf="this.commissionGraph" class="col-md-6">
+    <p-panel header="Partner Wise TDS Details">
+      <ng-template pTemplate="header">
+        <div class="left">
+          <div class="p-inputgroup">
+            <input
+              [(ngModel)]="date10"
+              class="form-control"
+              id="monthWiseVolumeYear"
+              name="OTP"
+              pInputText
+              placeholder="Enter year"
+              type="text"
+            />
+  
+            <a
+              (click)="this.partnerWiseTDSDetails(date10)"
+              class="p-inputgroup-addon"
+              data-title="Resend OTP"
+            >
+              <i class="fa fa-refresh"></i>
+            </a>
+          </div>
+        </div>
+      </ng-template>
+      <p-chart
+        [data]="this.partnerWiseTDS"
+        [options]="this.customerTypeWiseDataOptions"
+        type="bar"
+      ></p-chart>
+    </p-panel>
+  </div>
+  <div *ngIf="this.commissionGraph" class="col-md-6">
+    <p-panel header="Month Wise Total Details">
+      <ng-template pTemplate="header">
+        <div class="left">
+          <div class="p-inputgroup">
+            <input
+              [(ngModel)]="date10"
+              class="form-control"
+              id="monthWiseVolumeYear"
+              name="OTP"
+              pInputText
+              placeholder="Enter year"
+              type="text"
+            />
+  
+            <a
+              (click)="this.monthWiseTotalDetails(date10)"
+              class="p-inputgroup-addon"
+              data-title="Resend OTP"
+            >
+              <i class="fa fa-refresh"></i>
+            </a>
+          </div>
+        </div>
+      </ng-template>
+      <p-chart [data]="this.stackedData" [options]="this.stackedOptions" type="bar"></p-chart>
+    </p-panel>
+  </div>
+  <div *ngIf="this.inventoryGraph" class="col-md-6">
+    <p-panel header="Staff And Product Wise Inventory">
+      <p-progressSpinner *ngIf="this.showInventoryLoader"></p-progressSpinner>
+      <p-table
+        *ngIf="!this.showInventoryLoader"
+        [paginator]="true"
+        [rowsPerPageOptions]="[5, 10, 25, 50]"
+        [rows]="5"
+        [showCurrentPageReport]="true"
+        [value]="this.staffAndProductWiseInventoryList"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        responsiveLayout="scroll"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Product Name</th>
+            <th>Staff Name</th>
+            <th>Total Qty</th>
+            <th>Used Qty</th>
+            <th>Available Qty</th>
+          </tr>
+        </ng-template>
+        <ng-template let-product pTemplate="body">
+          <tr *ngIf="!this.showInventoryLoader">
+            <td>
+              {{ product.productName }}
+            </td>
+            <td>{{ product.staffName }}</td>
+            <td>{{ product.totalQty }} {{ product.unit }}</td>
+            <td>{{ product.usedQty }} {{ product.unit }}</td>
+            <td>{{ product.availableQty }} {{ product.unit }}</td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="summary"></ng-template>
+      </p-table>
+    </p-panel>
+  </div>
+  <div *ngIf="this.inventoryGraph" class="col-md-6">
+    <p-panel header="Warehouse And Product Wise Inventory">
+      <p-progressSpinner *ngIf="this.showInventoryLoader"></p-progressSpinner>
+      <p-table
+        *ngIf="!this.showInventoryLoader"
+        [paginator]="true"
+        [rowsPerPageOptions]="[5, 10, 25, 50]"
+        [rows]="5"
+        [showCurrentPageReport]="true"
+        [value]="this.wareHouseAndProductWiseInventory"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        responsiveLayout="scroll"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Product Name</th>
+            <th>WareHouse</th>
+            <th>Total Qty</th>
+            <th>Used Qty</th>
+            <th>Available Qty</th>
+          </tr>
+        </ng-template>
+        <ng-template let-product pTemplate="body">
+          <tr *ngIf="!this.showInventoryLoader">
+            <td>
+              {{ product.productName }}
+            </td>
+            <td>{{ product.wareHouseName }}</td>
+            <td>{{ product.totalQty }} {{ product.unit }}</td>
+            <td>{{ product.usedQty }} {{ product.unit }}</td>
+            <td>{{ product.availableQty }} {{ product.unit }}</td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="summary"></ng-template>
+      </p-table>
+    </p-panel>
+  </div>
+  <div *ngIf="this.inventoryGraph" class="col-md-6">
+    <p-panel header="Available Inventory Product Wise">
+      <p-progressSpinner *ngIf="this.showInventoryLoader"></p-progressSpinner>
+      <p-table
+        *ngIf="!this.showInventoryLoader"
+        [paginator]="true"
+        [rowsPerPageOptions]="[5, 10, 25, 50]"
+        [rows]="5"
+        [showCurrentPageReport]="true"
+        [value]="this.availableInventoryProductWise"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        responsiveLayout="scroll"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Product Name</th>
+            <th>Total Qty</th>
+            <th>Used Qty</th>
+            <th>Available Qty</th>
+          </tr>
+        </ng-template>
+        <ng-template let-product pTemplate="body">
+          <tr *ngIf="!this.showInventoryLoader">
+            <td>
+              {{ product.productName }}
+            </td>
+            <td>{{ product.totalQty }} {{ product.unit }}</td>
+            <td>{{ product.usedQty }} {{ product.unit }}</td>
+            <td>{{ product.availableQty }} {{ product.unit }}</td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="summary"></ng-template>
+      </p-table>
+    </p-panel>
+  </div>
+  <div *ngIf="this.inventoryGraph" class="col-md-6">
+    <p-panel header="Inventories having less than 10 Qty Available">
+      <p-progressSpinner *ngIf="this.showInventoryLoader"></p-progressSpinner>
+      <p-table
+        *ngIf="!this.showInventoryLoader"
+        [paginator]="true"
+        [rowsPerPageOptions]="[5, 10, 25, 50]"
+        [rows]="5"
+        [showCurrentPageReport]="true"
+        [value]="this.inventoryAlertList"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        responsiveLayout="scroll"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Product Name</th>
+            <th>Available Qty</th>
+          </tr>
+        </ng-template>
+        <ng-template let-product pTemplate="body">
+          <tr *ngIf="!this.showInventoryLoader">
+            <td>
+              {{ product.productName }}
+            </td>
+            <td>{{ product.availableQty }} {{ product.unit }}</td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="summary"></ng-template>
+      </p-table>
+    </p-panel>
+  </div>
+  <div *ngIf="this.showApprovalData" class="col-md-12 padding-non">
+    <p-panel header="Customer Pending For Approvals">
+      <div class="row">
+        <div class="col-lg-12 col-md-12">
+          <table class="table">
+            <thead>
+              <tr>
+                <th width="30%">Name</th>
+                <th width="20%">Username</th>
+                <th width="20%">Mobile Number</th>
+                <th width="20%">Created Data</th>
+                <th width="10%">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="
+                  let data of customerListData
+                    | paginate
+                      : {
+                          id: 'customerListpageData1',
+                          itemsPerPage: customerListdataitemsPerPage,
+                          currentPage: currentPagecustomerListdata,
+                          totalItems: customerListdatatotalRecords
+                        };
+                  index as i
+                "
+              >
+                <td>{{ data.firstname }} {{ data.lastname }}</td>
+                <td>{{ data.username }}</td>
+                <td>{{ data.countryCode }} {{ data.mobile }}</td>
+                <td>{{ data.createdate }}</td>
+                <td>
+                  <button
+                    (click)="isCustDocPending(data.id, data.nextCafApprover)"
+                    class="approve-btn"
+                    style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                    title="Approve"
+                    type="button"
+                  >
+                    <img src="assets/img/assign.jpg" />
+                  </button>
+                  <button
+                    (click)="rejectCustomerCAFOpen(data.id, data.nextCafApprover)"
+                    class="approve-btn"
+                    style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                    title="Reject"
+                    type="button"
+                  >
+                    <img src="assets/img/reject.jpg" />
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="display: flex">
+            <pagination-controls
+              (pageChange)="pageChangedForCustomerApprovals($event)"
+              [directionLinks]="true"
+              id="customerListpageData1"
+              [maxSize]="10"
+              nextLabel=""
+              previousLabel=""
+            ></pagination-controls>
+            <div id="itemPerPageDropdown">
+              <p-dropdown
+                (onChange)="totalItemPerPageForCustomerApprovals($event)"
+                [options]="pageLimitOptions"
+                optionLabel="value"
+                optionValue="value"
+              ></p-dropdown>
+            </div>
+          </div>
+        </div>
+      </div>
+    </p-panel>
+  </div>
+  <div *ngIf="this.showApprovalData" class="col-md-12 padding-non">
+    <p-panel header="Customer Pending For Termination Approvals">
+      <div class="row">
+        <div class="col-lg-12 col-md-12">
+          <table class="table">
+            <thead>
+              <tr>
+                <th width="30%">Name</th>
+                <th width="20%">Username</th>
+                <th width="20%">Mobile Number</th>
+                <th width="20%">Created Data</th>
+                <th width="10%">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="
+                  let data of customerTerminationListData
+                    | paginate
+                      : {
+                          id: 'customerListpageDataTermination',
+                          itemsPerPage: customerTerminationListdataitemsPerPage,
+                          currentPage: currentPagecustomerTerminationListdata,
+                          totalItems: customerTerminationListdatatotalRecords
+                        };
+                  index as i
+                "
+              >
+                <td>{{ data.firstname }} {{ data.lastname }}</td>
+                <td>{{ data.username }}</td>
+                <td>{{ data.countryCode }} {{ data.mobile }}</td>
+                <td>{{ data.createdate }}</td>
+                <td>
+                  <button
+                    (click)="approveCutomerstatusModalOpen(data.id)"
+                    class="approve-btn"
+                    style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                    title="Approve"
+                    type="button"
+                  >
+                    <img src="assets/img/assign.jpg" />
+                  </button>
+                  <button
+                    (click)="rejectCustomerstatusModalOpen(data.id)"
+                    class="approve-btn"
+                    style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                    title="Reject"
+                    type="button"
+                  >
+                    <img src="assets/img/reject.jpg" />
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="display: flex">
+            <pagination-controls
+              (pageChange)="pageChangedForCustomerTerminationApprovals($event)"
+              [directionLinks]="true"
+              id="customerListpageDataTermination"
+              [maxSize]="10"
+              nextLabel=""
+              previousLabel=""
+            ></pagination-controls>
+            <div id="itemPerPageDropdown">
+              <p-dropdown
+                (onChange)="totalItemPerPageForCustomerTerminationApprovals($event)"
+                [options]="pageLimitOptions"
+                optionLabel="value"
+                optionValue="value"
+              ></p-dropdown>
+            </div>
+          </div>
+        </div>
+      </div>
+    </p-panel>
+  </div>
+  <div>
+    <div *ngIf="this.showApprovalData" class="col-md-12 padding-non">
+      <p-panel header="Plans Pending For Approvals">
+        <div class="row">
+          <div class="col-lg-12 col-md-12">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th width="30%">Name</th>
+                  <th width="20%">Code</th>
+                  <th width="10%">Mode</th>
+                  <th width="10%">Created By</th>
+                  <th width="20%">Created Date</th>
+                  <th width="10%">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="
+                    let data of planListData
+                      | paginate
+                        : {
+                            id: 'planListpageData',
+                            itemsPerPage: planListdataitemsPerPage,
+                            currentPage: currentPagePlanListdata,
+                            totalItems: planListdatatotalRecords
+                          };
+                    index as i
+                  "
+                >
+                  <td>{{ data.name }}</td>
+                  <td>{{ data.code }}</td>
+                  <td>{{ data.mode }}</td>
+                  <td>{{ data.createdByName }}</td>
+                  <td>{{ data.createdate }}</td>
+                  <td>
+                    <button
+                      (click)="approvePlanOpen(data.id, '')"
+                      class="approve-btn"
+                      style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                      title="Approve"
+                      type="button"
+                    >
+                      <img src="assets/img/assign.jpg" />
+                    </button>
+                    <button
+                      (click)="rejectPlanOpen(data.id, '')"
+                      class="approve-btn"
+                      style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                      title="Reject"
+                      type="button"
+                    >
+                      <img src="assets/img/reject.jpg" />
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="display: flex">
+              <pagination-controls
+                (pageChange)="pageChangedForPlanApprovals($event)"
+                [directionLinks]="true"
+                id="planListpageData"
+                [maxSize]="10"
+                nextLabel=""
+                previousLabel=""
+              ></pagination-controls>
+              <div id="itemPerPageDropdown">
+                <p-dropdown
+                  (onChange)="totalItemPerPageForPlanApprovals($event)"
+                  [options]="pageLimitOptionsForPlan"
+                  optionLabel="value"
+                  optionValue="value"
+                ></p-dropdown>
+              </div>
+            </div>
+          </div>
+        </div>
+      </p-panel>
+    </div>
+  </div>
+  <div>
+    <div *ngIf="this.showApprovalData" class="col-md-12 padding-non">
+      <p-panel header="Plan Group Pending For Approvals">
+        <div class="row">
+          <div class="col-lg-12 col-md-12">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th width="30%">Name</th>
+                  <th width="10%">Type</th>
+                  <th width="10%">Plan Type</th>
+                  <th width="20%">Created By</th>
+                  <th width="20%">Created Date</th>
+                  <th width="10%">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="
+                    let data of planGroupListData
+                      | paginate
+                        : {
+                            id: 'planGroupListpageData',
+                            itemsPerPage: planGroupListdataitemsPerPage,
+                            currentPage: currentPagePlanGroupListdata,
+                            totalItems: planGroupListdatatotalRecords
+                          };
+                    index as i
+                  "
+                >
+                  <td>{{ data.planGroupName }}</td>
+                  <td>{{ data.planGroupType }}</td>
+                  <td>{{ data.plantype }}</td>
+                  <td>{{ data.createdByName }}</td>
+                  <td>{{ data.createdate }}</td>
+                  <td>
+                    <button
+                      (click)="approvePlanGroupOpen(data.planGroupId, '')"
+                      class="approve-btn"
+                      style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                      title="Approve"
+                      type="button"
+                    >
+                      <img src="assets/img/assign.jpg" />
+                    </button>
+                    <button
+                      (click)="rejectPlanGroupOpen(data.planGroupId, '')"
+                      class="approve-btn"
+                      style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                      title="Reject"
+                      type="button"
+                    >
+                      <img src="assets/img/reject.jpg" />
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="display: flex">
+              <pagination-controls
+                (pageChange)="pageChangedForPlanGroupApprovals($event)"
+                [directionLinks]="true"
+                id="planGroupListpageData"
+                [maxSize]="10"
+                nextLabel=""
+                previousLabel=""
+              ></pagination-controls>
+              <div id="itemPerPageDropdown">
+                <p-dropdown
+                  (onChange)="totalItemPerPageForPlanGroupApprovals($event)"
+                  [options]="pageLimitOptionsForPlanGroup"
+                  optionLabel="value"
+                  optionValue="value"
+                ></p-dropdown>
+              </div>
+            </div>
+          </div>
+        </div>
+      </p-panel>
+    </div>
+  </div>
+  <div>
+    <div *ngIf="this.showApprovalData" class="col-md-12 padding-non">
+      <p-panel header="Payment Pending For Approvals">
+        <div class="row">
+          <div class="col-lg-12 col-md-12">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th width="20%">Mode</th>
+                  <th width="20%">Reciept Number</th>
+                  <th width="10%">Amount</th>
+                  <th width="10%">Payment Date</th>
+                  <th width="10%">Created By</th>
+                  <th width="20%">Created Date</th>
+                  <th width="10%">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="
+                    let data of paymentListData
+                      | paginate
+                        : {
+                            id: 'paymentListpageData',
+                            itemsPerPage: paymentListdataitemsPerPage,
+                            currentPage: currentPagePaymentListdata,
+                            totalItems: paymentListdatatotalRecords
+                          };
+                    index as i
+                  "
+                >
+                  <td>{{ data.paymode }}</td>
+                  <td>{{ data.receiptNo }}</td>
+                  <td>{{ data.amount }}</td>
+                  <td>{{ data.paymentdate }}</td>
+                  <td>{{ data.createdByName }}</td>
+                  <td>{{ data.createdate }}</td>
+                  <td>
+                    <button
+                      (click)="approvePaymentModalOpen(data)"
+                      class="approve-btn"
+                      style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                      title="Approve"
+                      type="button"
+                    >
+                      <img src="assets/img/assign.jpg" />
+                    </button>
+                    <button
+                      (click)="rejectPaymentModalOpen(data)"
+                      class="approve-btn"
+                      style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                      title="Reject"
+                      type="button"
+                    >
+                      <img src="assets/img/reject.jpg" />
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="display: flex">
+              <pagination-controls
+                (pageChange)="pageChangedForPaymentApprovals($event)"
+                [directionLinks]="true"
+                id="paymentListpageData"
+                [maxSize]="10"
+                nextLabel=""
+                previousLabel=""
+              ></pagination-controls>
+              <div id="itemPerPageDropdown">
+                <p-dropdown
+                  (onChange)="totalItemPerPageForPaymentApprovals($event)"
+                  [options]="pageLimitOptionsForPayment"
+                  optionLabel="value"
+                  optionValue="value"
+                ></p-dropdown>
+              </div>
+            </div>
+          </div>
+        </div>
+      </p-panel>
+    </div>
+  </div>
+  <div>
+    <div *ngIf="this.showApprovalData" class="col-md-12 padding-non">
+      <p-panel header="Ticket Pending For Approvals">
+        <div class="row">
+          <div class="col-lg-12 col-md-12">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th width="30%">Type</th>
+                  <th width="20%">Number</th>
+                  <th width="20%">Customer Name</th>
+                  <th width="20%">Problem Domain</th>
+                  <th width="10%">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="
+                    let data of caseListData
+                      | paginate
+                        : {
+                            id: 'casepageData',
+                            itemsPerPage: caseListdataitemsPerPage,
+                            currentPage: currentPageCaseListdata,
+                            totalItems: caseListdatatotalRecords
+                          };
+                    index as i
+                  "
+                >
+                  <td>{{ data.caseType }}</td>
+                  <td>{{ data.caseNumber }}</td>
+                  <td>{{ data.customerName }}</td>
+                  <td>{{ data.caseReasonCategory }}</td>
+                  <td>
+                    <button
+                      (click)="approveTicket(data)"
+                      class="approve-btn"
+                      style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                      title="Approve"
+                      type="button"
+                    >
+                      <img src="assets/img/assign.jpg" />
+                    </button>
+                    <button
+                      (click)="rejectTicket(data)"
+                      class="approve-btn"
+                      style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                      title="Reject"
+                      type="button"
+                    >
+                      <img src="assets/img/reject.jpg" />
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="display: flex">
+              <pagination-controls
+                (pageChange)="pageChangedForCaseApprovals($event)"
+                [directionLinks]="true"
+                id="casepageData"
+                [maxSize]="10"
+                nextLabel=""
+                previousLabel=""
+              ></pagination-controls>
+              <div id="itemPerPageDropdown">
+                <p-dropdown
+                  (onChange)="totalItemPerPageForCaseApprovals($event)"
+                  [options]="pageLimitOptions"
+                  optionLabel="value"
+                  optionValue="value"
+                ></p-dropdown>
+              </div>
+            </div>
+          </div>
+        </div>
+      </p-panel>
+    </div>
+  </div>
+  <div>
+    <div *ngIf="this.showApprovalData" class="col-md-12 padding-non">
+      <p-panel header="Change Discount Pending For Approvals">
+        <div class="row">
+          <div class="col-lg-12 col-md-12">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th width="20%">Connection No</th>
+                  <th width="10%">Old Discount (%)</th>
+                  <th width="20%">New Discount (%)</th>
+                  <!-- <th width="20%">End Date</th> -->
+                  <th width="10%">Status</th>
+                  <th width="10%">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="
+                    let data of changeDiscountListData
+                      | paginate
+                        : {
+                            id: 'changeDiscountpageData',
+                            itemsPerPage: changeDiscountListdataitemsPerPage,
+                            currentPage: currentPageChangeDiscountListdata,
+                            totalItems: changeDiscountListdatatotalRecords
+                          };
+                    index as i
+                  "
+                >
+                  <td>
+                    {{ data.connectionNo }}
+                    <!-- <select
+                    [value]="data.planId"
+                    class="form-control"
+                    disabled
+                    id="planId"
+                    name="planId"
+                    style="width: 100%"
+                  >
+                    <option value="">Current Plan</option>
+                    <option
+                      *ngFor="let item of commondropdownService.postpaidplanData"
+                      value="{{ item.id }}"
+                    >
+                      {{ item.name }}
+                    </option>
+                  </select> -->
+                  </td>
+                  <!-- <td *ngIf="oldDiscValue !== data.planId" (click)="oldDiscValueEdit(data.planId)">
+                <div style="padding: 8px;">
+                  {{ data.oldDiscount }}
+                </div>
+              </td> -->
+                  <td>{{ data.discount }}%</td>
+                  <td>
+                    <div style="padding: 8px">{{ data.newDiscount }}%</div>
+                  </td>
+                  <!-- <td>
+                    <div style="padding: 8px">
+                      {{ data.endDate | date : "yyyy-MM-dd" }}
+                    </div>
+                  </td> -->
+                  <td>
+                    {{ data.status }}
+                  </td>
+                  <td>
+                    <button
+                      (click)="discountApporeved(data)"
+                      class="approve-btn"
+                      style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                      title="Approve"
+                      type="button"
+                    >
+                      <img src="assets/img/assign.jpg" />
+                    </button>
+                    <button
+                      (click)="discountRejected(data)"
+                      class="approve-btn"
+                      style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                      title="Reject"
+                      type="button"
+                    >
+                      <img src="assets/img/reject.jpg" />
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="display: flex">
+              <pagination-controls
+                (pageChange)="pageChangedForChangeDiscountApprovals($event)"
+                [directionLinks]="true"
+                id="changeDiscountpageData"
+                [maxSize]="10"
+                nextLabel=""
+                previousLabel=""
+              ></pagination-controls>
+              <div id="itemPerPageDropdown">
+                <p-dropdown
+                  (onChange)="totalItemPerPageForChangeDiscountApprovals($event)"
+                  [options]="pageLimitOptions"
+                  optionLabel="value"
+                  optionValue="value"
+                ></p-dropdown>
+              </div>
+            </div>
+          </div>
+        </div>
+      </p-panel>
+    </div>
+  </div>
+  <div>
+    <div *ngIf="this.showApprovalData" class="col-md-12 padding-non">
+      <p-panel header="Invoices Pending For Approvals">
+        <div class="row">
+          <div class="col-lg-12 col-md-12">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th width="30%">Document Number</th>
+                  <th width="20%">Customer Name</th>
+                  <th width="20%">Create Date</th>
+                  <th width="20%">Amount</th>
+                  <th width="10%">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="
+                    let data of invoiceListData
+                      | paginate
+                        : {
+                            id: 'invoicepageData',
+                            itemsPerPage: invoiceListdataitemsPerPage,
+                            currentPage: currentPageInvoiceListdata,
+                            totalItems: invoiceListdatatotalRecords
+                          };
+                    index as i
+                  "
+                >
+                  <td>{{ data.docnumber }}</td>
+                  <td>{{ data.custRefName }}</td>
+                  <td>{{ data.createdate }}</td>
+                  <td>{{ data.totalamount }}</td>
+                  <td>
+                    <button
+                      (click)="approveRejectInvoice(data.id, true)"
+                      class="approve-btn"
+                      style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                      title="Approve"
+                      type="button"
+                    >
+                      <img src="assets/img/assign.jpg" />
+                    </button>
+                    <button
+                      (click)="approveRejectInvoice(data.id, false)"
+                      class="approve-btn"
+                      style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                      title="Reject"
+                      type="button"
+                    >
+                      <img src="assets/img/reject.jpg" />
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="display: flex">
+              <pagination-controls
+                (pageChange)="pageChangedForInvoiceApprovals($event)"
+                [directionLinks]="true"
+                id="invoicepageData"
+                [maxSize]="10"
+                nextLabel=""
+                previousLabel=""
+              ></pagination-controls>
+              <div id="itemPerPageDropdown">
+                <p-dropdown
+                  (onChange)="totalItemPerPageForInvoiceApprovals($event)"
+                  [options]="pageLimitOptions"
+                  optionLabel="value"
+                  optionValue="value"
+                ></p-dropdown>
+              </div>
+            </div>
+          </div>
+        </div>
+      </p-panel>
+    </div>
+  </div>
+  <div>
+    <div *ngIf="this.showApprovalData" class="col-md-12 padding-non">
+      <p-panel header="Partner Payment">
+        <div class="row">
+          <div class="col-lg-12 col-md-12">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th width="30%">Partner Name</th>
+                  <th width="20%">Transaction Category</th>
+                  <th width="20%">Payment Mode</th>
+                  <th width="20%">Amount</th>
+                  <th width="10%">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="
+                    let data of partnerPaymentListData
+                      | paginate
+                        : {
+                            id: 'partnerPaymentpageData',
+                            itemsPerPage: partnerPaymentListdataitemsPerPage,
+                            currentPage: currentPagePartnerPaymentListdata,
+                            totalItems: partnerPaymentListdatatotalRecords
+                          };
+                    index as i
+                  "
+                >
+                  <td>{{ data.partnerName }}</td>
+                  <td>{{ data.transcategory }}</td>
+                  <td>{{ data.paymentmode }}</td>
+                  <td>{{ data.amount }}</td>
+                  <td>
+                    <button
+                      (click)="approvePartnerBalanceOpen(data.id, '')"
+                      class="approve-btn"
+                      style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                      title="Approve"
+                      type="button"
+                    >
+                      <img src="assets/img/assign.jpg" />
+                    </button>
+                    <button
+                      (click)="rejectPartnerBalanceOpen(data.id, '')"
+                      class="approve-btn"
+                      style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                      title="Reject"
+                      type="button"
+                    >
+                      <img src="assets/img/reject.jpg" />
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="display: flex">
+              <pagination-controls
+                (pageChange)="pageChangedForPartnerPaymentApprovals($event)"
+                [directionLinks]="true"
+                id="partnerPaymentpageData"
+                [maxSize]="10"
+                nextLabel=""
+                previousLabel=""
+              ></pagination-controls>
+              <div id="itemPerPageDropdown">
+                <p-dropdown
+                  (onChange)="totalItemPerPageForPartnerPaymentApprovals($event)"
+                  [options]="pageLimitOptions"
+                  optionLabel="value"
+                  optionValue="value"
+                ></p-dropdown>
+              </div>
+            </div>
+          </div>
+        </div>
+      </p-panel>
+    </div>
+  </div>
+  <div>
+    <div *ngIf="this.showApprovalData && statusCheckService.isActiveSalesCrm">
+      <p-panel header="Open Lead">
+        <div class="row">
+          <div class="col-lg-12 col-md-12" *ngIf="leadListData?.length > 0">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th width="14%">Customer Name</th>
+                  <th width="13%">Mobile Number</th>
+                  <th width="10%">Lead Source</th>
+                  <th width="18%">Lead Sub Source</th>
+                  <th width="14%">Status</th>
+                  <th width="18%">Assignee Name</th>
+                  <th width="18%">No. of FollowUp Counts</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="
+                    let data of leadListData
+                      | paginate
+                        : {
+                            id: 'leadListpageData',
+                            itemsPerPage: leadListdataitemsPerPage,
+                            currentPage: currentPageLeadListdata,
+                            totalItems: leadListdatatotalRecords
+                          };
+                    index as i
+                  "
+                >
+                  <td *ngIf="data.firstname || data.lastname">
+                    {{ data.title }} {{ data.firstname }} {{ data.lastname }}
+                  </td>
+                  <td *ngIf="!data.firstname && !data.lastname">-</td>
+                  <td *ngIf="data.mobile">{{ data.mobile }}</td>
+                  <td *ngIf="!data.mobile">-</td>
+  
+                  <td *ngIf="data.leadSourceName">{{ data.leadSourceName }}</td>
+                  <td *ngIf="!data.leadSourceName">-</td>
+  
+                  <td *ngIf="data.leadSubSourceId">{{ data.leadSubSourceName }}</td>
+                  <td *ngIf="data.leadAgentId">{{ data.leadAgentName }}</td>
+                  <td *ngIf="data.leadBranchId">{{ data.leadBranchName }}</td>
+                  <td *ngIf="data.leadCustomerId">{{ data.leadCustomerName }}</td>
+                  <td *ngIf="data.leadPartnerId">{{ data.leadPartnerName }}</td>
+                  <td *ngIf="data.leadServiceAreaId">{{ data.leadServiceAreaName }}</td>
+                  <td *ngIf="data.leadStaffId">{{ data.leadStaffName }}</td>
+                  <td
+                    *ngIf="
+                      !data.leadSubSourceId &&
+                      !data.leadAgentId &&
+                      !data.leadBranchId &&
+                      !data.leadCustomerId &&
+                      !data.leadPartnerId &&
+                      !data.leadServiceAreaId &&
+                      !data.leadStaffId
+                    "
+                  >
+                    -
+                  </td>
+  
+                  <td *ngIf="data.leadStatus === 'Inquiry'">
+                    <span class="badge badge-success">{{ data.leadStatus }}</span>
+                  </td>
+                  <td *ngIf="data.leadStatus === 'Rejected'">
+                    <span class="badge badge-danger">{{ data.leadStatus }}</span>
+                  </td>
+                  <td *ngIf="data.leadStatus === 'Re-Inquiry'">
+                    <span class="badge badge-info">{{ data.leadStatus }}</span>
+                  </td>
+                  <td *ngIf="data.leadStatus === 'Converted'">
+                    <span class="badge badge-success">{{ data.leadStatus }}</span>
+                  </td>
+                  <td *ngIf="!data.leadStatus">-</td>
+                  <td *ngIf="data.assigneeName">{{ data.assigneeName }}</td>
+                  <td
+                    *ngIf="
+                      !data.assigneeName &&
+                      (data.leadStatus === 'Inquiry' || data.leadStatus === 'Re-Inquiry')
+                    "
+                    data-bs-toggle="tooltip"
+                    data-placement="bottom"
+                    title="Lead Assignee process is running. Please wait for few seconds and refresh the lead data and try again."
+                  >
+                    In Progress
+                  </td>
+                  <td *ngIf="!data.assigneeName && data.leadStatus === 'Converted'">-</td>
+                  <td>{{ data.leadFollowUpCount }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="display: flex">
+              <pagination-controls
+                id="leadListpageData"
+                [maxSize]="10"
+                [directionLinks]="true"
+                previousLabel=""
+                nextLabel=""
+                (pageChange)="pageChangedLeadList($event)"
+              >
+              </pagination-controls>
+              <div id="itemPerPageDropdown">
+                <p-dropdown
+                  [options]="pageLimitOptions"
+                  optionLabel="value"
+                  optionValue="value"
+                  (onChange)="TotalItemPerPage($event)"
+                ></p-dropdown>
+              </div>
+            </div>
+          </div>
+        </div>
+      </p-panel>
+    </div>
+  </div>
+  <div
+    class="modal fade"
+    id="assignCustomerCAFModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="myModalLabel"
+  >
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title" id="myModalLabel" style="color: #fff !important">
+            Approve
+            {{
+              planID
+                ? "Plan"
+                : planGroupID
+                  ? "Plan Group"
+                  : planGroupID
+                    ? "Partner Balance"
+                    : customerDocumentId
+                      ? "Customer Document"
+                      : "Customer"
+            }}
+          </h4>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="assignCustomerCAFForm">
+            <div class="row">
+              <div *ngIf="approved" class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="card">
+                  <h5>Select Staff</h5>
+                  <p-table [value]="approveCAF" [(selection)]="selectStaff" responsiveLayout="scroll">
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <th style="width: 3rem"></th>
+                        <th>Name</th>
+                        <th>Username</th>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-product>
+                      <tr>
+                        <td>
+                          <p-tableRadioButton [value]="product.id"></p-tableRadioButton>
+                        </td>
+                        <td>{{ product.fullName }}</td>
+                        <td>
+                          {{ product.username }}
+                        </td>
+                      </tr>
+                    </ng-template>
+                  </p-table>
+                </div>
+              </div>
+              <div *ngIf="!approved" class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <label>Remark*</label>
+                <textarea
+                  class="form-control"
+                  name="remark"
+                  formControlName="remark"
+                  [ngClass]="{
+                    'is-invalid':
+                      assignCustomerCAFsubmitted && assignCustomerCAFForm.controls['remark'].errors
+                  }"
+                ></textarea>
+                <div
+                  class="errorWrap text-danger"
+                  *ngIf="assignCustomerCAFsubmitted && assignCustomerCAFForm.controls['remark'].errors"
+                >
+                  <div
+                    class="error text-danger"
+                    *ngIf="
+                      assignCustomerCAFsubmitted &&
+                      assignCustomerCAFForm.controls['remark'].errors['required']
+                    "
+                  >
+                    Remark is required.
+                  </div>
+                </div>
+                <br />
+              </div>
+            </div>
+            <!-- <input type="file" formControlName="fileName" name="fileName"> -->
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button
+            *ngIf="!approved"
+            type="submit"
+            class="btn btn-primary"
+            id="submit"
+            (click)="assignCustomerCAF()"
+          >
+            <i class="fa fa-check-circle"></i>
+            Approve
+          </button>
+          <button
+            *ngIf="approved"
+            type="submit"
+            class="btn btn-primary"
+            id="submit"
+            (click)="assignToStaff(true)"
+          >
+            <i class="fa fa-check-circle"></i>
+            Assign
+          </button>
+  
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="modal fade"
+    id="rejectCustomerCAFModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="myModalLabel"
+  >
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title" id="myModalLabel" style="color: #fff !important">
+            Reject
+            {{
+              planID
+                ? "Plan"
+                : planGroupID
+                  ? "Plan Group"
+                  : planGroupID
+                    ? "Partner Balance"
+                    : "Customer"
+            }}
+          </h4>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="rejectCustomerCAFForm">
+            <div class="row">
+              <div *ngIf="reject" class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="card">
+                  <h5>Select Staff</h5>
+                  <p-table
+                    [value]="rejectCAF"
+                    [(selection)]="selectStaffReject"
+                    responsiveLayout="scroll"
+                  >
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <th style="width: 3rem"></th>
+                        <th>Name</th>
+                        <th>Username</th>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-product>
+                      <tr>
+                        <td>
+                          <p-tableRadioButton [value]="product.id"></p-tableRadioButton>
+                        </td>
+                        <td>{{ product.fullName }}</td>
+                        <td>
+                          {{ product.username }}
+                        </td>
+                      </tr>
+                    </ng-template>
+                  </p-table>
+                </div>
+              </div>
+              <div *ngIf="!reject" class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <label>Remark*</label>
+                <textarea
+                  class="form-control"
+                  name="remark"
+                  formControlName="remark"
+                  [ngClass]="{
+                    'is-invalid':
+                      assignCustomerCAFsubmitted && assignCustomerCAFForm.controls['remark'].errors
+                  }"
+                ></textarea>
+                <div
+                  class="errorWrap text-danger"
+                  *ngIf="assignCustomerCAFsubmitted && assignCustomerCAFForm.controls['remark'].errors"
+                >
+                  <div
+                    class="error text-danger"
+                    *ngIf="
+                      assignCustomerCAFsubmitted &&
+                      assignCustomerCAFForm.controls['remark'].errors['required']
+                    "
+                  >
+                    Remark is required.
+                  </div>
+                </div>
+                <br />
+              </div>
+            </div>
+            <!-- <input type="file" formControlName="fileName" name="fileName"> -->
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button
+            *ngIf="!reject"
+            type="submit"
+            class="btn btn-primary"
+            id="submit"
+            (click)="rejectCustomerCAF()"
+          >
+            <i class="fa fa-times-circle"></i>
+            Reject
+          </button>
+          <button
+            *ngIf="reject && !selectStaffReject"
+            type="submit"
+            class="btn btn-primary"
+            id="submit"
+            disabled
+            (click)="assignToStaff(false)"
+          >
+            <i class="fa fa-times-circle"></i>
+            Assign
+          </button>
+          <button
+            *ngIf="reject && selectStaffReject"
+            type="submit"
+            class="btn btn-primary"
+            id="submit"
+            (click)="assignToStaff(false)"
+          >
+            <i class="fa fa-times-circle"></i>
+            Assign
+          </button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div
+    aria-labelledby="myModalLabel"
+    class="modal fade"
+    id="assignCustomerInventoryModal"
+    role="dialog"
+    tabindex="-1"
+  >
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title" id="myModalLabel" style="color: #fff !important">Assign Staff</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div *ngIf="approved" class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+              <div class="card">
+                <h5>Select Staff</h5>
+                <p-table
+                  [(selection)]="selectStaff"
+                  [value]="approveInventoryData"
+                  responsiveLayout="scroll"
+                >
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <th style="width: 3rem"></th>
+                      <th>Name</th>
+                      <th>Username</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template let-product pTemplate="body">
+                    <tr>
+                      <td>
+                        <p-tableRadioButton [value]="product.id"></p-tableRadioButton>
+                      </td>
+                      <td>{{ product.fullName }}</td>
+                      <td>
+                        {{ product.username }}
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
+            </div>
+          </div>
+          <!-- <input type="file" formControlName="fileName" name="fileName"> -->
+        </div>
+        <div class="modal-footer">
+          <button
+            (click)="assignToStaffCAF(true)"
+            *ngIf="approved"
+            class="btn btn-primary"
+            [disabled]="!selectStaff"
+            id="submit"
+            type="submit"
+          >
+            <i class="fa fa-check-circle"></i>
+            Assign
+          </button>
+          <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    aria-labelledby="myModalLabel"
+    class="modal fade"
+    id="rejectCustomerInventoryModal"
+    role="dialog"
+    tabindex="-1"
+  >
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title" id="myModalLabel" style="color: #fff !important">Assign Staff</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div *ngIf="reject" class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+              <div class="card">
+                <h5>Select Staff</h5>
+                <p-table
+                  [(selection)]="selectStaffReject"
+                  [value]="rejectInventoryData"
+                  responsiveLayout="scroll"
+                >
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <th style="width: 3rem"></th>
+                      <th>Name</th>
+                      <th>Username</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template let-product pTemplate="body">
+                    <tr>
+                      <td>
+                        <p-tableRadioButton [value]="product.id"></p-tableRadioButton>
+                      </td>
+                      <td>{{ product.fullName }}</td>
+                      <td>
+                        {{ product.username }}
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
+            </div>
+          </div>
+          <!-- <input type="file" formControlName="fileName" name="fileName"> -->
+        </div>
+        <div class="modal-footer">
+          <button
+            (click)="assignToStaffCAF(false)"
+            *ngIf="reject"
+            class="btn btn-primary"
+            id="submit"
+            type="submit"
+          >
+            <i class="fa fa-times-circle"></i>
+            Assign
+          </button>
+          <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div
+    aria-labelledby="myModalLabel"
+    class="modal fade"
+    id="rejectApproveDiscountModal"
+    role="dialog"
+    tabindex="-1"
+  >
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title" id="myModalLabel" style="color: #fff !important">
+            {{ AppRjecHeader }} Discount
+          </h4>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="assignAppRejectDiscountForm">
+            <div class="row">
+              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <label>Remark*</label>
+                <textarea
+                  [ngClass]="{
+                    'is-invalid':
+                      assignDiscounsubmitted && assignAppRejectDiscountForm.controls['remark'].errors
+                  }"
+                  class="form-control"
+                  formControlName="remark"
+                  name="remark"
+                ></textarea>
+                <div
+                  *ngIf="assignDiscounsubmitted && assignAppRejectDiscountForm.controls['remark'].errors"
+                  class="errorWrap text-danger"
+                >
+                  <div
+                    *ngIf="
+                      assignDiscounsubmitted &&
+                      assignAppRejectDiscountForm.controls['remark'].errors['required']
+                    "
+                    class="error text-danger"
+                  >
+                    Remark is required.
+                  </div>
+                </div>
+                <br />
+              </div>
+            </div>
+            <!-- <input type="file" formControlName="fileName" name="fileName"> -->
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button
+            (click)="assignDiscountApprove()"
+            [disabled]="!assignAppRejectDiscountForm.valid"
+            class="btn btn-primary"
+            id="submit"
+            type="submit"
+          >
+            <i class="fa fa-times-circle"></i>
+            {{ AppRjecHeader }}
+          </button>
+          <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Remark Model -->
+  
+  <div
+    aria-labelledby="myModalLabel"
+    class="modal fade"
+    id="ApproveRejectRemarkModal"
+    role="dialog"
+    tabindex="-1"
+  >
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4
+            class="modal-title"
+            id="myModalLabel"
+            style="color: #fff !important"
+            *ngIf="ifApproveStatus"
+          >
+            Approve
+            <span *ngIf="ifShowRemarkMoedl == 'Customer'"> Status</span>
+            <span *ngIf="ifShowRemarkMoedl == 'Payment'"> Payment</span>
+            <span *ngIf="ifShowRemarkMoedl == 'Ticket'"> Ticket</span>
+          </h4>
+          <h4
+            class="modal-title"
+            id="myModalLabel"
+            style="color: #fff !important"
+            *ngIf="!ifApproveStatus"
+          >
+            Reject
+            <span *ngIf="ifShowRemarkMoedl == 'Customer'"> Status</span>
+            <span *ngIf="ifShowRemarkMoedl == 'Payment'"> Payment</span>
+            <span *ngIf="ifShowRemarkMoedl == 'Ticket'"> Ticket</span>
+          </h4>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+              <label>Remark</label>
+              <textarea
+                [(ngModel)]="approveRejectRemark"
+                placeholder="Remarks"
+                class="form-control"
+                name="remark"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer" style="display: flex; justify-content: flex-end">
+          <button
+            (click)="statusApporevedRejected()"
+            [disabled]="!approveRejectRemark"
+            class="btn btn-primary"
+            id="submit"
+            type="submit"
+            *ngIf="ifShowRemarkMoedl == 'Customer'"
+          >
+            <i class="fa fa-check-circle"></i>
+            Save
+          </button>
+          <div
+            *ngIf="ifShowRemarkMoedl == 'Payment'"
+            style="display: flex; justify-content: flex-end"
+          >
+            <button
+              *ngIf="ifApproveStatus"
+              (click)="statusApporeved()"
+              [disabled]="!approveRejectRemark"
+              class="btn btn-primary"
+              id="submit"
+              type="submit"
+              style="margin-right: 1rem"
+            >
+              <i class="fa fa-check-circle"></i>
+              Save
+            </button>
+            <button
+              *ngIf="!ifApproveStatus"
+              (click)="statusRejected()"
+              [disabled]="!approveRejectRemark"
+              class="btn btn-primary"
+              id="submit"
+              type="submit"
+              style="margin-right: 1rem"
+            >
+              <i class="fa fa-check-circle"></i>
+              Save
+            </button>
+          </div>
+  
+          <div *ngIf="ifShowRemarkMoedl == 'Ticket'" style="display: flex; justify-content: flex-end">
+            <button
+              *ngIf="ifApproveStatus"
+              (click)="statusApporevedTicket()"
+              [disabled]="!approveRejectRemark"
+              class="btn btn-primary"
+              id="submit"
+              type="submit"
+              style="margin-right: 1rem"
+            >
+              <i class="fa fa-check-circle"></i>
+              Save
+            </button>
+            <button
+              *ngIf="!ifApproveStatus"
+              (click)="statusRejectedTicket()"
+              [disabled]="!approveRejectRemark"
+              class="btn btn-primary"
+              id="submit"
+              type="submit"
+              style="margin-right: 1rem"
+            >
+              <i class="fa fa-check-circle"></i>
+              Save
+            </button>
+          </div>
+          <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="this.showProductQtyData" class="col-md-12 padding-non">
+    <p-panel header="Product Quantity of Staff">
+      <div class="row">
+        <div class="col-lg-12 col-md-12">
+          <table class="table">
+            <thead>
+              <tr>
+                <th width="30%">Product</th>
+                <th width="20%">Quantity</th>
+                <th width="20%">Used</th>
+                <th width="20%">Availability</th>
+                <th width="20%">InTransit Quantity</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="
+                  let data of productQTy
+                    | paginate
+                      : {
+                          id: 'productpageDataByStaff',
+                          itemsPerPage: productQtyListdataitemsPerPage,
+                          currentPage: currentPageProductQtyByStaffdata,
+                          totalItems: productQtytotalRecords
+                        };
+                  index as i
+                "
+              >
+                <td>{{ data.productName }}</td>
+                <td>{{ data.quantity }}</td>
+                <td>{{ data.usedQty }}</td>
+                <td>{{ data.unusedQty }}</td>
+                <td>{{ data.inTransitQty }}</td>
+                <!-- <td>
+                  <button
+                    class="approve-btn"
+                    style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                    title="Approve"
+                    type="button"
+                  >
+                    <img src="assets/img/assign.jpg" />
+                  </button>
+                  <button
+                    class="approve-btn"
+                    style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                    title="Reject"
+                    type="button"
+                  >
+                    <img src="assets/img/reject.jpg" />
+                  </button>
+                </td> -->
+              </tr>
+            </tbody>
+          </table>
+          <div style="display: flex">
+            <pagination-controls
+              (pageChange)="pageChangedForProductQtyByStaff($event)"
+              [directionLinks]="true"
+              id="productpageDataByStaff"
+              [maxSize]="10"
+              nextLabel=""
+              previousLabel=""
+            ></pagination-controls>
+            <div id="itemPerPageDropdown">
+              <p-dropdown
+                (onChange)="totalItemPerPageForProductQtyByStaff($event)"
+                [options]="pageLimitOptions"
+                optionLabel="value"
+                optionValue="value"
+              ></p-dropdown>
+            </div>
+          </div>
+        </div>
+      </div>
+    </p-panel>
+  </div>
+  <div *ngIf="this.showProductQtyData" class="col-md-12 padding-non">
+    <p-panel header="Product Quantity By WareHouse">
+      <div class="row">
+        <div class="col-lg-12 col-md-12">
+          <table class="table">
+            <thead>
+              <tr>
+                <th width="30%">Product</th>
+                <th width="30%">Warehouse</th>
+                <th width="20%">Quantity</th>
+                <th width="20%">Used</th>
+                <th width="20%">Availability</th>
+                <th width="20%">InTransit Quantity</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="
+                  let data of productQtyByWarehouse
+                    | paginate
+                      : {
+                          id: 'productpageDataByWarehouse',
+                          itemsPerPage: productQtyListdataitemsbywarehousePerPage,
+                          currentPage: currentPageProductQtyByWarehousedata,
+                          totalItems: productQtyByWarehousetotalRecords
+                        };
+                  index as i
+                "
+              >
+                <td>{{ data.productName }}</td>
+                <td>{{ data.wareHouseName }}</td>
+                <td>{{ data.quantity }}</td>
+                <td>{{ data.usedQty }}</td>
+                <td>{{ data.unusedQty }}</td>
+                <td>{{ data.inTransitQty }}</td>
+                <!-- <td>
+                  <button
+                    class="approve-btn"
+                    style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                    title="Approve"
+                    type="button"
+                  >
+                    <img src="assets/img/assign.jpg" />
+                  </button>
+                  <button
+                    class="approve-btn"
+                    style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                    title="Reject"
+                    type="button"
+                  >
+                    <img src="assets/img/reject.jpg" />
+                  </button>
+                </td> -->
+              </tr>
+            </tbody>
+          </table>
+          <div style="display: flex">
+            <pagination-controls
+              (pageChange)="pageChangedForProductQtyByWarehouse($event)"
+              [directionLinks]="true"
+              id="productpageDataByWarehouse"
+              [maxSize]="10"
+              nextLabel=""
+              previousLabel=""
+            ></pagination-controls>
+            <div id="itemPerPageDropdown">
+              <p-dropdown
+                (onChange)="totalItemPerPageForProductQtyByWarehouse($event)"
+                [options]="pageLimitOptions"
+                optionLabel="value"
+                optionValue="value"
+              ></p-dropdown>
+            </div>
+          </div>
+        </div>
+      </div>
+    </p-panel>
+  </div>
+  
+  <div *ngIf="this.showApprovalData" class="col-md-12 padding-non">
+    <p-panel header="Customer Document">
+      <div class="row">
+        <div class="col-lg-12 col-md-12">
+          <table class="table">
+            <thead>
+              <tr>
+                <th width="20%">Document Type</th>
+                <th width="20%">Customer Username</th>
+                <th width="20%">Document Sub Type</th>
+                <th width="15%">File Name</th>
+                <th width="15%">Mode</th>
+                <th width="10%">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="
+                  let data of customerDocListData
+                    | paginate
+                      : {
+                          id: 'customerDocpageData',
+                          itemsPerPage: customerDocListdataitemsPerPage,
+                          currentPage: currentPageCustomerDocListdata,
+                          totalItems: customerDocListdatatotalRecords
+                        };
+                  index as i
+                "
+              >
+                <td>{{ data.docType }}</td>
+                <td>{{ data.uniquename }}</td>
+                <td>{{ data.docSubType }}</td>
+                <td>{{ data.filename }}</td>
+                <td>{{ data.mode }}</td>
+                <td>
+                  <button
+                    (click)="approveCustomerDocumentOpen(data.docId, '')"
+                    class="approve-btn"
+                    style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                    title="Approve"
+                    type="button"
+                  >
+                    <img src="assets/img/assign.jpg" />
+                  </button>
+                  <button
+                    (click)="rejectCustomerDocumentOpen(data.docId, '')"
+                    class="approve-btn"
+                    style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                    title="Reject"
+                    type="button"
+                  >
+                    <img src="assets/img/reject.jpg" />
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="display: flex">
+            <pagination-controls
+              (pageChange)="pageChangedForCustomerDocApprovals($event)"
+              [directionLinks]="true"
+              id="customerDocpageData"
+              [maxSize]="10"
+              nextLabel=""
+              previousLabel=""
+            ></pagination-controls>
+            <div id="itemPerPageDropdown">
+              <p-dropdown
+                (onChange)="totalItemPerPageForCustomerDocApprovals($event)"
+                [options]="pageLimitOptionsCustomerDoc"
+                optionLabel="value"
+                optionValue="value"
+              ></p-dropdown>
+            </div>
+          </div>
+        </div>
+      </div>
+    </p-panel>
+  </div>
+  <div>
+    <div *ngIf="this.showApprovalData" class="col-md-12 padding-non">
+      <p-panel header="Special Plan Mapping For Approvals">
+        <div class="row">
+          <div class="col-lg-12 col-md-12">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Mapping Name</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="
+                    let data of specialPlanMappingData
+                      | paginate
+                        : {
+                            id: 'specialPlanMappingpageData',
+                            itemsPerPage: specialPlanMappingdataitemsPerPage,
+                            currentPage: currentPagespecialPlanMappingdata,
+                            totalItems: specialPlanMappingdatatotalRecords
+                          };
+                    index as i
+                  "
+                >
+                  <td>{{ data.mappingName }}</td>
+                  <td *ngIf="data.status == 'Active'">
+                    <span class="badge badge-success">Active</span>
+                  </td>
+                  <td *ngIf="data.status == 'NewActivation'">
+                    <span class="badge badge-success">New Activation</span>
+                  </td>
+                  <td *ngIf="data.status == 'Inactive'">
+                    <span class="badge badge-danger">Inactive</span>
+                  </td>
+                  <td>
+                    <button
+                      (click)="approvestatusSPMModalOpen(data)"
+                      class="approve-btn"
+                      style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                      title="Approve"
+                      type="button"
+                    >
+                      <img src="assets/img/assign.jpg" />
+                    </button>
+                    <button
+                      (click)="rejectstatusSPMModalOpen(data)"
+                      class="approve-btn"
+                      style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                      title="Reject"
+                      type="button"
+                    >
+                      <img src="assets/img/reject.jpg" />
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="display: flex">
+              <pagination-controls
+                (pageChange)="pageChangedForPaymentApprovals($event)"
+                [directionLinks]="true"
+                id="specialMappingListpageData"
+                [maxSize]="10"
+                nextLabel=""
+                previousLabel=""
+              ></pagination-controls>
+              <div id="itemPerPageDropdown">
+                <p-dropdown
+                  (onChange)="totalItemPerPageForSpecialPlanMapping($event)"
+                  [options]="pageLimitOptionsForMapping"
+                  optionLabel="value"
+                  optionValue="value"
+                ></p-dropdown>
+              </div>
+            </div>
+          </div>
+        </div>
+      </p-panel>
+    </div>
+  </div>
+  <div *ngIf="this.leadListFlag" class="col-md-12 padding-non">
+    <p-panel header="Your Assigned Lead List">
+      <div class="row">
+        <!-- <div class="col-lg-12 col-md-12" *ngIf="!viewAccess">
+          Sorry you have not privilege to view operation!
+        </div> -->
+        <div
+          class="col-lg-12 col-md-12"
+          *ngIf="assignedLeadListData && assignedLeadListData.length > 0"
+        >
+          <table class="table">
+            <thead>
+              <tr>
+                <th width="65%">Customer Name</th>
+                <th width="35%">Mobile Number</th>
+                <th width="40%">Lead Source</th>
+                <th width="45%">Lead Sub Source</th>
+                <th width="20%">Status</th>
+                <th width="36%">Assignee Name</th>
+                <th width="30%">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="
+                  let data of assignedLeadListData
+                    | paginate
+                      : {
+                          id: 'assignedLeadListpageData',
+                          itemsPerPage: assignedLeadListPageData,
+                          currentPage: currentPageAssignedLeadList,
+                          totalItems: assignedLeadListdatatotalRecords
+                        };
+                  index as i
+                "
+              >
+                <td *ngIf="data.firstname || data.lastname">
+                  {{ data.title }} {{ data.firstname }} {{ data.lastname }}
+                </td>
+                <td *ngIf="!data.firstname && !data.lastname">-</td>
+                <td *ngIf="data.mobile">{{ data.mobile }}</td>
+                <td *ngIf="!data.mobile">-</td>
+  
+                <td *ngIf="data.leadSourceName">{{ data.leadSourceName }}</td>
+                <td *ngIf="!data.leadSourceName">-</td>
+  
+                <td *ngIf="data.leadSubSourceId">{{ data.leadSubSourceName }}</td>
+                <td *ngIf="data.leadAgentId">{{ data.leadAgentName }}</td>
+                <td *ngIf="data.leadBranchId">{{ data.leadBranchName }}</td>
+                <td *ngIf="data.leadCustomerId">{{ data.leadCustomerName }}</td>
+                <td *ngIf="data.leadPartnerId">{{ data.leadPartnerName }}</td>
+                <td *ngIf="data.leadServiceAreaId">{{ data.leadServiceAreaName }}</td>
+                <td *ngIf="data.leadStaffId">{{ data.leadStaffName }}</td>
+                <td
+                  *ngIf="
+                    !data.leadSubSourceId &&
+                    !data.leadAgentId &&
+                    !data.leadBranchId &&
+                    !data.leadCustomerId &&
+                    !data.leadPartnerId &&
+                    !data.leadServiceAreaId &&
+                    !data.leadStaffId
+                  "
+                >
+                  -
+                </td>
+  
+                <td *ngIf="data.leadStatus === 'Inquiry'">
+                  <span class="badge badge-success">{{ data.leadStatus }}</span>
+                </td>
+                <td *ngIf="data.leadStatus === 'Rejected'">
+                  <span class="badge badge-danger">{{ data.leadStatus }}</span>
+                </td>
+                <td *ngIf="data.leadStatus === 'Re-Inquiry'">
+                  <span class="badge badge-info">{{ data.leadStatus }}</span>
+                </td>
+                <td *ngIf="data.leadStatus === 'Converted'">
+                  <span class="badge badge-success">{{ data.leadStatus }}</span>
+                </td>
+                <td *ngIf="!data.leadStatus">-</td>
+                <td *ngIf="data.assigneeName">{{ data.assigneeName }}</td>
+                <td
+                  *ngIf="
+                    !data.assigneeName &&
+                    (data.leadStatus === 'Inquiry' || data.leadStatus === 'Re-Inquiry')
+                  "
+                  data-bs-toggle="tooltip"
+                  data-placement="bottom"
+                  title="Lead Assignee process is running. Please wait for few seconds and refresh the lead data and try again."
+                >
+                  In Progress
+                </td>
+                <td *ngIf="!data.assigneeName && data.leadStatus === 'Converted'">-</td>
+                <td class="btnAction">
+                  <button
+                    *ngIf="data.nextApproveStaffId"
+                    style="
+                      border: none;
+                      background: transparent;
+                      padding: 0;
+                      margin-right: 3px;
+                      cursor: pointer;
+                    "
+                    aria-label="Approve Lead Workflow"
+                    id="approve-btn"
+                    [disabled]="!(this.staffid === data.nextApproveStaffId)"
+                    (click)="approveOrRejectLeadPopup(data, 'Approve')"
+                    data-bs-toggle="tooltip"
+                    data-placement="top"
+                    title="Approve Lead Workflow"
+                  >
+                    <img src="assets/img/assign.jpg" />
+                  </button>
+  
+                  <button
+                    *ngIf="data.nextApproveStaffId"
+                    style="
+                      border: none;
+                      background: transparent;
+                      padding: 0;
+                      margin-right: 3px;
+                      cursor: pointer;
+                    "
+                    aria-label="Reject Lead Workflow"
+                    id="approve-btn"
+                    [disabled]="!(this.staffid === data.nextApproveStaffId)"
+                    (click)="approveOrRejectLeadPopup(data, 'Reject')"
+                    data-bs-toggle="tooltip"
+                    data-placement="top"
+                    title="Reject Lead Workflow"
+                  >
+                    <img src="assets/img/reject.jpg" />
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="display: flex">
+            <pagination-controls
+              (pageChange)="pageChanged($event)"
+              [directionLinks]="true"
+              id="assignedLeadListpageData"
+              [maxSize]="10"
+              nextLabel=""
+              previousLabel=""
+            ></pagination-controls>
+            <div id="itemPerPageDropdown">
+              <p-dropdown
+                (onChange)="TotalItems($event)"
+                [options]="pageLimitOptions"
+                optionLabel="value"
+                optionValue="value"
+              ></p-dropdown>
+            </div>
+          </div>
+        </div>
+        <div
+          class="col-lg-12 col-md-12"
+          *ngIf="!assignedLeadListData || assignedLeadListData?.length === 0"
+        >
+          No Records Found
+        </div>
+      </div>
+    </p-panel>
+  </div>
+  <br /><br />
+  <div *ngIf="this.leadListForUserAndTeamFlag" class="col-md-12 padding-non">
+    <p-panel header="Your Team Lead Approval List">
+      <div class="row">
+        <!-- <div class="col-lg-12 col-md-12" *ngIf="!viewAccess">
+          Sorry you have not privilege to view operation!
+        </div> -->
+        <div
+          class="col-lg-12 col-md-12"
+          *ngIf="leadListForUserAndTeam && leadListForUserAndTeam.length > 0"
+        >
+          <table class="table">
+            <thead>
+              <tr>
+                <th width="65%">Customer Name</th>
+                <th width="35%">Mobile Number</th>
+                <th width="40%">Lead Source</th>
+                <th width="45%">Lead Sub Source</th>
+                <th width="20%">Status</th>
+                <th width="36%">Assignee Name</th>
+                <th width="30%">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="
+                  let data of leadListForUserAndTeam
+                    | paginate
+                      : {
+                          id: 'leadListItemsPerPageForUserAndTeam',
+                          itemsPerPage: leadListItemsPerPageForUserAndTeam,
+                          currentPage: leadListPageForUserAndTeam,
+                          totalItems: leadListTotalRecordsForUserAndTeam
+                        };
+                  index as i
+                "
+              >
+                <td *ngIf="data.firstname || data.lastname">
+                  {{ data.title }} {{ data.firstname }} {{ data.lastname }}
+                </td>
+                <td *ngIf="!data.firstname && !data.lastname">-</td>
+                <td *ngIf="data.mobile">{{ data.mobile }}</td>
+                <td *ngIf="!data.mobile">-</td>
+  
+                <td *ngIf="data.leadSourceName">{{ data.leadSourceName }}</td>
+                <td *ngIf="!data.leadSourceName">-</td>
+  
+                <td *ngIf="data.leadSubSourceId">{{ data.leadSubSourceName }}</td>
+                <td *ngIf="data.leadAgentId">{{ data.leadAgentName }}</td>
+                <td *ngIf="data.leadBranchId">{{ data.leadBranchName }}</td>
+                <td *ngIf="data.leadCustomerId">{{ data.leadCustomerName }}</td>
+                <td *ngIf="data.leadPartnerId">{{ data.leadPartnerName }}</td>
+                <td *ngIf="data.leadServiceAreaId">{{ data.leadServiceAreaName }}</td>
+                <td *ngIf="data.leadStaffId">{{ data.leadStaffName }}</td>
+                <td
+                  *ngIf="
+                    !data.leadSubSourceId &&
+                    !data.leadAgentId &&
+                    !data.leadBranchId &&
+                    !data.leadCustomerId &&
+                    !data.leadPartnerId &&
+                    !data.leadServiceAreaId &&
+                    !data.leadStaffId
+                  "
+                >
+                  -
+                </td>
+  
+                <td *ngIf="data.leadStatus === 'Inquiry'">
+                  <span class="badge badge-success">{{ data.leadStatus }}</span>
+                </td>
+                <td *ngIf="data.leadStatus === 'Rejected'">
+                  <span class="badge badge-danger">{{ data.leadStatus }}</span>
+                </td>
+                <td *ngIf="data.leadStatus === 'Re-Inquiry'">
+                  <span class="badge badge-info">{{ data.leadStatus }}</span>
+                </td>
+                <td *ngIf="data.leadStatus === 'Converted'">
+                  <span class="badge badge-success">{{ data.leadStatus }}</span>
+                </td>
+                <td *ngIf="!data.leadStatus">-</td>
+                <td *ngIf="data.assigneeName">{{ data.assigneeName }}</td>
+                <td
+                  *ngIf="
+                    !data.assigneeName &&
+                    (data.leadStatus === 'Inquiry' || data.leadStatus === 'Re-Inquiry')
+                  "
+                  data-bs-toggle="tooltip"
+                  data-placement="bottom"
+                  title="Lead Assignee process is running. Please wait for few seconds and refresh the lead data and try again."
+                >
+                  In Progress
+                </td>
+                <td *ngIf="!data.assigneeName && data.leadStatus === 'Converted'">-</td>
+                <td class="btnAction">
+                  <button
+                    *ngIf="data.nextApproveStaffId"
+                    style="
+                      border: none;
+                      background: transparent;
+                      padding: 0;
+                      margin-right: 3px;
+                      cursor: pointer;
+                    "
+                    aria-label="Approve Lead Workflow"
+                    id="approve-btn"
+                    [disabled]="!(this.staffid === data.nextApproveStaffId)"
+                    (click)="approveOrRejectLeadPopup(data, 'Approve')"
+                    data-bs-toggle="tooltip"
+                    data-placement="top"
+                    title="Approve Lead Workflow"
+                  >
+                    <img src="assets/img/assign.jpg" />
+                  </button>
+  
+                  <button
+                    *ngIf="data.nextApproveStaffId"
+                    style="
+                      border: none;
+                      background: transparent;
+                      padding: 0;
+                      margin-right: 3px;
+                      cursor: pointer;
+                    "
+                    aria-label="Reject Lead Workflow"
+                    id="approve-btn"
+                    [disabled]="!(this.staffid === data.nextApproveStaffId)"
+                    (click)="approveOrRejectLeadPopup(data, 'Reject')"
+                    data-bs-toggle="tooltip"
+                    data-placement="top"
+                    title="Reject Lead Workflow"
+                  >
+                    <img src="assets/img/reject.jpg" />
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="display: flex">
+            <pagination-controls
+              (pageChange)="pageChangedLeadListForUserAndTeam($event)"
+              [directionLinks]="true"
+              id="leadListItemsPerPageForUserAndTeam"
+              [maxSize]="10"
+              nextLabel=""
+              previousLabel=""
+            ></pagination-controls>
+            <div id="itemPerPageDropdown">
+              <p-dropdown
+                (onChange)="totalLeadListForUserAndTeamItems($event)"
+                [options]="pageLimitOptions"
+                optionLabel="value"
+                optionValue="value"
+              ></p-dropdown>
+            </div>
+          </div>
+        </div>
+        <div
+          class="col-lg-12 col-md-12"
+          *ngIf="!leadListForUserAndTeam || leadListForUserAndTeam?.length === 0"
+        >
+          No Records Found
+        </div>
+      </div>
+    </p-panel>
+  </div>
+  <br /><br />
+  <div *ngIf="this.leadFollowupFlag" class="col-md-12 padding-non">
+    <p-panel header="Your Lead Followup List">
+      <div class="row">
+        <!-- <div class="col-lg-12 col-md-12" *ngIf="!viewAccess">
+          Sorry you have not privilege to view operation!
+        </div> -->
+        <div
+          class="col-lg-12 col-md-12"
+          *ngIf="followupLeadListData && followupLeadListData.length > 0"
+        >
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Lead Name</th>
+                <th>FollowUp Name</th>
+                <th>FollowUp Date & Time</th>
+                <th width="28%">Remarks</th>
+                <th width="10%">Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="
+                  let followUpDetails of followupLeadListData
+                    | paginate
+                      : {
+                          id: 'followupLeadListdataitemsPerPage',
+                          itemsPerPage: followupLeadListdataitemsPerPage,
+                          currentPage: followupCurrentPageLeadListdata,
+                          totalItems: followupLeadListdatatotalRecords
+                        };
+                  index as i
+                "
+              >
+                <td>{{ followUpDetails?.leadMasterName }}</td>
+                <td>{{ followUpDetails?.followUpName }}</td>
+                <td>{{ followUpDetails?.followUpDatetime | date: "dd/MM/yyyy HH:mm:ss" }}</td>
+                <td>{{ followUpDetails?.remarks }}</td>
+                <td>
+                  <span
+                    *ngIf="followUpDetails?.status == 'Closed' || followUpDetails?.status == 'closed'"
+                    class="badge badge-info"
+                    >Closed</span
+                  >
+                  <span
+                    *ngIf="
+                      followUpDetails?.status == 'Pending' || followUpDetails?.status == 'pending'
+                    "
+                    class="badge badge-danger"
+                    >Pending</span
+                  >
+                  <span
+                    *ngIf="
+                      followUpDetails?.status == 'ReSchedule' ||
+                      followUpDetails?.status == 'reschedule'
+                    "
+                    class="badge badge-info"
+                    >ReSchedule</span
+                  >
+                </td>
+                <td class="btnAction">
+                  <button
+                    [disabled]="
+                      followUpDetails?.status == 'Closed' || followUpDetails?.status == 'closed'
+                    "
+                    type="button"
+                    class="approve-btn"
+                    style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                    title="Reschedule FollowUp"
+                    (click)="rescheduleFollowUp(followUpDetails)"
+                  >
+                    <img
+                      style="width: 25px; height: 25px"
+                      src="assets/img/D_Extend-Expiry-Date_Y.png"
+                    />
+                  </button>
+                  <button
+                    [disabled]="
+                      followUpDetails?.status == 'Closed' || followUpDetails?.status == 'closed'
+                    "
+                    type="button"
+                    class="approve-btn"
+                    style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                    title="Close FollowUp"
+                    (click)="closeFollowUp(followUpDetails)"
+                  >
+                    <img style="width: 25px; height: 25px" src="assets/img/reject.jpg" />
+                  </button>
+                  <button
+                    type="button"
+                    class="approve-btn"
+                    style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                    title="Call"
+                    (click)="makeACall()"
+                  >
+                    <img style="width: 25px; height: 25px" src="assets/img/phone-icon.png" />
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="display: flex">
+            <pagination-controls
+              (pageChange)="pageFollowupChanged($event)"
+              [directionLinks]="true"
+              id="followupLeadListdataitemsPerPage"
+              [maxSize]="10"
+              nextLabel=""
+              previousLabel=""
+            ></pagination-controls>
+            <div id="itemPerPageDropdown">
+              <p-dropdown
+                (onChange)="TotalFollowupItems($event)"
+                [options]="pageLimitOptions"
+                optionLabel="value"
+                optionValue="value"
+              ></p-dropdown>
+            </div>
+          </div>
+        </div>
+        <div
+          class="col-lg-12 col-md-12"
+          *ngIf="!followupLeadListData || followupLeadListData?.length === 0"
+        >
+          No Records Found
+        </div>
+      </div>
+    </p-panel>
+  </div>
+  <br /><br />
+  <div *ngIf="this.leadFollowupFlag" class="col-md-12 padding-non">
+    <p-panel header="Your Team Lead Followup List">
+      <div class="row">
+        <!-- <div class="col-lg-12 col-md-12" *ngIf="!viewAccess">
+          Sorry you have not privilege to view operation!
+        </div> -->
+        <div
+          class="col-lg-12 col-md-12"
+          *ngIf="followupListForUserAndTeam && followupListForUserAndTeam.length > 0"
+        >
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Lead Name</th>
+                <th>FollowUp Name</th>
+                <th>FollowUp Date & Time</th>
+                <th width="28%">Remarks</th>
+                <th width="10%">Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="
+                  let followUpDetails of followupListForUserAndTeam
+                    | paginate
+                      : {
+                          id: 'followupListItemsPerPageForUserAndTeam',
+                          itemsPerPage: followupListItemsPerPageForUserAndTeam,
+                          currentPage: followupListPageForUserAndTeam,
+                          totalItems: followupListTotalRecordsForUserAndTeam
+                        };
+                  index as i
+                "
+              >
+                <td>{{ followUpDetails?.leadMasterName }}</td>
+                <td>{{ followUpDetails?.followUpName }}</td>
+                <td>{{ followUpDetails?.followUpDatetime | date: "dd/MM/yyyy HH:mm:ss" }}</td>
+                <td>{{ followUpDetails?.remarks }}</td>
+                <td>
+                  <span
+                    *ngIf="followUpDetails?.status == 'Closed' || followUpDetails?.status == 'closed'"
+                    class="badge badge-info"
+                    >Closed</span
+                  >
+                  <span
+                    *ngIf="
+                      followUpDetails?.status == 'Pending' || followUpDetails?.status == 'pending'
+                    "
+                    class="badge badge-danger"
+                    >Pending</span
+                  >
+                  <span
+                    *ngIf="
+                      followUpDetails?.status == 'ReSchedule' ||
+                      followUpDetails?.status == 'reschedule'
+                    "
+                    class="badge badge-info"
+                    >ReSchedule</span
+                  >
+                </td>
+                <td class="btnAction">
+                  <button
+                    [disabled]="
+                      followUpDetails?.status == 'Closed' || followUpDetails?.status == 'closed'
+                    "
+                    type="button"
+                    class="approve-btn"
+                    style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                    title="Reschedule FollowUp"
+                    (click)="rescheduleFollowUp(followUpDetails)"
+                  >
+                    <img
+                      style="width: 25px; height: 25px"
+                      src="assets/img/D_Extend-Expiry-Date_Y.png"
+                    />
+                  </button>
+                  <button
+                    [disabled]="
+                      followUpDetails?.status == 'Closed' || followUpDetails?.status == 'closed'
+                    "
+                    type="button"
+                    class="approve-btn"
+                    style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                    title="Close FollowUp"
+                    (click)="closeFollowUp(followUpDetails)"
+                  >
+                    <img style="width: 25px; height: 25px" src="assets/img/reject.jpg" />
+                  </button>
+                  <button
+                    type="button"
+                    class="approve-btn"
+                    style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                    title="Call"
+                    (click)="makeACall()"
+                  >
+                    <img style="width: 25px; height: 25px" src="assets/img/phone-icon.png" />
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="display: flex">
+            <pagination-controls
+              (pageChange)="pageChangedfollowupListForUserAndTeam($event)"
+              [directionLinks]="true"
+              id="followupListItemsPerPageForUserAndTeam"
+              [maxSize]="10"
+              nextLabel=""
+              previousLabel=""
+            ></pagination-controls>
+            <div id="itemPerPageDropdown">
+              <p-dropdown
+                (onChange)="totalfollowupListForUserAndTeamItems($event)"
+                [options]="pageLimitOptions"
+                optionLabel="value"
+                optionValue="value"
+              ></p-dropdown>
+            </div>
+          </div>
+        </div>
+        <div
+          class="col-lg-12 col-md-12"
+          *ngIf="!followupListForUserAndTeam || followupListForUserAndTeam?.length === 0"
+        >
+          No Records Found
+        </div>
+      </div>
+    </p-panel>
+  </div>
+  <!-- approveOrRejectLeadPopup popup end start -->
+  <div class="modal fade" id="approveOrRejectLeadPopup" role="dialog">
+    <div class="modal-dialog nearSearchModalLocation">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="panel-title">{{ this.leadApproveRejectDto.flag }} Remarks</h3>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="leadApproveRejectForm">
+            <div class="row">
+              <div
+                *ngIf="approvedForLead && leadApproveRejectDto.approveRequest"
+                class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
+              >
+                <div class="card">
+                  <h5>Select Staff</h5>
+                  <p-table
+                    [value]="approveLeadList"
+                    [(selection)]="selectStaffForLead"
+                    responsiveLayout="scroll"
+                  >
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <th style="width: 3rem"></th>
+                        <th>Name</th>
+                        <th>Username</th>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-product>
+                      <tr>
+                        <td>
+                          <p-tableRadioButton [value]="product.id"></p-tableRadioButton>
+                        </td>
+                        <td>{{ product.fullName }}</td>
+                        <td>
+                          {{ product.username }}
+                        </td>
+                      </tr>
+                    </ng-template>
+                  </p-table>
+                </div>
+                <br />
+              </div>
+              <div
+                *ngIf="approvedForLead && !leadApproveRejectDto.approveRequest"
+                class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
+              >
+                <div class="card">
+                  <h5>Select Staff</h5>
+                  <p-table
+                    [value]="approveLeadList"
+                    [(selection)]="selectStaffRejectForLead"
+                    responsiveLayout="scroll"
+                  >
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <th style="width: 3rem"></th>
+                        <th>Name</th>
+                        <th>Username</th>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-product>
+                      <tr>
+                        <td>
+                          <p-tableRadioButton [value]="product.id"></p-tableRadioButton>
+                        </td>
+                        <td>{{ product.fullName }}</td>
+                        <td>
+                          {{ product.username }}
+                        </td>
+                      </tr>
+                    </ng-template>
+                  </p-table>
+                </div>
+                <br />
+              </div>
+              <div *ngIf="!approvedForLead" class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <label style="font-weight: bold">Remarks</label>
+                <textarea
+                  type="text"
+                  class="form-control"
+                  placeholder="Enter the remark"
+                  formControlName="remark"
+                  [ngClass]="{
+                    'is-invalid':
+                      leadApproveRejectFormsubmitted &&
+                      this.leadApproveRejectForm.controls['remark'].errors
+                  }"
+                >
+                </textarea>
+                <div
+                  class="error text-danger"
+                  *ngIf="
+                    leadApproveRejectFormsubmitted &&
+                    this.leadApproveRejectForm.controls['remark'].errors
+                  "
+                >
+                  Remarks is required.
+                </div>
+                <br />
+              </div>
+              <div *ngIf="!approvedForLead" class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="addUpdateBtn">
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    id="submit"
+                    (click)="approveOrRejectLead(leadObj)"
+                  >
+                    <i class="fa fa-check-circle"></i>
+                    {{ labelFlag }}</button
+                  ><br />
+                </div>
+              </div>
+              <div
+                *ngIf="approvedForLead && leadApproveRejectDto.approveRequest && !selectStaffForLead"
+                class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
+              >
+                <div class="addUpdateBtn">
+                  <button
+                    disabled
+                    type="submit"
+                    class="btn btn-primary"
+                    id="submit"
+                    (click)="assignToStaffForLead(labelFlag)"
+                  >
+                    <i class="fa fa-check-circle"></i>
+                    Assign</button
+                  ><br />
+                </div>
+              </div>
+              <div
+                *ngIf="approvedForLead && leadApproveRejectDto.approveRequest && selectStaffForLead"
+                class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
+              >
+                <div class="addUpdateBtn">
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    id="submit"
+                    (click)="assignToStaffForLead(labelFlag)"
+                  >
+                    <i class="fa fa-check-circle"></i>
+                    Assign</button
+                  ><br />
+                </div>
+              </div>
+              <div
+                *ngIf="
+                  approvedForLead && !leadApproveRejectDto.approveRequest && !selectStaffRejectForLead
+                "
+                class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
+              >
+                <div class="addUpdateBtn">
+                  <button
+                    disabled
+                    type="submit"
+                    class="btn btn-primary"
+                    id="submit"
+                    (click)="assignToStaffForLead(labelFlag)"
+                  >
+                    <i class="fa fa-check-circle"></i>
+                    Assign</button
+                  ><br />
+                </div>
+              </div>
+              <div
+                *ngIf="
+                  approvedForLead && !leadApproveRejectDto.approveRequest && selectStaffRejectForLead
+                "
+                class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
+              >
+                <div class="addUpdateBtn">
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    id="submit"
+                    (click)="assignToStaffForLead(labelFlag)"
+                  >
+                    <i class="fa fa-check-circle"></i>
+                    Assign</button
+                  ><br />
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer" style="display: flex; justify-content: flex-end">
+          <div class="addUpdateBtn">
+            <button
+              class="btn btn-danger btn-sm"
+              data-dismiss="modal"
+              (click)="closeApproveOrRejectLeadPopup()"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Follow up reschedulling popup start -->
+  <div class="modal fade" id="reScheduleFollowup" role="dialog">
+    <div class="modal-dialog nearSearchModalLocation">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="panel-title">ReSchedule a followup</h3>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="reFollowupScheduleForm">
+            <label style="font-weight: bold">Current Follow Up Close Remarks *</label>
+            <textarea
+              type="text"
+              class="form-control"
+              placeholder="Enter the Remarks"
+              formControlName="remarksTemp"
+              [ngClass]="{
+                'is-invalid':
+                  reFollowupFormsubmitted && this.reFollowupScheduleForm.controls['remarksTemp'].errors
+              }"
+            >
+            </textarea>
+            <div
+              class="error text-danger"
+              *ngIf="
+                reFollowupFormsubmitted && this.reFollowupScheduleForm.controls['remarksTemp'].errors
+              "
+            >
+              Remarks is required.
+            </div>
+            <br />
+            <label style="font-weight: bold"> ReSchedule Follow Up Name * </label>
+            <input
+              [disabled]=""
+              type="text"
+              class="form-control"
+              placeholder="Enter the follow up name"
+              formControlName="followUpName"
+              [ngClass]="{
+                'is-invalid':
+                  reFollowupFormsubmitted && reFollowupScheduleForm.controls['followUpName'].errors
+              }"
+            />
+            <div
+              class="error text-danger"
+              *ngIf="reFollowupFormsubmitted && reFollowupScheduleForm.controls['followUpName'].errors"
+            >
+              ReSchedule ReSchedule Name is required.
+            </div>
+            <br />
+            <label style="font-weight: bold">ReSchedule Follow Up Date & Time *</label>
+            <p-calendar
+              formControlName="followUpDatetime"
+              [showTime]="true"
+              [showSeconds]="true"
+              inputId="time"
+              [numberOfMonths]="3"
+              [minDate]="dateTime"
+              [ngClass]="{
+                'is-invalid':
+                  reFollowupFormsubmitted &&
+                  this.reFollowupScheduleForm.controls['followUpDatetime'].errors
+              }"
+            >
+            </p-calendar>
+            <div
+              class="error text-danger"
+              *ngIf="
+                reFollowupFormsubmitted && reFollowupScheduleForm.controls['followUpDatetime'].errors
+              "
+            >
+              ReSchedule Date & Time is required.
+            </div>
+            <br /><br />
+            <label style="font-weight: bold">ReSchedule Remarks</label>
+            <!-- <textarea
+              type="text"
+              class="form-control"
+              placeholder="Enter the Remarks"
+              formControlName="remarks"
+            >
+            rescheduleRemarks
+            </textarea> -->
+            <p-dropdown
+              [options]="rescheduleRemarks"
+              placeholder="Select the specific remark"
+              formControlName="remarks"
+            >
+            </p-dropdown>
+            <br />
+            <div class="addUpdateBtn">
+              <br />
+              <button
+                type="submit"
+                class="btn btn-primary"
+                id="submit"
+                (click)="saveReFollowup()"
+                [disabled]="this.showQtyError"
+              >
+                <i class="fa fa-check-circle"></i>
+                ReSchedule
+              </button>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer" style="display: flex; justify-content: flex-end">
+          <div class="addUpdateBtn">
+            <button
+              class="btn btn-danger btn-sm"
+              #closebutton
+              data-dismiss="modal"
+              (click)="closeReFolloupPopup()"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Follow up reschedulling popup end -->
+  <!-- Follow up close popup start -->
+  <div class="modal fade" id="closeFollowup" role="dialog">
+    <div class="modal-dialog nearSearchModalLocation">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="panel-title">Close Followup</h3>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="closeFollowupForm">
+            <label style="font-weight: bold">Remarks *</label>
+            <textarea
+              type="text"
+              class="form-control"
+              placeholder="Enter the Remarks"
+              formControlName="remarks"
+              [ngClass]="{
+                'is-invalid':
+                  closeFollowupFormsubmitted && this.closeFollowupForm.controls['remarks'].errors
+              }"
+            >
+            </textarea>
+            <div
+              class="error text-danger"
+              *ngIf="closeFollowupFormsubmitted && this.closeFollowupForm.controls['remarks'].errors"
+            >
+              Remarks is required.
+            </div>
+            <br />
+            <div class="addUpdateBtn">
+              <button
+                type="submit"
+                class="btn btn-primary"
+                id="submit"
+                (click)="saveCloseFollowUp()"
+                [disabled]="this.showQtyError"
+              >
+                <i class="fa fa-check-circle"></i>
+                Save
+              </button>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer" style="display: flex; justify-content: flex-end">
+          <div class="addUpdateBtn">
+            <button
+              class="btn btn-danger btn-sm"
+              data-dismiss="modal"
+              (click)="closeActionFolloupPopup()"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Follow up close popup end -->
+  <div
+    aria-labelledby="myModalLabel"
+    class="modal fade"
+    id="ApproveRejectModal"
+    role="dialog"
+    tabindex="-1"
+  >
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4
+            class="modal-title"
+            id="myModalLabel"
+            style="color: #fff !important"
+            *ngIf="ifApproveSPMStatus"
+          >
+            Approve Status
+          </h4>
+          <h4
+            class="modal-title"
+            id="myModalLabel"
+            style="color: #fff !important"
+            *ngIf="!ifApproveSPMStatus"
+          >
+            Reject Status
+          </h4>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+              <label>Remark</label>
+              <textarea
+                [(ngModel)]="approveRejectSPMRemark"
+                placeholder="Remarks"
+                class="form-control"
+                name="remark"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            (click)="statusApporevedRejectedSPM()"
+            [disabled]="!approveRejectSPMRemark"
+            class="btn btn-primary"
+            id="submit"
+            type="submit"
+          >
+            <i class="fa fa-check-circle"></i>
+            Save
+          </button>
+  
+          <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    aria-labelledby="myModalLabel"
+    class="modal fade"
+    id="assignCustomerDocumentForApproval"
+    role="dialog"
+    tabindex="-1"
+  >
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title" id="myModalLabelForAssign" style="color: #fff !important">
+            Approve Mapping
+          </h4>
+        </div>
+        <div class="modal-body" style="margin: 10px">
+          <!-- <form [formGroup]="this.assignDocForm"> -->
+          <div class="row">
+            <div class="row">
+              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="card">
+                  <h5>Select Staff</h5>
+                  <p-table
+                    [(selection)]="this.assignedStaffSPM"
+                    [value]="assignStaffListDataSPM"
+                    responsiveLayout="scroll"
+                  >
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <th style="width: 3rem"></th>
+                        <th>Name</th>
+                        <th>Username</th>
+                      </tr>
+                    </ng-template>
+                    <ng-template let-product pTemplate="body">
+                      <tr>
+                        <td>
+                          <p-tableRadioButton [value]="product.id"></p-tableRadioButton>
+                        </td>
+                        <td>{{ product.fullName }}</td>
+                        <td>
+                          {{ product.username }}
+                        </td>
+                      </tr>
+                    </ng-template>
+                  </p-table>
+                </div>
+              </div>
+              <br />
+            </div>
+          </div>
+          <!-- </form> -->
+        </div>
+        <div class="modal-footer">
+          <button
+            class="btn btn-primary"
+            id="submitButtonForApprove"
+            type="submit"
+            (click)="assignToStaffSPMapping()"
+          >
+            <i class="fa fa-check-circle"></i>
+            Assign
+          </button>
+          <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  

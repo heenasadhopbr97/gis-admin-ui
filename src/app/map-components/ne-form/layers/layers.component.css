@@ -1,0 +1,187 @@
+/* Main container for the layers */
+.div {
+  /* This seems to be your main container for layers */
+  background: rgba(255, 255, 255, 1.8);
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+}
+
+/* Individual layer control items */
+.control-item {
+  margin: 5px 0;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative; /* Needed for absolute positioning of control-img */
+}
+
+.control-item input {
+  margin-right: 5px;
+  cursor: pointer;
+  margin-bottom: 5px;
+  margin-left: 5px;
+}
+
+/* Layer name text */
+.control-name {
+  width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Layer icon/image */
+.control-img {
+  position: absolute;
+  right: 0;
+}
+
+.control-img img {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+}
+
+/* Survey areas container */
+.survey-areas-container {
+ margin-left: 15px;
+}
+
+/* Individual survey area items */
+.survey-area-item {
+  margin: 5px 0;
+  display: flex;
+  align-items: center;
+}
+
+.survey-area-item input {
+    margin-right: 5px;
+    cursor: pointer;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+}
+
+.survey-area-item label {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+/* Loading spinner for survey areas */
+.loading-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(0,0,0,0.1);
+  border-radius: 50%;
+  border-top-color: #4285F4;
+  animation: spin 1s ease-in-out infinite;
+  margin-left: 5px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+/* list all layer */
+/* layers.component.scss */
+.layers-container {
+  position: absolute;
+  right: 45px;
+  top: 0px;
+  background: white;
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  max-height: 70vh;
+  overflow-y: auto;
+  width: 250px;
+}
+
+.layers-section {
+  /* margin-bottom: 15px; */
+  border-bottom: 1px solid #eee;
+  /* padding-bottom: 10px; */
+}
+
+.layer-item {
+  /* display: flex; */
+  align-items: center;
+  padding: 5px 0;
+}
+.counties-name{
+  margin-left: 20px;
+}
+.districts-name{
+  margin-left: 20px;
+}
+
+.feature-group {
+  margin-left: 15px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  padding: 3px 0 3px 20px;
+  font-size: 0.9em;
+}
+
+input[type="checkbox"] {
+  margin-right: 8px;
+  margin-bottom: 8px
+}
+
+label {
+  cursor: pointer;
+  user-select: none;
+  /* display: flex; */
+  align-items: center;
+  gap: 5px;
+}
+
+h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 1.1em;
+}
+
+.layer-img{
+  position: absolute;
+  right: 0;
+  margin-right: 15px;
+}
+
+.truncate {
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 158px; /* or 100%, or any px/rem value */
+}
+
+.pi-delete {
+    position: absolute;
+    right: 17px;
+    margin-top: 6px;
+}
+
+.search-container {
+  padding: 8px;
+}
+
+.search-container input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}

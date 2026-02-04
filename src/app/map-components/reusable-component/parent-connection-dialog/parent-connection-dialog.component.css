@@ -1,0 +1,235 @@
+/* connection-sidebar.component.css */
+:host ::ng-deep .connection-sidebar {
+  width: 450px;
+  box-shadow: -3px 0 10px rgba(0, 0, 0, 0.15);
+}
+
+:host ::ng-deep .connection-sidebar .p-sidebar-header {
+  padding: 1rem 1.5rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+:host ::ng-deep .connection-sidebar .p-sidebar-content {
+  padding: 1.5rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+}
+
+.header-text {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+.sidebar-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Card styling */
+.card {
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.card-header {
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.card-header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #495057;
+  font-weight: 600;
+}
+
+.card-content {
+  padding: 1.5rem;
+}
+
+.field {
+  margin-bottom: 0;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #495057;
+}
+
+/* Adjust dropdowns to fit sidebar */
+:host ::ng-deep .connection-sidebar .p-dropdown {
+  width: 100%;
+}
+
+/* Action buttons */
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 1.5rem;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  :host ::ng-deep .connection-sidebar {
+    width: 85vw;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .action-buttons button {
+    width: 100%;
+  }
+}
+
+:host ::ng-deep .p-dialog .p-dialog-header .p-dialog-header-icons {
+  margin-right: 0 !important;
+  margin-left: auto !important;   /* pushes close button to the left */
+           /* move before the title */
+}
+
+/* Device Details Styles */
+.device-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #495057;
+  min-width: 120px;
+  margin-right: 15px;
+  font-size: 12px;
+}
+
+.info-value {
+  color: #2c3e50;
+  flex: 1;
+  font-size: 12px;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-badge.in-progress {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.completed {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-badge.active {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.status-badge.pending {
+  background-color: #e2e3e5;
+  color: #383d41;
+}
+
+.clear-selection {
+  margin-top: 15px;
+  text-align: center;
+  padding-top: 10px;
+  border-top: 1px solid #e9ecef;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .info-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  
+  .info-label {
+    min-width: auto;
+    margin-right: 0;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .action-buttons button {
+    width: 100%;
+  }
+}
+
+.connection-sidebar .p-sidebar-content {
+  padding: 1rem;
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card-header {
+  padding: 1rem;
+  border-bottom: 1px solid #e9ecef;
+  background-color: #f8f9fa;
+}
+
+.card-header h4 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.card-content {
+  padding: 1rem;
+}
+
+.field {
+  margin-bottom: 1rem;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #495057;
+}
+.clear-destination-btn {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+.destination-select-btn {
+  width: 100%;
+}

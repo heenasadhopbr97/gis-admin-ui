@@ -1,0 +1,136 @@
+<!-- parent-connection-dialog.component.html -->
+<div class="flex-container">
+  <p-sidebar [(visible)]="showParentConnectionDialog" position="right" [blockScroll]="true" [dismissible]="true"
+    [showCloseIcon]="true" (onHide)="closeDialog()" styleClass="connection-sidebar">
+    
+    <ng-template pTemplate="header">
+      <div class="sidebar-header">
+        <i class="pi pi-link mr-2"></i>
+        <span class="header-text">Create Connectivity</span>
+      </div>
+    </ng-template>
+
+    <div class="sidebar-content">
+      <!-- Source Device Details -->
+      <div class="card mb-4" *ngIf="sourceDeviceData">
+        <div class="card-header">
+          <h4>Source Device</h4>
+        </div>
+        <div class="card-content">
+          <div class="device-details">
+            <div class="info-row">
+              <span class="info-label">Name:</span>
+              <span class="info-value">{{ sourceDeviceData.name || 'N/A' }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">ID:</span>
+              <span class="info-value">{{ sourceDeviceData.id || 'N/A' }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Type:</span>
+              <span class="info-value">
+                {{ (sourceDeviceData.layername || sourceDeviceData.layerName || 'N/A') | uppercase }}
+              </span>
+            </div>
+            <div class="info-row" *ngIf="sourceDeviceData.geom?.coordinates">
+              <span class="info-label">Coordinates:</span>
+              <span class="info-value">
+                {{ sourceDeviceData.geom.coordinates[0] | number:'1.6-6' }},
+                {{ sourceDeviceData.geom.coordinates[1] | number:'1.6-6' }}
+              </span>
+            </div>
+            <!-- Add more source details as needed -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Destination Device Details -->
+      <div class="card mb-4" *ngIf="destinationDeviceData && destinationDeviceData.id !== sourceDeviceData?.id">
+        <div class="card-header">
+          <h4>Destination Device</h4>
+           <button pButton type="button" icon="pi pi-times" class="p-button-text p-button-danger clear-destination-btn" 
+                  (click)="clearDestination()" pTooltip="Clear Destination" tooltipPosition="left"></button>
+        </div>
+        <div class="card-content">
+          <div class="device-details">
+            <div class="info-row">
+              <span class="info-label">Name:</span>
+              <span class="info-value">{{ destinationDeviceData.name || 'N/A' }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">ID:</span>
+              <span class="info-value">{{ destinationDeviceData.id || 'N/A' }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Type:</span>
+              <span class="info-value">
+                {{ (destinationDeviceData.layername || destinationDeviceData.layerName || 'N/A') | uppercase }}
+              </span>
+            </div>
+            <div class="info-row" *ngIf="destinationDeviceData.geom?.coordinates">
+              <span class="info-label">Coordinates:</span>
+              <span class="info-value">
+                {{ destinationDeviceData.geom.coordinates[0] | number:'1.6-6' }},
+                {{ destinationDeviceData.geom.coordinates[1] | number:'1.6-6' }}
+              </span>
+            </div>
+            <!-- Add more destination details as needed -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Destination Selection Card (only show if destination not selected) -->
+      <div class="card mb-4" *ngIf="!destinationDeviceData || destinationDeviceData.id === sourceDeviceData?.id">
+        <div class="card-header">
+          <h4>Destination Selection</h4>
+        </div>
+        <div class="card-content">
+          <div class="field">
+            <label>Select Destination:</label>
+            <div class="destination-selector">
+              <button pButton type="button" 
+                      class="p-button-outlined destination-select-btn"
+                      (click)="selectDestinationOnMap()">
+                <i class="pi pi-map-marker mr-2"></i>
+                Select Destination on Map
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Connection Type Selection (only show when both source and destination are selected) -->
+      <div class="card mb-4" *ngIf="sourceDeviceData && destinationDeviceData">
+        <div class="card-header">
+          <h4>Connection Settings</h4>
+        </div>
+        <div class="card-content">
+          <div class="field">
+            <label>Connection Type:</label>
+            <p-dropdown [options]="connectionTypes" optionLabel="label" optionValue="value"
+              [(ngModel)]="selectedConnectionType" 
+              placeholder="Select Connection Type" appendTo="body">
+            </p-dropdown>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button pButton type="button" class="p-button-success" (click)="onConnectClick()"
+          [disabled]="!sourceDeviceData || !destinationDeviceData || !selectedConnectionType">
+          Create Connection
+        </button>
+        <button pButton type="button" label="Cancel" class="p-button-secondary p-button-outlined"
+          (click)="closeDialog()">
+        </button>
+      </div>
+    </div>
+  </p-sidebar>
+</div>
+
+<app-connection-builder [(visible)]="showConnectionBuilder" [layerId]="connectionBuilderLayerId"
+  [layerCode]="connectionBuilderLayerCode" [fromSelectedElement]="selectedElementId"
+  [toSelectedElement]="selectedElementToId" [surveyAreaId]="selectedSurveyAreaId" [surveyAreaId]="selectedSurveyAreaId"
+  [fromLayerName]="fromLayerName" [toLayerName]="toLayerName" [connectionType]="selectedConnectionType"
+  (visibleChange)="showConnectionBuilder = $event">
+</app-connection-builder>

@@ -1,0 +1,2005 @@
+<div class="childComponent">
+  <div class="row">
+    <div class="col-md-12">
+      <!-- User Data -->
+      <div class="panel top">
+        <div class="panel-heading">
+          <h3 class="panel-title">Staff Management</h3>
+          <div class="right">
+            <button
+              type="button"
+              class="btn-toggle-collapse"
+              data-bs-toggle="collapse"
+              data-bs-target="#searchstaff"
+              aria-expanded="false"
+              aria-controls="searchstaff"
+            >
+              <i class="fa fa-minus-circle"></i>
+            </button>
+          </div>
+        </div>
+
+        <div id="searchstaff" class="panel-collapse collapse show">
+          <div class="panel-body" *ngIf="isStaffList">
+            <div class="searchForm row">
+              <div class="col-lg-3 col-md-3">
+                <p-dropdown
+                  [options]="searchOptionSelect"
+                  optionValue="value"
+                  optionLabel="label"
+                  [filter]="true"
+                  filterBy="label"
+                  placeholder="Select a Search Option"
+                  [(ngModel)]="searchOption"
+                ></p-dropdown>
+              </div>
+              <div class="col-md-3" *ngIf="searchOption == 'globalsearch'">
+                <input
+                  id="searchStaffName"
+                  type="text"
+                  name="username"
+                  class="form-control"
+                  placeholder="Global Search Filter"
+                  [(ngModel)]="searchDeatil"
+                  (keydown.enter)="searchStaffData()"
+                />
+              </div>
+              <div class="col-md-2" *ngIf="searchOption == 'reciept'">
+                <input
+                  id="searchStaffName"
+                  type="number"
+                  name="username"
+                  class="form-control"
+                  placeholder="Reciept No *"
+                  [(ngModel)]="searchDeatil"
+                  (keydown.enter)="searchStaffData()"
+                />
+              </div>
+              <div class="col-md-2" *ngIf="searchOption == 'reciept'">
+                <input
+                  id="searchStaffName"
+                  type="text"
+                  name="username"
+                  class="form-control"
+                  placeholder="Prefix"
+                  [(ngModel)]="prefikx"
+                  (keydown.enter)="searchStaffData()"
+                />
+              </div>
+              <div class="col-md-3 marginTopSearchBtn" *ngIf="searchOption">
+                <!-- <button type="submit" class="btn btn-primary" (click)="searchStaffByName()">
+                  <i class="fa fa-search"></i>
+                  Search
+                </button> -->
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  (click)="searchStaffData()"
+                  [disabled]="!searchDeatil"
+                >
+                  <i class="fa fa-search"></i>
+                  Search
+                </button>
+                &nbsp;
+                <button type="reset" class="btn btn-default" (click)="clearSearchForm()">
+                  <i class="fa fa-refresh"></i>
+                  Clear
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="panel-body no-padding panel-udata">
+            <div class="col-md-6 pcol" *ngIf="!isShowStaffMenu && createAccess">
+              <div class="dbox">
+                <a class="curson_pointer" (click)="openStaffCreateMenu()">
+                  <img src="../../../assets/img/i01.png" style="width: 32px" />
+                  <h5>Create Staff</h5>
+                  <!-- <p>Create Staff</p> -->
+                </a>
+              </div>
+            </div>
+            <div class="pcol" [ngClass]="isShowStaffMenu ? 'col-md-3' : 'col-md-6'">
+              <div class="dbox">
+                <a class="curson_pointer" (click)="openStaffListMenu()">
+                  <img src="../../../assets/img/i01.png" style="width: 32px" />
+                  <h5 *ngIf="!isShowStaffMenu">Staff List</h5>
+                  <h5 *ngIf="isShowStaffMenu">Home</h5>
+                </a>
+              </div>
+            </div>
+            <div
+              class="pcol"
+              *ngIf="isShowStaffMenu"
+              [ngClass]="isShowStaffMenu ? 'col-md-3' : 'col-md-6'"
+            >
+              <div class="dbox">
+                <a class="curson_pointer" (click)="openStaffStaffReceipt()">
+                  <img src="../../../assets/img/i01.png" style="width: 32px" />
+                  <h5>Staff Receipt Management</h5>
+                </a>
+              </div>
+            </div>
+            <div
+              class="pcol"
+              *ngIf="isShowStaffMenu"
+              [ngClass]="isShowStaffMenu ? 'col-md-3' : 'col-md-6'"
+            >
+              <div class="dbox">
+                <a class="curson_pointer" (click)="openStaffWallet()">
+                  <img src="../../../assets/img/i01.png" style="width: 32px" />
+                  <h5>Wallet</h5>
+                </a>
+              </div>
+            </div>
+            <div
+              class="pcol"
+              *ngIf="isShowStaffMenu"
+              [ngClass]="isShowStaffMenu ? 'col-md-3' : 'col-md-6'"
+            >
+              <div class="dbox">
+                <a
+                  class="curson_pointer"
+                  data-title="Change Password"
+                  title="Change Password"
+                  data-bs-target="#changePasswordModal"
+                  data-bs-toggle="modal"
+                  data-backdrop="static"
+                  data-keyboard="false"
+                  class="curson_pointer"
+                  (click)="getCustomerDataForPasswordChange(satffUserData)"
+                >
+                  <img src="../../../assets/img/i01.png" style="width: 32px" />
+                  <h5>Change Password</h5>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- END User Data -->
+    </div>
+  </div>
+  <div class="row" *ngIf="isStaffList">
+    <div class="col-md-12">
+      <!-- Data Table -->
+      <div class="panel">
+        <div class="panel-heading">
+          <h3 class="panel-title">Staff</h3>
+          <div class="right">
+            <button
+              type="button"
+              class="btn-toggle-collapse"
+              data-bs-toggle="collapse"
+              data-bs-target="#liststaff"
+              aria-expanded="false"
+              aria-controls="liststaff"
+            >
+              <i class="fa fa-minus-circle"></i>
+            </button>
+          </div>
+        </div>
+        <div id="liststaff" class="panel-collapse collapse show">
+          <div class="panel-body table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Firstname</th>
+                  <th>Lastname</th>
+                  <th>Username</th>
+                  <th>Email</th>
+                  <th>Status</th>
+                  <th>Location</th>
+                  <th *ngIf="changePassAccess || createReceiptAccess || editAccess">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="
+                    let staff of staffData
+                      | paginate
+                        : {
+                            id: 'listing_staffdata',
+                            itemsPerPage: itemsPerPage,
+                            currentPage: currentPage,
+                            totalItems: totalRecords
+                          };
+                    index as i
+                  "
+                >
+                  <td
+                    class="curson_pointer"
+                    [routerLink]="['/home/mystaff', staff.id]"
+                    style="color: darkblue"
+                  >
+                    {{ staff.firstname }}
+                  </td>
+                  <td>{{ staff.lastname }}</td>
+                  <td>{{ staff.username }}</td>
+                  <td>{{ staff.email }}</td>
+                  <td *ngIf="staff.status.toLowerCase() == 'active'">
+                    <span class="badge badge-success">Active</span>
+                  </td>
+                  <td *ngIf="staff.status.toLowerCase() !== 'active'">
+                    <span class="badge badge-danger">{{ staff.status }}</span>
+                  </td>
+                  <td class="curson_pointer"
+                    [routerLink]="['/home/mystaff', staff.id]"
+                    style="color: darkblue">
+                    <button class="btn btn-link btn-sm p-0"
+                      title="View Location">
+                      <i class="fa fa-eye"></i>
+                    </button>
+                  </td>
+                  <td
+                    class="btnAction"
+                    *ngIf="changePassAccess || createReceiptAccess || editAccess"
+                  >
+                    <button
+                      class="btn-toggle-collapse approve-btn"
+                      type="button"
+                      href="javascript:void(0)"
+                      title="Edit"
+                      (click)="editStaffById(staff, i)"
+                      [disabled]="staff.status === 'TERMINATED'"
+                    >
+                      <img *ngIf="editAccess" src="assets/img/ioc01.jpg" />
+                    </button>
+                    <!-- <a
+                      href="javascript:void(0)"
+                      title="Delete"
+                      (click)="deleteConfirm(staff.id)"
+                      *ngIf="
+                        loginService.hasOperationPermission(
+                          AclClassConstants.ACL_STAFF,
+                          AclConstants.OPERATION_STAFF_DELETE,
+                          AclConstants.OPERATION_STAFF_ALL
+                        )
+                      "
+                    >
+                      <img src="assets/img/ioc02.jpg" />
+                    </a> -->
+                    <a
+                      *ngIf="changePassAccess"
+                      data-title="Change Password"
+                      title="Change Password"
+                      data-bs-target="#changePasswordModal"
+                      data-bs-toggle="modal"
+                      data-backdrop="static"
+                      data-keyboard="false"
+                      class="curson_pointer"
+                      (click)="getCustomerDataForPasswordChange(staff)"
+                    >
+                      <img class="icon" src="assets/img/icons-04.png" />
+                    </a>
+                    <a
+                      *ngIf="createReceiptAccess"
+                      data-title="Add New Receipt"
+                      title="Add New Receipt"
+                      data-bs-target="#paymentReciptModal"
+                      data-bs-toggle="modal"
+                      data-backdrop="static"
+                      data-keyboard="false"
+                      class="curson_pointer"
+                      (click)="addNewReceipt(staff)"
+                    >
+                      <img class="icon" src="assets/img/23_Receipt-Management_Y.png" />
+                    </a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <br />
+
+            <div class="pagination_Dropdown">
+              <pagination-controls
+                id="listing_staffdata"
+                [maxSize]="10"
+                [directionLinks]="true"
+                previousLabel=""
+                nextLabel=""
+                (pageChange)="pageChanged($event)"
+              ></pagination-controls>
+
+              <div id="itemPerPageDropdown">
+                <p-dropdown
+                  [options]="pageLimitOptions"
+                  optionLabel="value"
+                  optionValue="value"
+                  (onChange)="TotalItemPerPage($event)"
+                ></p-dropdown>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- END Data Table -->
+    </div>
+  </div>
+  <div class="row" *ngIf="isStaffCreateOrEdit">
+    <div class="col-md-12">
+      <!-- Form Design -->
+      <div class="panel">
+        <div class="panel-heading">
+          <h3 class="panel-title">{{ editMode ? "Update" : "Create" }} Staff</h3>
+          <div class="right">
+            <button
+              type="button"
+              class="btn-toggle-collapse"
+              data-bs-toggle="collapse"
+              data-bs-target="#createstaff"
+              aria-expanded="false"
+              aria-controls="createstaff"
+            >
+              <i class="fa fa-minus-circle"></i>
+            </button>
+          </div>
+        </div>
+
+        <div id="createstaff" class="panel-collapse collapse show">
+          <div class="panel-body">
+            <div>
+              <form class="form-auth-small" [formGroup]="staffGroupForm">
+                <div class="panel-body">
+                  <div class="form-group row">
+                    <div class="col-md-12 ml-12">
+                      <div
+                        class="borderuploadphoto"
+                        *ngIf="!imageUrl"
+                        style="
+                          border: 1px solid black !important;
+                          background: url('../assets/img/user.png');
+                        "
+                      >
+                        <button
+                          type="button"
+                          class="upload_btn-profileimage"
+                          style="border: none; width: 23%; height: 35px; padding: 5px"
+                        >
+                          <label for="upload-profileImage"> <i class="fa fa-camera"></i></label>
+                          <input
+                            type="file"
+                            name="photo"
+                            id="upload-profileImage"
+                            (change)="onFileChangeUpload($event)"
+                            accept=".jpg, .jpeg, .png"
+                            maxlength="2097152"
+                            style="display: none"
+                          />
+                        </button>
+                      </div>
+                      <div
+                        class="borderuploadphoto"
+                        *ngIf="imageUrl"
+                        style="
+                            border: 1px solid black !important;
+                            background: url('{{ imageUrl }}');
+                          "
+                      >
+                        <button
+                          type="button"
+                          class="upload_btn-profileimage"
+                          style="border: none; width: 23%; height: 35px; padding: 5px"
+                        >
+                          <label for="upload-profileImage"><i class="fa fa-camera"></i></label>
+                          <input
+                            type="file"
+                            name="photo"
+                            id="upload-profileImage"
+                            (change)="onFileChangeUpload($event)"
+                            accept="image/*"
+                            style="display: none"
+                          />
+                        </button>
+                      </div>
+                      <label style="text-align: center; display: flex; justify-content: center"
+                        >Profile Image</label
+                      >
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <div class="col-md-4 ml-15">
+                      <label>Username*</label>
+                      <div class="p-inputgroup">
+                        <input
+                          id="username"
+                          type="text"
+                          name="username"
+                          class="form-control"
+                          placeholder="Enter username"
+                          formControlName="username"
+                          [ngClass]="{
+                            'is-invalid': submitted && staffGroupForm.controls['username'].errors
+                          }"
+                        />
+                        <span *ngIf="!editMode" class="p-inputgroup-addon" style="width: 20vw">{{
+                          usernamee
+                        }}</span>
+                      </div>
+                      <div
+                        *ngIf="
+                          staffGroupForm.controls['username'].invalid &&
+                          (staffGroupForm.controls['username'].dirty ||
+                            staffGroupForm.controls['username'].touched)
+                        "
+                      >
+                        <div
+                          class="position"
+                          *ngIf="staffGroupForm.controls['username'].errors?.['required']"
+                        >
+                          <p class="error">Username is required</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ml-15" *ngIf="staffGroupForm.controls['password'].enabled">
+                      <div>
+                        <label>Password *</label>
+                        <div class="form-control displayflex">
+                          <div style="width: 95%">
+                            <input
+                              id="password"
+                              [type]="_passwordType"
+                              class="inputPassword"
+                              name="password"
+                              placeholder="Enter password"
+                              formControlName="password"
+                              [ngClass]="{
+                                'is-invalid': submitted && staffGroupForm.controls['password'].errors
+                              }"
+                            />
+                          </div>
+                          <div style="width: 5%">
+                            <div *ngIf="showPassword">
+                              <i
+                                class="fa fa-eye"
+                                (click)="showPassword = false; _passwordType = 'password'"
+                              ></i>
+                            </div>
+                            <div *ngIf="!showPassword">
+                              <i
+                                class="fa fa-eye-slash"
+                                (click)="showPassword = true; _passwordType = 'text'"
+                              ></i>
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          *ngIf="
+                            staffGroupForm.controls['password'].invalid &&
+                            (staffGroupForm.controls['password'].dirty ||
+                              staffGroupForm.controls['password'].touched)
+                          "
+                        >
+                          <div
+                            class="position"
+                            *ngIf="submitted && staffGroupForm.controls['password'].errors?.['required']"
+                          >
+                            <p class="error">Password is required</p>
+                          </div>
+                          <div
+                            class="position"
+                            *ngIf="
+                              submitted &&
+                              staffGroupForm.controls['password'].errors?.['cannotContainSpace']
+                            "
+                          >
+                            <p class="error">White space are not allowed.</p>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- <div *ngIf="editMode">
+                                  <div style="display: none">
+                                      <label>Password</label>
+                                      <input type="hidden" name="password" class="form-control" placeholder="Enter password"
+                                          disabled="disabled" formControlName="password" />
+                                  </div>
+                              </div> -->
+                    </div>
+                    <div class="col-md-4 ml-15">
+                      <label>Email*</label>
+                      <input
+                        id="email"
+                        type="text"
+                        name="email"
+                        class="form-control"
+                        placeholder="Enter email"
+                        formControlName="email"
+                        [ngClass]="{
+                          'is-invalid': submitted && staffGroupForm.controls['email'].errors
+                        }"
+                      />
+                      <div
+                        class="errorWrap text-danger"
+                        *ngIf="submitted && staffGroupForm.controls['email'].errors"
+                      >
+                        <div
+                          class="error text-danger"
+                          *ngIf="submitted && staffGroupForm.controls['email'].errors?.['required']"
+                        >
+                          Email is required.
+                        </div>
+                        <div
+                          class="error text-danger"
+                          *ngIf="submitted && staffGroupForm.controls['email'].errors?.['email']"
+                        >
+                          Email is not valid.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-md-4 ml-15" *ngIf="editMode">
+                      <label>HRMS ID</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter HRMS ID"
+                        formControlName="hrmsId"
+                      />
+                    </div>
+
+                    <!-- <div class="col-md-4 ml-15" [ngClass]="{
+                    stffMvnoEditCSS: !editMode
+                  }"> -->
+                    <!-- <label for="mvnoid">MVNO*</label>
+                  <p-dropdown [options]="mvnoListData" optionValue="id" optionLabel="name" filter="true" filterBy="name"
+                    placeholder="Select a MVNO" formControlName="mvnoid" [ngClass]="{
+                      'is-invalid':
+                        submitted && staffGroupForm.controls.mvnoid.errors
+                    }"></p-dropdown>
+                  <div></div> -->
+
+                    <!-- <ng-select
+                  placeholder="Select MVNO"
+                  formControlName="mvnoid"
+                  [items]="mvnoListData"
+                  bindLabel="name"
+                  bindValue="id"
+                  [ngClass]="{
+                    'is-invalid':
+                      submitted && staffGroupForm.controls.mvnoid.errors
+                  }"
+                ></ng-select> -->
+                    <!-- <div class="errorWrap text-danger" *ngIf="submitted && staffGroupForm.controls.mvnoid.errors">
+                    <div class="error text-danger" *ngIf="
+                        submitted &&
+                        staffGroupForm.controls.mvnoid.errors.required
+                      ">
+                      MVNO is required.
+                    </div>
+                  </div> -->
+                    <!-- </div> -->
+                  </div>
+                  <div class="form-group row">
+                    <div class="col-md-4 ml-15">
+                      <label>First Name*</label>
+                      <input
+                        id="firstname"
+                        type="text"
+                        name="firstname"
+                        class="form-control"
+                        placeholder="Enter firstname"
+                        formControlName="firstname"
+                        [ngClass]="{
+                          'is-invalid': submitted && staffGroupForm.controls['firstname'].errors
+                        }"
+                      />
+                      <div
+                        class="errorWrap text-danger"
+                        *ngIf="submitted && staffGroupForm.controls['firstname'].errors"
+                      >
+                        <div
+                          class="error text-danger"
+                          *ngIf="submitted && staffGroupForm.controls['firstname'].errors?.['required']"
+                        >
+                          Firstname is required.
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ml-15">
+                      <label>Last Name*</label>
+                      <input
+                        id="lastname"
+                        type="text"
+                        name="lastname"
+                        class="form-control"
+                        placeholder="Enter lastname"
+                        formControlName="lastname"
+                        [ngClass]="{
+                          'is-invalid': submitted && staffGroupForm.controls['lastname'].errors
+                        }"
+                      />
+                      <div
+                        class="errorWrap text-danger"
+                        *ngIf="submitted && staffGroupForm.controls['lastname'].errors"
+                      >
+                        <div
+                          class="error text-danger"
+                          *ngIf="submitted && staffGroupForm.controls['lastname'].errors?.['required']"
+                        >
+                          Lastname is required.
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ml-15">
+                      <label for="status">Status*</label>
+                      <p-dropdown
+                        [options]="statusList"
+                        optionValue="value_field"
+                        optionLabel="display_field"
+                        [filter]="true"
+                        filterBy="display_field"
+                        placeholder="Select a Status"
+                        formControlName="status"
+                        [ngClass]="{
+                          'is-invalid': submitted && staffGroupForm.controls['status'].errors
+                        }"
+                      ></p-dropdown>
+                      <div></div>
+
+                      <div
+                        class="errorWrap text-danger"
+                        *ngIf="submitted && staffGroupForm.controls['status'].errors"
+                      >
+                        <div
+                          class="error text-danger"
+                          *ngIf="submitted && staffGroupForm.controls['status'].errors?.['required']"
+                        >
+                          Status is required.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 ml-15">
+                      <label>Mobile *</label>
+                      <div style="display: flex">
+                        <div style="width: 27%; height: 34px">
+                          <p-dropdown
+                            id="countryCode"
+                            [filter]="true"
+                            [options]="countries"
+                            optionLabel="dial_code"
+                            optionValue="dial_code"
+                            formControlName="countryCode"
+                            placeholder="+91"
+                          ></p-dropdown>
+                        </div>
+                        <div style="width: 73%">
+                          <input
+                            (keyup)="onKeymobilelength($event)"
+                            id="phone"
+                            type="text"
+                            class="form-control"
+                            placeholder="Enter Mobile "
+                            formControlName="phone"
+                            [ngClass]="{
+                              'is-invalid': submitted && staffGroupForm.controls['phone'].errors
+                            }"
+                          />
+                          <div
+                            class="errorWrap text-danger"
+                            *ngIf="submitted && staffGroupForm.controls['phone'].errors"
+                          >
+                            <div class="error text-danger">Mobile number required.</div>
+                          </div>
+                          <div
+                            class="error text-danger"
+                            *ngIf="(inputMobile && staffGroupForm.value.phone) || mobileError"
+                          >
+                            {{ this.inputMobile }} character required.
+                          </div>
+                        </div>
+                      </div>
+                      <br />
+                    </div>
+                    <div class="col-md-4 ml-15">
+                      <label for="roleIds">Roles*</label>
+                      <p-dropdown
+                        id="roles"
+                        [options]="loggedInUserRoleList"
+                        formControlName="roleIds"
+                        defaultLabel="Select roles"
+                        optionLabel="rolename"
+                        optionValue="id"
+                        [ngClass]="{
+                          'is-invalid': submitted && staffGroupForm.controls['roleIds'].errors
+                        }"
+                      ></p-dropdown>
+                      <!-- <ng-select
+                  placeholder="Select roles"
+                  formControlName="roleIds"
+                  [items]="roleList"
+                  bindLabel="rolename"
+                  [multiple]="true"
+                  bindValue="id"
+                  [ngClass]="{
+                    'is-invalid':
+                      submitted && staffGroupForm.controls.roleIds.errors
+                  }"
+                ></ng-select> -->
+                      <div
+                        class="errorWrap text-danger"
+                        *ngIf="submitted && staffGroupForm.controls['roleIds'].errors"
+                      >
+                        <div
+                          class="error text-danger"
+                          *ngIf="submitted && staffGroupForm.controls['roleIds'].errors?.['required']"
+                        >
+                          Roles is required.
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ml-15">
+                      <label for="teamIds">Teams</label>
+                      <p-multiSelect
+                        id="teams"
+                        [options]="teams"
+                        formControlName="teamIds"
+                        defaultLabel="Select teams"
+                        optionLabel="name"
+                        optionValue="id"
+                        [ngClass]="{
+                          'is-invalid': submitted && staffGroupForm.controls['teamIds'].errors
+                        }"
+                      ></p-multiSelect>
+                      <div></div>
+                      <!-- <ng-select
+                  placeholder="Select teams"
+                  formControlName="teamIds"
+                  [items]="teams"
+                  bindLabel="name"
+                  [multiple]="true"
+                  bindValue="id"
+                  [ngClass]="{
+                    'is-invalid':
+                      submitted && staffGroupForm.controls.teamIds.errors
+                  }"
+                ></ng-select> -->
+                      <div
+                        class="errorWrap text-danger"
+                        *ngIf="submitted && staffGroupForm.controls['teamIds'].errors"
+                      >
+                        <div
+                          class="error text-danger"
+                          *ngIf="submitted && staffGroupForm.controls['teamIds'].errors?.['required']"
+                        >
+                          Teams is required.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <div class="col-md-4 ml-15">
+                      <label for="serviceAreaId">Service area</label>
+                      <p-multiSelect
+                        id="roles"
+                        [options]="commondropdownService.serviceAreaList"
+                        formControlName="serviceAreaIdsList"
+                        defaultLabel="Select Area"
+                        optionLabel="name"
+                        optionValue="id"
+                        (onChange)="serviceAreaEvent($event)"
+                        [ngClass]="{
+                          'is-invalid':
+                            submitted && staffGroupForm.controls['serviceAreaIdsList'].errors
+                        }"
+                      >
+                     <ng-template let-option pTemplate="item">
+                        <span>
+                        {{ option.name }}
+                        &nbsp;
+                        <span *ngIf="option.isUnderDevelopment" class="badge badge-info underDevelopBadge">
+                            UnderDevelopment
+                        </span>
+                        </span>
+                    </ng-template>
+                    </p-multiSelect>
+                      <div></div>
+                      <div
+                        class="errorWrap text-danger"
+                        *ngIf="submitted && staffGroupForm.controls['serviceAreaIdsList'].errors"
+                      >
+                        <div
+                          class="error text-danger"
+                          *ngIf="
+                            submitted && staffGroupForm.controls['serviceAreaIdsList'].errors?.['required']
+                          "
+                        >
+                          Service area is required.
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ml-15">
+                      <label for="serviceAreaId">Business Unit</label>
+                      <p-multiSelect
+                        id="businessUnit"
+                        [options]="businessData"
+                        formControlName="businessUnitIdsList"
+                        defaultLabel="Select Business Unit"
+                        optionLabel="buname"
+                        optionValue="id"
+                        optionDisabled="flag"
+                      >
+                      </p-multiSelect>
+                      <div></div>
+                      <div
+                        class="errorWrap text-danger"
+                        *ngIf="submitted && staffGroupForm.controls['businessUnitIdsList'].errors"
+                      >
+                        <div
+                          class="error text-danger"
+                          *ngIf="
+                            submitted && staffGroupForm.controls['businessUnitIdsList'].errors?.['required']
+                          "
+                        >
+                          Service area is required.
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ml-15">
+                      <label for="parentStaffId">Partner*</label>
+                      <p-dropdown
+                        [options]="commondropdownService.partnerAllNAme"
+                        optionValue="id"
+                        optionLabel="name"
+                        [filter]="true"
+                        filterBy="name"
+                        placeholder="Select a Partner"
+                        formControlName="partnerid"
+                        [ngClass]="{
+                          'is-invalid': submitted && staffGroupForm.controls['partnerid'].errors
+                        }"
+                      ></p-dropdown>
+                      <div></div>
+
+                      <!-- <ng-select
+                  placeholder="Select Partner"
+                  formControlName="partnerid"
+                  [items]="commondropdownService.partnerAllNAme"
+                  bindLabel="name"
+                  bindValue="id"
+                  [ngClass]="{
+                    'is-invalid':
+                      submitted && staffGroupForm.controls.partnerid.errors
+                  }"
+                ></ng-select> -->
+                      <div
+                        class="errorWrap text-danger"
+                        *ngIf="submitted && staffGroupForm.controls['partnerid'].errors"
+                      >
+                        <div
+                          class="error text-danger"
+                          *ngIf="submitted && staffGroupForm.controls['partnerid'].errors?.['required']"
+                        >
+                          Partner is required.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <div class="col-md-4 ml-15">
+                      <label for="branchId">Branch</label>
+                      <p-dropdown
+                        [options]="branchData"
+                        optionValue="id"
+                        optionLabel="name"
+                        [filter]="true"
+                        filterBy="name"
+                        placeholder="Select a Branch"
+                        formControlName="branchId"
+                        [ngClass]="{
+                          'is-invalid': submitted && staffGroupForm.controls['branchId'].errors
+                        }"
+                      >
+                      </p-dropdown>
+                    </div>
+                    <div
+                      class="col-md-4 ml-15"
+                      *ngIf="tacacsAccess && statusCheckService.isActiveTacacs"
+                    >
+                      <label>Access Level Group</label>
+                      <p-dropdown
+                        [options]="TacacsDeviceList"
+                        optionValue="accessLevelGroupName"
+                        optionLabel="accessLevelGroupName"
+                        [filter]="true"
+                        filterBy="name"
+                        placeholder="Select a tacacs Access Level Group"
+                        formControlName="tacacsAccessLevelGroup"
+                        [ngClass]="{
+                          'is-invalid':
+                            submitted && staffGroupForm.controls['tacacsAccessLevelGroup'].errors
+                        }"
+                      >
+                      </p-dropdown>
+                    </div>
+                    <div class="col-md-4 ml-15" *ngIf="!editMode">
+                      <label>HRMS ID</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter HRMS ID"
+                        formControlName="hrmsId"
+                      />
+                    </div>
+                    <div class="col-md-4 ml-15" *ngIf="!editMode">
+                      <label>Area Mapping</label>
+                      <button class="action-btn areamapping-btn" (click)="onShowAreaMapping()">Show Data</button>
+                    </div>
+                    <div
+                      class="col-md-4 ml-15"
+                      *ngIf="staffGroupForm.controls['parentStaffId'].enabled"
+                    >
+                      <label for="parentStaffId">Parent Staff</label>
+                      <p-dropdown
+                        [options]="parentStaffList"
+                        optionValue="id"
+                        optionLabel="firstname"
+                        [filter]="true"
+                        filterBy="firstname"
+                        placeholder="Select a Parent Staff"
+                        formControlName="parentStaffId"
+                      >
+                      </p-dropdown>
+                      <div></div>
+
+                      <!-- <ng-select
+                  placeholder="Select Parent Staff"
+                  formControlName="parentStaffId"
+                  [items]="parentStaffList"
+                  bindLabel="firstname"
+                  bindValue="id"
+                ></ng-select> -->
+                  </div>
+                  <div class="col-md-4 ml-15" *ngIf="editMode">
+                      <label>Area Mapping</label>
+                      <button class="action-btn areamapping-btn" (click)="onShowAreaMapping()">Show Data</button>
+                  </div>
+                  </div>
+                  <div class="addUpdateBtn">
+                    <button type="submit" class="btn btn-primary" (click)="addStaff()">
+                      <i class="fa fa-check-circle"></i>
+                      {{ editMode ? "Update" : "Add" }} Staff
+                    </button>
+                    <br />
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- END Form Design -->
+    </div>
+  </div>
+</div>
+
+<div class="row" *ngIf="isStaffPersonalData">
+  <div class="col-md-12 col-sm-12">
+    <div class="panel">
+      <div class="panel-heading">
+        <div class="displayflex">
+          <button
+            type="button"
+            class="btn btn-secondary backbtn"
+            data-bs-toggle="tooltip"
+            data-placement="bottom"
+            title="Go to Staff All Details"
+            (click)="openStaffListMenu()"
+          >
+            <i
+              class="fa fa-arrow-circle-left"
+              style="color: darkblue !important; font-size: 28px"
+            ></i>
+          </button>
+          <h3 class="panel-title">{{ satffUserData.firstname }} Staff</h3>
+        </div>
+        <div class="right">
+          <button
+            type="button"
+            class="btn-toggle-collapse"
+            data-bs-toggle="collapse"
+            data-bs-target="#staffdeatilsview"
+            aria-expanded="false"
+            aria-controls="staffdeatilsview"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <div id="staffdeatilsview" class="panel-collapse collapse show">
+        <div class="panel-body table-responsive">
+          <!--    Basic Details    -->
+          <fieldset style="margin-top: 0rem">
+            <legend>Basic Details</legend>
+            <div class="boxWhite">
+              <div class="row">
+                <div
+                  class="col-lg-3 col-md-3 col-sm-6 col-xs-12 dataGroup"
+                  style="display: flex; justify-content: center; align-items: center"
+                >
+                  <img
+                    src="../assets/img/user.png"
+                    class="staggImg"
+                    *ngIf="!satffUserData.profileImage"
+                  />
+                  <img
+                    [src]="staffImg"
+                    alt="Teacher"
+                    class="staggImg"
+                    *ngIf="satffUserData.profileImage"
+                  />
+                </div>
+
+                <div class="col-lg-9 col-md-9 col-sm-6 col-xs-12 dataGroup">
+                  <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                      <label class="datalbl">Firstname :</label>
+                      <span>{{ satffUserData.firstname }}</span>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                      <label class="datalbl"> Lastname :</label>
+                      <span>{{ satffUserData.lastname }}</span>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                      <label class="datalbl">Username :</label>
+                      <span>{{ satffUserData.username }}</span>
+                    </div>
+
+                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                      <label class="datalbl">Email :</label>
+                      <span>{{ satffUserData.email }}</span>
+                    </div>
+
+                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                      <label class="datalbl">Mobile :</label>
+                      <span>({{ satffUserData.countryCode }}) {{ satffUserData.phone }}</span>
+                    </div>
+
+                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                      <label class="datalbl">Roles :</label>
+                      <span *ngFor="let list of satffUserData.roleName; index as j">
+                        {{ list }},&nbsp;
+                      </span>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                      <label class="datalbl">Service area :</label>
+                      <span
+                        *ngIf="this.satffUserData.serviceAreasNameList.length > 0"
+                        class="HoverEffect"
+                        data-bs-target="#serviceareaModal"
+                        data-bs-toggle="modal"
+                        data-backdrop="static"
+                        data-keyboard="false"
+                        title="Go To service Area List"
+                      >
+                        Click here
+                      </span>
+                      <span *ngIf="this.satffUserData.serviceAreasNameList.length == 0">
+                        {{ "-" }}
+                      </span>
+                      <!-- <span *ngFor="let list of satffUserData.serviceAreaNameList; index as j">
+                      {{ list }},&nbsp;
+                    </span> -->
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                      <label class="datalbl">Business Unit :</label>
+
+                      <span
+                        class="HoverEffect"
+                        data-bs-target="#bussinessModal"
+                        data-bs-toggle="modal"
+                        data-backdrop="static"
+                        data-keyboard="false"
+                        title="Go To Business List"
+                      >
+                        Click here
+                      </span>
+                      <!-- <span *ngFor="let list of satffUserData.businessUnitNameList; index as j">
+                      {{ list }},&nbsp;
+                    </span> -->
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                      <label class="datalbl">Team :</label>
+
+                      <span
+                        *ngIf="this.satffUserData.teamNameList.length > 0"
+                        class="HoverEffect"
+                        data-bs-target="#teamModal"
+                        data-bs-toggle="modal"
+                        data-backdrop="static"
+                        data-keyboard="false"
+                        title="Go To Team List"
+                      >
+                        Click here
+                      </span>
+                      <span *ngIf="this.satffUserData.teamNameList.length == 0">
+                        {{ "-" }}
+                      </span>
+                      <!-- <span *ngFor="let list of satffUserData.businessUnitNameList; index as j">
+                      {{ list }},&nbsp;
+                    </span> -->
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                      <label class="datalbl">Parent Staff :</label>
+                      <span *ngIf="satffUserData.parentstaffname">{{
+                        satffUserData.parentstaffname
+                      }}</span>
+                      <span *ngIf="!satffUserData.parentstaffname">-</span>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                      <label class="datalbl">Partner :</label>
+                      <span>{{ satffUserData.partnerName }}</span>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                      <label class="datalbl">HRMS ID :</label>
+                      <span>{{ satffUserData.hrmsId }}</span>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                      <label class="datalbl">Branch Name :</label>
+                      <span>{{ satffUserData.branchName }}</span>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                      <label class="datalbl">Status :</label>
+                      <span *ngIf="satffUserData.status == 'ACTIVE'" class="badge badge-success">
+                        Active
+                      </span>
+                      <span *ngIf="satffUserData.status == 'INACTIVE'" class="badge badge-danger">
+                        Inactive
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="isStaffReceiptData">
+  <div class="row">
+    <div class="col-md-12 col-sm-12">
+      <div class="panel">
+        <div class="panel-heading">
+          <div class="displayflex">
+            <button
+              type="button"
+              class="btn btn-secondary backbtn"
+              data-bs-toggle="tooltip"
+              data-placement="bottom"
+              title="Go to Staff All Details"
+              (click)="staffDetialsOpen(this.openStaffID)"
+            >
+              <i
+                class="fa fa-arrow-circle-left"
+                style="color: darkblue !important; font-size: 28px"
+              ></i>
+            </button>
+            <h3 class="panel-title">{{ satffUserData.firstname }} Staff Receipt</h3>
+          </div>
+          <div class="right">
+            <button
+              type="button"
+              class="btn-toggle-collapse"
+              data-bs-toggle="collapse"
+              data-bs-target="#staffdeatilsview"
+              aria-expanded="false"
+              aria-controls="staffdeatilsview"
+            >
+              <i class="fa fa-minus-circle"></i>
+            </button>
+          </div>
+        </div>
+
+        <div id="staffdeatilsview" class="panel-collapse collapse show">
+          <div class="panel-body table-responsive">
+            <!-- <div class="searchForm row">
+              <div class="col-md-4">
+                <input
+                  id="searchStaffName"
+                  type="text"
+                  name="username"
+                  class="form-control"
+                  placeholder="Global Search Filter"
+                  [(ngModel)]="searchReceptNumber"
+                />
+              </div>
+              <div class="col-md-4 marginTopSearchBtn">
+                <button type="submit" class="btn btn-primary" (click)="searchReceiptName()">
+                  <i class="fa fa-search"></i>
+                  Search
+                </button>
+                &nbsp;
+                <button type="reset" class="btn btn-default" (click)="clearReceiptForm()">
+                  <i class="fa fa-refresh"></i>
+                  Clear
+                </button>
+              </div>
+            </div> -->
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Prefix</th>
+                  <th>From Receipt Number</th>
+                  <th>To Receipt Number</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="
+                    let staff of staffreciptMappingList
+                      | paginate
+                        : {
+                            id: 'listing_staffdata',
+                            itemsPerPage: itemsReceiptPerPage,
+                            currentPage: currentReceiptPage,
+                            totalItems: totalReceiptRecords
+                          };
+                    index as i
+                  "
+                >
+                  <td>{{ staff.prefix }}</td>
+                  <td>{{ staff.fromreceiptnumber }}</td>
+                  <td>{{ staff.toreceiptnumber }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <br />
+
+            <div class="pagination_Dropdown">
+              <pagination-controls
+                id="listing_staffdata"
+                [maxSize]="10"
+                [directionLinks]="true"
+                previousLabel=""
+                nextLabel=""
+                (pageChange)="pageReceiptChanged($event)"
+              ></pagination-controls>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- <div class="row">
+    <div class="col-md-12 col-sm-12">
+      <div class="panel">
+        <div class="panel-heading">
+          <h3 class="panel-title">Receipt List</h3>
+          <div class="right">
+            <button
+              type="button"
+              class="btn-toggle-collapse"
+              data-bs-toggle="collapse"
+              data-bs-target="#staffRepeiptList"
+              aria-expanded="false"
+              aria-controls="staffRepeiptList"
+            >
+              <i class="fa fa-minus-circle"></i>
+            </button>
+          </div>
+        </div>
+
+        <div id="staffRepeiptList" class="panel-collapse collapse show">
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> -->
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" role="dialog">
+  <div class="modal-dialog" style="width: 35%">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <!-- <button type="button" class="close" data-dismiss="modal">&times;</button> -->
+        <h3 class="panel-title">Change Password</h3>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="changePasswordForm">
+          <div class="form-group">
+            <label for="userName">User Name :</label>
+            <input
+              type="text"
+              class="form-control"
+              id="userName"
+              name="userName"
+              formControlName="userName"
+              value="{{ userName }}"
+              [disabled]=""
+            />
+            <!-- disabled="disabled" value="{{ loggedInUser }}" -->
+          </div>
+          <!-- <div class="form-group" [ngClass]="{
+              'has-error':
+                changePasswordForm.get('oldPassword').errors &&
+                (changePasswordForm.get('oldPassword').touched ||
+                  changePasswordForm.get('oldPassword').dirty)
+            }">
+            <label for="oldPassword">Old Password :</label>
+            <div class="form-control displayflex">
+              <div style="width: 95%;">
+                <input [type]="_passwordOLDType" class="inputPassword" id="oldPassword"
+                  placeholder="Enter Old Password " name="oldPassword" formControlName="oldPassword" />
+                <span class="help-block" *ngIf="
+                    (changePasswordForm.get('oldPassword').touched ||
+                      changePasswordForm.get('oldPassword').dirty) &&
+                    changePasswordForm.get('oldPassword').hasError('required')
+                  ">
+                  Old Password is mandatory
+                </span>
+              </div>
+              <div style="width: 5%;">
+                <div *ngIf="showOLDPassword">
+                  <i class="fa fa-eye" (click)="
+                      showOLDPassword = false; _passwordOLDType = 'password'
+                    "></i>
+                </div>
+                <div *ngIf="!showOLDPassword">
+                  <i class="fa fa-eye-slash" (click)="showOLDPassword = true; _passwordOLDType = 'text'"></i>
+                </div>
+              </div>
+            </div>
+          </div> -->
+          <div
+            class="form-group"
+            *ngIf="!ifgenerateOtpField"
+            [ngClass]="{
+              'has-error':
+                changePasswordForm.get('newPassword').errors &&
+                (changePasswordForm.get('newPassword').touched ||
+                  changePasswordForm.get('newPassword').dirty)
+            }"
+          >
+            <label for="newPassword">New Password :</label>
+            <div class="form-control displayflex">
+              <div style="width: 95%">
+                <input
+                  [type]="_passwordNewType"
+                  class="inputPassword"
+                  id="newPassword"
+                  placeholder="Enter New Password"
+                  name="newPassword"
+                  formControlName="newPassword"
+                />
+              </div>
+
+              <div style="width: 5%">
+                <div *ngIf="showNewPassword">
+                  <i
+                    class="fa fa-eye"
+                    (click)="showNewPassword = false; _passwordNewType = 'password'"
+                  ></i>
+                </div>
+                <div *ngIf="!showNewPassword">
+                  <i
+                    class="fa fa-eye-slash"
+                    (click)="showNewPassword = true; _passwordNewType = 'text'"
+                  ></i>
+                </div>
+              </div>
+            </div>
+            <div
+              class="help-block"
+              *ngIf="
+                (changePasswordForm.get('newPassword').touched ||
+                  changePasswordForm.get('newPassword').dirty) &&
+                changePasswordForm.get('newPassword').hasError('required')
+              "
+            >
+              New Password is mandatory
+            </div>
+            <!-- <input
+              type="password"
+              class="form-control"
+              id="newPassword"
+              placeholder="Enter New Password"
+              name="newPassword"
+              formControlName="newPassword"
+            /> -->
+          </div>
+        </form>
+        <div *ngIf="ifgenerateOtpField" style="display: flex; justify-content: flex-end">
+          <button type="submit" class="btn btn-primary btn-sm" (click)="genrateOtp()">
+            <i class="fa fa-check-circle"></i>
+            Generate Otp
+          </button>
+        </div>
+        <div class="form-group" *ngIf="ifgenerateOtpField">
+          <label for="OTP">OTP :</label>
+          <input
+            type="number"
+            class="form-control"
+            id="OTP"
+            name="OTP"
+            [(ngModel)]="staffOTPValue"
+          />
+          <!-- disabled="disabled" value="{{ loggedInUser }}" -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="addUpdateBtn">
+          <button
+            *ngIf="ifgenerateOtpField"
+            type="submit"
+            class="btn btn-primary btn-sm"
+            (click)="ValidOtp()"
+            [disabled]="!staffOTPValue"
+          >
+            <i class="fa fa-check-circle"></i>
+            Valid OTP
+          </button>
+          <button
+            *ngIf="!ifgenerateOtpField"
+            type="submit"
+            class="btn btn-primary btn-sm"
+            (click)="changePassword()"
+            [disabled]="!changePasswordForm.valid"
+          >
+            <i class="fa fa-check-circle"></i>
+            Save
+          </button>
+          <button
+            id="btn"
+            type="button"
+            class="btn btn-default btn-sm"
+            (click)="clearChangePasswordForm()"
+          >
+            <i class="fa fa-refresh"></i>
+            Clear
+          </button>
+          <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- payment Recipt Modal Modal -->
+<div class="modal fade" id="paymentReciptModal" role="dialog">
+  <div class="modal-dialog" style="width: 35%">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <!-- <button type="button" class="close" data-dismiss="modal">&times;</button> -->
+        <h3 class="panel-title">New Receipt</h3>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="paymentReciptForm">
+          <div class="form-group">
+            <label for="prefix">Prefix *:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="Prefix"
+              name="Prefix"
+              formControlName="prefix"
+            />
+          </div>
+          <div class="form-group">
+            <label for="receiptFrom">Receipt From *:</label>
+            <input
+              type="number"
+              class="form-control"
+              id="receiptFrom "
+              name="receiptFrom "
+              formControlName="receiptFrom"
+            />
+          </div>
+          <div class="form-group">
+            <label for="receiptTo">Receipt To *:</label>
+            <input
+              type="number"
+              class="form-control"
+              id="receiptTo"
+              name="receiptTo"
+              formControlName="receiptTo"
+            />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <div class="addUpdateBtn">
+          <button
+            type="submit"
+            class="btn btn-primary btn-sm"
+            (click)="saveNewRecipt()"
+            [disabled]="!paymentReciptForm.valid"
+          >
+            <i class="fa fa-check-circle"></i>
+            Save
+          </button>
+          <button
+            id="btn"
+            type="button"
+            class="btn btn-default btn-sm"
+            (click)="clearpaymentReciptForm()"
+          >
+            <i class="fa fa-refresh"></i>
+            Clear
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger btn-sm"
+            data-dismiss="modal"
+            (click)="clearpaymentReciptForm()"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="ifWalletStaffShow" class="row">
+  <div class="col-md-12 col-sm-12">
+    <div class="panel">
+      <div class="panel-heading">
+        <div class="displayflex">
+          <button
+            type="button"
+            class="btn btn-secondary backbtn"
+            data-bs-toggle="tooltip"
+            data-placement="bottom"
+            title="Go to Staff All Details"
+            (click)="staffDetialsOpen(this.openStaffID)"
+          >
+            <i
+              class="fa fa-arrow-circle-left"
+              style="color: darkblue !important; font-size: 28px"
+            ></i>
+          </button>
+          <h3 class="panel-title">{{ satffUserData.firstname }} Wallet</h3>
+        </div>
+        <div class="right">
+          <button
+            aria-controls="radiusStaffWallet"
+            aria-expanded="false"
+            class="btn-toggle-collapse"
+            class="btn-toggle-collapse"
+            data-bs-target="#radiusStaffWallet"
+            data-bs-toggle="collapse"
+            type="button"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+      <div class="panel-body table-responsive" id="radiusStaffWallet">
+        <!--  -->
+        <div style="margin-bottom: 2rem">
+          <button
+            (click)="showWithdrawalAmountModel()"
+            class="btn btn-primary"
+            id="submit"
+            type="submit"
+            *ngIf="this.WalletAmount > 0"
+          >
+            <i class="fa fa-check-circle"></i>
+            Withdrawal Amount
+          </button>
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+          <label class="datalbl">Wallet Balance :</label>
+          <span>{{ WalletAmount }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-12 col-sm-12">
+    <div class="panel">
+      <div class="panel-heading">
+        <div class="displayflex">
+          <button
+            type="button"
+            class="btn btn-secondary backbtn"
+            data-bs-toggle="tooltip"
+            data-placement="bottom"
+            title="Go to Staff All Details"
+            (click)="staffDetialsOpen(this.openStaffID)"
+          >
+            <i
+              class="fa fa-arrow-circle-left"
+              style="color: darkblue !important; font-size: 28px"
+            ></i>
+          </button>
+          <h3 class="panel-title">{{ satffUserData.firstname }} Ledger</h3>
+        </div>
+        <div class="right">
+          <button
+            aria-controls="radiusStaffLeager"
+            aria-expanded="false"
+            class="btn-toggle-collapse"
+            class="btn-toggle-collapse"
+            data-bs-target="#radiusStaffLeager"
+            data-bs-toggle="collapse"
+            type="button"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+      <div class="panel-body table-responsive" id="radiusStaffLeager">
+        <div class="panel-body table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Action</th>
+                <th>Amount</th>
+                <th>Payment Mode</th>
+                <th>Transaction Type</th>
+                <th>Date</th>
+                <th>Remarks</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="
+                  let staff of staffLegderData
+                    | paginate
+                      : {
+                          id: 'listing_staffLegderdata',
+                          itemsPerPage: itemsLegderPerPage,
+                          currentPage: currentLegderPage,
+                          totalItems: totalLegderRecords
+                        };
+                  index as i
+                "
+              >
+                <td>{{ staff.action }}</td>
+                <td>{{ staff.amount }}</td>
+                <td>{{ staff.paymentMode }}</td>
+                <td>{{ staff.transactionType }}</td>
+                <td>{{ staff.date }}</td>
+                <td>{{ staff.remarks }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <br />
+
+          <div class="pagination_Dropdown">
+            <pagination-controls
+              id="listing_staffLegderdata"
+              [maxSize]="10"
+              [directionLinks]="true"
+              previousLabel=""
+              nextLabel=""
+              (pageChange)="pageLegderChanged($event)"
+            ></pagination-controls>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Wallet Modal Modal -->
+<div class="modal fade" id="staffWalletModal" role="dialog">
+  <div class="modal-dialog" style="width: 35%">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <!-- <button type="button" class="close" data-dismiss="modal">&times;</button> -->
+        <h3 class="panel-title">Wallet</h3>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="radiusWalletGroupForm">
+          <div class="form-group">
+            <label for="date">Date :</label>
+            <input type="date" class="form-control" id="date" name="date" formControlName="date" />
+          </div>
+          <div class="form-group">
+            <label for="amount">Amount :</label>
+            <input
+              type="number"
+              class="form-control"
+              id="amount "
+              name="amount "
+              formControlName="amount"
+              placeholder="Enter a Amount"
+            />
+          </div>
+          <div class="form-group">
+            <label for="bank">Bank :</label>
+
+            <p-dropdown
+              [options]="bankDataList"
+              optionValue="id"
+              optionLabel="bankname"
+              [filter]="true"
+              filterBy="bankname"
+              placeholder="Select a Bank"
+              formControlName="bankId"
+            >
+              <ng-template let-data pTemplate="item">
+                <div class="item-drop1">
+                  <span class="item-value1"> {{ data.bankname }} ( {{ data.accountnum }} ) </span>
+                </div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+          <div class="form-group">
+            <label for="remarks">Remarks :</label>
+            <textarea
+              type="text"
+              class="form-control"
+              id="remarks"
+              name="remarks"
+              formControlName="remarks"
+              placeholder="Enter a Remarks"
+            ></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <div class="addUpdateBtn">
+          <!-- [disabled]="!radiusWalletGroupForm.valid" -->
+          <button
+            type="submit"
+            class="btn btn-primary btn-sm"
+            (click)="saveManageBalance()"
+            [disabled]="!radiusWalletGroupForm.valid"
+          >
+            <i class="fa fa-check-circle"></i>
+            Save
+          </button>
+          <button
+            id="btn"
+            type="button"
+            class="btn btn-default btn-sm"
+            (click)="clearWalletStaffForm()"
+          >
+            <i class="fa fa-refresh"></i>
+            Clear
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger btn-sm"
+            data-dismiss="modal"
+            (click)="clearWalletStaffForm()"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- service area list -->
+<div class="modal fade" id="serviceareaModal" role="dialog">
+  <div class="modal-dialog" style="width: 35%">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h3 class="panel-title">{{ satffUserData.fullName }} Service Area List</h3>
+      </div>
+      <div class="modal-body" style="max-height: 45rem !important; overflow: auto !important">
+        <div class="panel-body table-responsive" id="networkDeviceTabel">
+          <table class="table">
+            <tbody>
+              <tr>
+                <td><label class="networkLabel">Service Area :</label></td>
+                <td>
+                  <span
+                    style="word-break: break-all"
+                    *ngFor="let serviceName of satffUserData.serviceAreasNameList"
+                  >
+                    <span>
+                      {{ serviceName }},
+                      <br />
+                    </span>
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- bussiness list -->
+<div class="modal fade" id="bussinessModal" role="dialog">
+  <div class="modal-dialog" style="width: 35%">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h3 class="panel-title">{{ satffUserData.fullName }} Business List</h3>
+      </div>
+      <div class="modal-body" style="max-height: 45rem !important; overflow: auto !important">
+        <div class="panel-body table-responsive" id="networkDeviceTabel">
+          <table class="table">
+            <tbody>
+              <tr>
+                <td><label class="networkLabel">Business List :</label></td>
+                <td>
+                  <span
+                    style="word-break: break-all"
+                    *ngFor="let name of satffUserData.businessUnitNamesList"
+                  >
+                    <span>
+                      {{ name }},
+                      <br />
+                    </span>
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="teamModal" role="dialog">
+  <div class="modal-dialog" style="width: 35%">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h3 class="panel-title">{{ satffUserData.fullName }} Business List</h3>
+      </div>
+      <div class="modal-body" style="max-height: 45rem !important; overflow: auto !important">
+        <div class="panel-body table-responsive" id="networkDeviceTabel">
+          <table class="table">
+            <tbody>
+              <tr>
+                <td><label class="networkLabel">Team List :</label></td>
+                <td>
+                  <span
+                    style="word-break: break-all"
+                    *ngFor="let name of satffUserData.teamNameList"
+                  >
+                    <span>
+                      {{ name }},
+                      <br />
+                    </span>
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<p-dialog 
+  header="Staff Data Tree" 
+  [draggable]="false"
+  [(visible)]="showAreaMappingDialog" 
+  [modal]="true" 
+  [style]="{width: '70vw'}" 
+  [closable]="true" 
+  (onHide)="closeShowAreaMappingDialog()">
+
+  <!-- Checkbox Row -->
+<div class="row mb-3 mt-3">
+  <div class="col-md-12 d-flex gap-4">
+    <p-radioButton name="level" value="country" [(ngModel)]="selectedLevel" (onClick)="onLevelChange('country')" label="Country"></p-radioButton>
+    <p-radioButton name="level" value="state" [(ngModel)]="selectedLevel" (onClick)="onLevelChange('state')" label="State"></p-radioButton>
+    <p-radioButton name="level" value="district" [(ngModel)]="selectedLevel" (onClick)="onLevelChange('district')" label="District"></p-radioButton>
+  </div>
+</div>
+
+  <!-- Dropdown Row -->
+  <div class="row mb-3">
+    <div class="col-md-4" *ngIf="showCountryDropdown">
+      <label for="country">Country</label>
+      <p-dropdown 
+        id="country" 
+        [options]="country" 
+        optionLabel="name" 
+        [(ngModel)]="selectedCountry" 
+        (onChange)="onCountryChange($event.value)" 
+        appendTo="body" 
+        [virtualScroll]="true"
+        [itemSize]="40"
+        placeholder="Select Country">
+      </p-dropdown>
+    </div>
+
+    <div class="col-md-4" *ngIf="showStateDropdown">
+      <label for="state">State</label>
+      <p-dropdown 
+        id="state" 
+        [options]="states" 
+        optionLabel="name" 
+        [(ngModel)]="selectedState" 
+        (onChange)="onStateChange($event.value)"  
+        appendTo="body" 
+        [virtualScroll]="true"
+        [itemSize]="40"
+        placeholder="Select State">
+      </p-dropdown>
+    </div>
+
+    <div class="col-md-4" *ngIf="showDistrictDropdown">
+      <label for="district">District</label>
+      <p-dropdown 
+        id="district" 
+        [options]="districts" 
+        optionLabel="name" 
+        [(ngModel)]="selectedDistrict" 
+        appendTo="body" 
+        [virtualScroll]="true"
+        [itemSize]="40"
+        placeholder="Select District">
+      </p-dropdown>
+    </div>
+  </div>
+
+  <!-- Add Button -->
+  <div class="d-flex justify-content-end mb-3">
+    <button pButton type="button" 
+      label="+ Add"
+      class="p-button-sm p-button-success"
+      (click)="onAddAreaMapping()">
+    </button>
+  </div>
+
+    <!-- Show red message when no rows -->
+  <div *ngIf="areaMappingList.length === 0" class="text-danger mb-3" style="font-size: 12px;">
+    Please add at least one area mapping before saving.
+  </div>
+
+  <!-- Table -->
+  <div class="area-table-wrapper">
+    <table class="area-table" *ngIf="areaMappingList.length > 0">
+      <thead>
+        <tr>
+          <th *ngIf="showCountryDropdown">Country</th>
+          <th *ngIf="showStateDropdown">State</th>
+          <th *ngIf="showDistrictDropdown">District</th>
+          <th style="width: 80px;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of areaMappingList; let i = index">
+          <td *ngIf="showCountryDropdown">{{ row.country?.name }}</td>
+          <td *ngIf="showStateDropdown">{{ row.state?.name }}</td>
+          <td *ngIf="showDistrictDropdown">{{ row.district?.name }}</td>
+          <td>
+            <button pButton type="button" icon="pi pi-trash"
+              class="p-button-rounded p-button-danger p-button-text"
+              (click)="removeAreaMapping(i)">
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Footer -->
+  <ng-template pTemplate="footer">
+    <div class="d-flex justify-content-end gap-2">
+      <button pButton label="Cancel" class="p-button-text" (click)="closeShowAreaMappingDialog()"></button>
+      <button pButton label="Save" class="p-button-primary" (click)="onSaveAreaMapping()" [disabled]="areaMappingList.length === 0"></button>
+    </div>
+  </ng-template>
+</p-dialog>
+

@@ -1,0 +1,175 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="panel">
+      <div class="panel-heading">
+        <h3 class="panel-title">Bulk VLAN</h3>
+        <div class="right">
+          <button
+            type="button"
+            class="btn-toggle-collapse"
+            data-bs-toggle="collapse"
+            data-bs-target="#createProduct"
+            aria-expanded="false"
+            aria-controls="createProduct"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <div id="createProduct" class="panel-collapse collapse show">
+        <div class="panel-body">
+          <div>
+            <form [formGroup]="customerMigration">
+              <div class="boxWhite">
+                <div class="row">
+                  <div class="col-md-2">
+                    <div class="form-group">
+                      <label>Select Action</label>
+                      <p-dropdown
+                        (onChange)="selectAction($event)"
+                        [options]="actionOptions"
+                        optionValue="value"
+                        optionLabel="label"
+                        placeholder="Select a Action"
+                        [(ngModel)]="action"
+                        [ngModelOptions]="{ standalone: true }"
+                      ></p-dropdown>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group">
+                      <label>Select File</label>
+                      <input
+                        (change)="onFileChangeUpload($event)"
+                        class="form-control"
+                        formControlName="file"
+                        id="txtSelectDocument"
+                        multiple="multiple"
+                        placeholder="Select Attachment"
+                        type="file"
+                        accept=".XLSX,XLS,.csv,text/csv"
+                      />
+                      <div
+                        *ngIf="submitted && customerMigration.controls['file'].errors"
+                        class="errorWrap text-danger"
+                      >
+                        <div
+                          *ngIf="submitted && customerMigration.controls['file'].errors?.['required']"
+                          class="error text-danger"
+                        >
+                          file is required.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- <div class="addUpdateBtn col-md-7"> -->
+                  <button
+                    type="submit"
+                    class="btn btn-primary col-md-1"
+                    data-title="Submit Details"
+                    (click)="uploadDocument()"
+                    style="background: darkblue !important; width: 18%; margin-top: 25px"
+                    [disabled]="!formSubmit"
+                  >
+                    <i class="fa fa-check-circle"></i>
+                    {{ action === "create" ? "Create " : "Update " }}Migrate data
+                  </button>
+                  <button
+                    type="reset"
+                    class="btn btn-default col-md-1"
+                    title="Clear Form"
+                    data-bs-toggle="tooltip"
+                    (click)="clearForm()"
+                    style="margin-top: 25px; margin-left: 5px"
+                  >
+                    <i class="fa fa-refresh"></i>
+                    Clear
+                  </button>
+                  <button
+                    type="submit"
+                    class="btn btn-primary col-md-1"
+                    data-title="Submit Details"
+                    (click)="download()"
+                    style="
+                      background: darkblue !important;
+                      width: 18%;
+                      margin-top: 25px;
+                      margin-left: 5px;
+                    "
+                  >
+                    <i class="fa fa-check-circle"></i>
+                    Download Sample File
+                  </button>
+                  <button
+                    type="submit"
+                    class="btn btn-primary col-md-1"
+                    data-title="Submit Details"
+                    (click)="downloadExisitingData()"
+                    style="
+                      background: darkblue !important;
+                      width: 12%;
+                      margin-top: 25px;
+                      margin-left: 5px;
+                    "
+                  >
+                    <i class="fa fa-check-circle"></i>
+                    Export data
+                  </button>
+                  <br />
+                </div>
+                <!-- </div> -->
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p-dialog
+  header="Sample File"
+  [(visible)]="isFIleNameDialog"
+  [modal]="true"
+  [style]="{ width: '40vw' }"
+  [draggable]="false"
+  [resizable]="false"
+  [responsive]="true"
+  [closable]="true"
+  (onHide)="closeFileNameDialog()"
+>
+  <div class="modal-body-junk">
+    <div class="form-group">
+      <div class="row">
+        <!-- Email -->
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <label>File name</label>
+          <div>
+            <p-dropdown
+              [options]="downloadFileOption"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select a file type"
+              [(ngModel)]="fileName"
+            ></p-dropdown>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <div class="addUpdateBtn">
+      <button
+        (click)="downloadSampleFile()"
+        class="btn btn-primary"
+        id="submit"
+        type="submit"
+        [disabled]="!fileName"
+      >
+        <i class="fa fa-check-circle"></i>
+        Download
+      </button>
+    </div>
+  </div>
+</p-dialog>

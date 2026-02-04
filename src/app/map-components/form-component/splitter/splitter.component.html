@@ -1,0 +1,93 @@
+<div class="">
+ <div class="icon-title" *ngIf="showHeader">
+  <img src="assets/icons/splitter.svg" alt="SPLITTER" width="24" height="24">
+  <h3 class="truncate" title="Splitter">SPLITTER</h3>
+</div>
+
+<br>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <!-- Name Field -->
+  <div class="form-field">
+    <label for="name">Name:</label>
+    <input id="name" type="text" formControlName="name" required />
+  </div>
+
+  <!-- Specification Dropdown -->
+  <!-- <div class="form-field">
+    <label for="specificationId">Specification:</label>
+    <select id="specificationId" formControlName="specificationId" required>
+      <option value="">-- Select Specification --</option>
+      <option *ngFor="let spec of splitterSpecifications" [value]="spec.id">
+        {{ spec.name }}
+      </option>
+    </select>
+  </div> -->
+
+  <!-- Parent Box Type -->
+<!-- <div class="form-field">
+  <label for="parentNeType">Parent NE Type:</label>
+  <select id="parentNeType" formControlName="parentNeType" (change)="onParentNeTypeChange($event)">
+    <option value="">-- Select Parent Type --</option>
+    <option *ngFor="let parent of parentNeTypes" [value]="parent.displayName.toUpperCase()">
+      {{ parent.displayName }}
+    </option>
+  </select>
+</div> -->
+
+
+  <ng-container *ngFor="let field of specificationParametersDTOList">
+  <div class="form-field" *ngIf="!field.isAccessories">
+    <label>{{ field.paramName }}</label>
+    <select *ngIf="field.isMultiValueParam" [formControlName]="field.paramName">
+      <!-- <option value="">-- Select --</option> -->
+      <option *ngFor="let val of field.paramMultiValues" [value]="val">
+        {{ val }}
+      </option>
+    </select>
+    <input *ngIf="!field.isMultiValueParam" type="text" [formControlName]="field.paramName">
+  </div>
+</ng-container>
+
+<div [formGroup]="accessoryForm" class="form-field-group">
+  <div class="form-field">
+    <label>Accessory Category</label>
+    <select formControlName="paramName" (change)="onSingleAccessoryFieldChanged()">
+      <option value="">-- Select Category --</option>
+      <option *ngFor="let cat of accessoryCategoryList">{{ cat }}</option>
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label>Accessory Value</label>
+    <select formControlName="paramValue">
+      <option value="">-- Select Value --</option>
+      <option *ngFor="let val of singleAccessoryValues">{{ val }}</option>
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label>Qty</label>
+    <input type="number" formControlName="quantity">
+  </div>
+
+  <!-- <div class="form-field">
+    <button class="addbutton" type="button" [disabled]="accessoryForm.invalid" (click)="addAccessoryToList()">+ Add Accessory</button>
+  </div> -->
+</div>
+
+
+  <!-- Coordinates Validation -->
+  <div *ngIf="(form.get('longitude')?.errors?.['required'] || form.get('latitude')?.errors?.['required']) && 
+               (form.get('longitude')?.touched || form.get('latitude')?.touched)" 
+       class="error-message">
+    Please select a location on the map
+  </div>
+
+  <div class="form-actions-wrapper">
+    <div class="form-actions">
+      <button type="submit" [disabled]="form.invalid" class="submit-btn">Add</button>
+      <button type="button" (click)="onCancel()" class="cancel-btn">Cancel</button>
+    </div>
+  </div>
+</form>

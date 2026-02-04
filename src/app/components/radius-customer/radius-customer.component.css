@@ -1,0 +1,43 @@
+  th {
+    text-align: left;
+  }
+
+
+  .boxWhite {
+    border: 2px solid #ddd;
+    background: white !important;
+    border-radius: 4px;
+    padding: 1.5rem;
+}
+
+legend {
+    width: auto !important;
+    display: block;
+    padding-inline-start: 2px !important;
+    padding-inline-end: 2px !important;
+    border-width: initial;
+    border-style: none;
+    border-color: initial;
+    border-image: initial;
+    margin-bottom: 0;
+    font-size: 21px;
+    line-height: inherit;
+    color: #7f7b7bed;
+}
+
+fieldset {
+    margin-top: 3.5rem;
+    display: block;
+    margin-inline-start: 2px;
+    margin-inline-end: 2px;
+    padding-block-start: 0.35em;
+    padding-inline-start: 0.75em;
+    padding-inline-end: 0.75em;
+    padding-block-end: 0.625em;
+    min-inline-size: min-content;
+    border-width: 2px;
+    border-style: solid;
+    border-color: #ddd;
+    border-radius: 4px;
+    background-color: rgb(176 172 172 / 14%);
+}

@@ -1,0 +1,302 @@
+<p-dialog
+  header="{{ modalHeaderTitle }}"
+  [(visible)]="ifModelIsShow"
+  [modal]="true"
+  [style]="{ width: '70%' }"
+  [responsive]="true"
+  [draggable]="false"
+  [closable]="true"
+  (onHide)="closeModal()"
+>
+  <!-- header="{{ modalHeaderTitle }}" -->
+  <ng-template pTemplate="header">
+    <button
+      pButton
+      type="button"
+      icon="pi pi-arrow-circle-left"
+      class="backbtn curson_pointer"
+      (click)="ststusData()"
+      *ngIf="
+        (ifAuditStatusDetialShow || ifDiscountStatusDetialShow) &&
+        check_Hierachy !== 'TerminationCAF'
+      "
+    ></button>
+    <h4 class="modal-title" id="myModalLabel" style="color: #fff !important">
+      <span *ngIf="this.check_Hierachy == 'TerminationCAF'">
+        {{ ifAuditStatusDetialShow ? "CAF Audit Details" : "Termination Status" }}
+      </span>
+      <span *ngIf="this.check_Hierachy == 'TERMINATION'">
+        {{ ifAuditStatusDetialShow ? "Termination Audit Details" : "Termination Status" }}
+      </span>
+      <span *ngIf="this.check_Hierachy == 'SHIFT_LOCATION'">
+        {{ ifAuditStatusDetialShow ? "Shift Location Audit Details" : "Shift Location Status" }}
+      </span>
+      <span *ngIf="this.check_Hierachy == 'PAYMENT'">
+        {{ ifAuditStatusDetialShow ? "Payment Audit Details" : "Payment Status" }}
+      </span>
+      <span *ngIf="this.check_Hierachy == 'PLAN'">
+        {{ ifAuditStatusDetialShow ? "Plan Audit Details" : "Plan Status" }}
+      </span>
+      <span *ngIf="this.check_Hierachy == 'PLAN_GROUP'">
+        {{ ifAuditStatusDetialShow ? "plan bundle Audit Details" : "Plan bundle status" }}
+      </span>
+      <span *ngIf="this.check_Hierachy == 'CAF'">
+        {{ ifAuditStatusDetialShow ? "Workflow Audit Details" : "Workflow Status" }}
+      </span>
+      <span *ngIf="this.check_Hierachy == 'CUSTOMER_DISCOUNT'">
+        {{ ifAuditStatusDetialShow ? "Workflow Audit Details" : "Change Discount Status" }}
+      </span>
+      <span *ngIf="this.check_Hierachy == 'BILL_TO_ORGANIZATION'">
+        {{ ifAuditStatusDetialShow ? "Workflow Audit Details" : "ORGANIZATION Invoice Status" }}
+      </span>
+      <span *ngIf="this.check_Hierachy == 'DOCUMENT_VERIFICATION'">
+        {{
+          ifAuditStatusDetialShow ? "Workflow Audit Details" : "Customer Document Workflow Audit"
+        }}
+      </span>
+      <span *ngIf="this.check_Hierachy == 'CREDIT_NOTE'">
+        {{ ifAuditStatusDetialShow ? "Credit Audit Details" : "Credit note Status" }}
+      </span>
+      <span *ngIf="this.check_Hierachy == 'SPECIAL_PLAN_MAPPING'">
+        {{
+          ifAuditStatusDetialShow ? "Special Plan mapping Audit Details" : "Special Plan mapping"
+        }}
+      </span>
+      <span *ngIf="this.check_Hierachy == 'LEAD'">
+        {{ ifAuditStatusDetialShow ? "LEAD Audit Details" : "LEAD Status" }}
+      </span>
+      <span *ngIf="this.check_Hierachy == 'PARTNER_BALANCE'">
+        {{ ifAuditStatusDetialShow ? "Partner Audit Details" : "Partner Status" }}
+      </span>
+      <span *ngIf="this.check_Hierachy == 'CUSTOMER_SERVICE_ADD'">
+        {{
+          ifAuditStatusDetialShow
+            ? "Customer Service Add Audit Details"
+            : "Customer Service Add Status"
+        }}
+      </span>
+      <span *ngIf="this.check_Hierachy == 'CUSTOMER_SERVICE_TERMINATION'">
+        {{
+          ifAuditStatusDetialShow
+            ? "Customer Service Termination Audit Details"
+            : "Customer Service Termination Status"
+        }}
+      </span>
+    </h4>
+  </ng-template>
+
+  <div class="modal-body">
+    <div class="panel-body table-responsive">
+      <div *ngIf="ifAuditStatusDetialShow" class="row">
+        <!-- <div>mnb</div> -->
+        <div class="col-lg-12 col-md-12">
+          <!-- *ngIf="workflowAuditData.length > 0" -->
+          <table class="table">
+            <thead>
+              <tr>
+                <!--    <th>{{ nameTitile }} Name</th> -->
+                <th>
+                  {{ check_Hierachy == "PAYMENT" ? "Reference Number" : nameTitile }}
+                </th>
+                <th>Action</th>
+                <th>Staff name</th>
+                <!-- <th>Event Name</th> -->
+                <th>Remark</th>
+                <th>Action Date</th>
+                <!-- <th>Next Staff Status</th> -->
+                <!-- <th>Assign Date</th> -->
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="
+                  let data of workflowAuditData
+                    | paginate
+                      : {
+                          id: 'searchMasterPageData',
+                          itemsPerPage: MasteritemsPerPage,
+                          currentPage: currentPageMasterSlab,
+                          totalItems: MastertotalRecords
+                        };
+                  index as i
+                "
+              >
+                <td>
+                  <div *ngIf="data.entityName">
+                    {{ data.entityName }}
+                  </div>
+                  <div *ngIf="data.planName">
+                    {{ data.planName }}
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    {{ data.action }}
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    {{ data.actionByName }}
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    {{ data.remark }}
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    {{ data.actionDateTime | date : "yyyy-MM-dd hh:mm a" }}
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <br />
+          <div class="pagination_Dropdown">
+            <pagination-controls
+              (pageChange)="pageChangedMasterList($event)"
+              [directionLinks]="true"
+              id="searchMasterPageData"
+              [maxSize]="10"
+              nextLabel=""
+              previousLabel=""
+            ></pagination-controls>
+            <div id="itemPerPageDropdown">
+              <p-dropdown
+                (onChange)="TotalItemPerPage($event)"
+                [options]="pageLimitOptions"
+                optionLabel="value"
+                optionValue="value"
+              ></p-dropdown>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="ifDiscountStatusDetialShow" class="row">
+        <!-- <div>mnb</div> -->
+        <div class="col-lg-12 col-md-12">
+          <!-- *ngIf="workflowAuditData.length > 0" -->
+
+          <table class="table">
+            <thead>
+              <tr>
+                <!--    <th>{{ nameTitile }} Name</th> -->
+                <th>Staff name</th>
+                <th>Old Discount (%)</th>
+                <th>New Discount (%)</th>
+                <!-- <th>Event Name</th> -->
+                <th>Action Date</th>
+                <th>Remarks</th>
+                <!-- <th>Next Staff Status</th> -->
+                <!-- <th>Assign Date</th> -->
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="
+                  let data of discountDetailsData
+                    | paginate
+                      : {
+                          id: 'searchMasterPageData',
+                          itemsPerPage: MasteritemsPerPage,
+                          currentPage: currentPageMasterSlab,
+                          totalItems: MastertotalRecords
+                        };
+                  index as i
+                "
+              >
+                <td>
+                  <div>
+                    {{ data.staffname }}
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    {{ data.oldDiscount }}
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    {{ data.newDiscount }}
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    {{ data.updateddate | date : "yyyy-MM-dd hh:mm a" }}
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    {{ data.remarks }}
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <br />
+          <div class="pagination_Dropdown">
+            <pagination-controls
+              (pageChange)="pageChangedMasterList($event)"
+              [directionLinks]="true"
+              id="searchMasterPageData"
+              [maxSize]="10"
+              nextLabel=""
+              previousLabel=""
+            ></pagination-controls>
+            <div id="itemPerPageDropdown">
+              <p-dropdown
+                (onChange)="TotalItemPerPage($event)"
+                [options]="pageLimitOptions"
+                optionLabel="value"
+                optionValue="value"
+              ></p-dropdown>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="!ifAuditStatusDetialShow && !ifDiscountStatusDetialShow">
+        <div class="row" style="display: flex; margin-bottom: 4rem">
+          <label style="font-weight: 500"> Audit Workflow Details : </label>
+          <span
+            (click)="show_AuditData()"
+            class="curson_pointer"
+            style="color: darkblue; margin-left: 1.5rem"
+          >
+            Workflow Audit
+          </span>
+          <span
+            *ngIf="check_Hierachy === 'CUSTOMER_DISCOUNT'"
+            (click)="show_DiscountData()"
+            class="curson_pointer"
+            style="color: darkblue; margin-left: 1.5rem"
+          >
+            Discount Details
+          </span>
+        </div>
+
+        <div class="progressbarWrap" style="margin-top: 1.5rem">
+          <div
+            *ngFor="let data of planStatusDetail; last as isLast"
+            [ngClass]="{
+              complete: data.status == 'Approved',
+              progressdv: data.status == 'Pending'
+            }"
+            class="circleWrap"
+          >
+            <div class="circledv completedWorkFlowClass">
+              <i *ngIf="data.status == 'Approved'" class="fa fa-check"></i>
+            </div>
+            <p>{{ data.teamName }}</p>
+            <div *ngIf="!isLast" class="lines">
+              <div class="line"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-default" (click)="closeModal()" type="button">Close</button>
+  </div>
+</p-dialog>

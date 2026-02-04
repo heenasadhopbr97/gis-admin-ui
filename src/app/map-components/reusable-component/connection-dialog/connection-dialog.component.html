@@ -1,0 +1,197 @@
+<p-dialog header="Step Connections" [(visible)]="visible" [modal]="true" [draggable]="false" [style]="{ width: '60vw' }" [closable]="true" (onHide)="closeDialog()">
+  <div class="card m-4 p-4">
+    <!-- <p-steps [activeIndex]="active" [model]="items" [readonly]="true" /> -->
+    <div class="mt-4">
+      <!-- <ng-container [ngSwitch]="active"> -->
+        <!-- <ng-container *ngSwitchCase="0">
+          <app-fat [showHeader]="false" [featureData]="connectivityFeatureData" [isEditMode]="true"  (fatCreated)="onFatCreated($event)">
+          </app-fat>
+        </ng-container> -->
+<!-- FAT Details Card -->
+
+  <div class="w-full flex justify-content-center mt-4">
+    <!-- Inner column: stack items vertically, left-aligned -->
+    <div class="flex flex-column align-items-start" style="width: 500px;">
+      <!-- FAT Details Card -->
+      <div class="card mb-3 w-full">
+        <div class="card-header">
+          <h4>FAT Details</h4>
+        </div>
+        <div class="card-content">
+          <div class="info-row">
+            <span class="info-label">FAT Name:</span>
+            <span class="info-value">{{ connectivityFeatureData?.name || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Capacity:</span>
+            <span class="info-value">{{ connectivityFeatureData?.capacity || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Power Levels:</span>
+            <span class="info-value">{{ connectivityFeatureData?.powerLevels || 'N/A' }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="w-full flex justify-content-center mt-4">
+  <!-- Inner column: stack items vertically, left-aligned -->
+    <div class="flex flex-column align-items-start" style="width: 500px;">
+      <h4>Add Splitter:</h4>
+    </div>
+  </div>
+
+    <!-- <ng-container *ngSwitchCase="1"> -->
+      <app-splitter [showHeader]="false" [isEditMode]="false" [initialCoordinates]="fatCoordinates"
+        [surveyAreaId]="selectedSurveyAreaId"  [parentNeId]="fatId" (formSubmit)="onSplitterCreated($event)">
+      </app-splitter>
+    <!-- <div class="flex justify-content-center mt-4">
+      <p-button label="+ Add Cable" (onClick)="openCableFormFromDialog()" styleClass="p-button-outlined p-button-secondary"></p-button>
+    </div> -->
+
+    <!-- Survey Area Status (LEFT aligned) -->
+      <div class="w-full flex justify-content-center mt-4">
+        <!-- Inner column: stack items vertically, left-aligned -->
+        <div class="flex flex-column align-items-start" style="width: 500px;">
+    
+          <!-- Survey Area Status -->
+          <div *ngIf="surveyStageName" class="mb-2">
+            <p><strong>Survey Area Status:</strong> {{ surveyStageName }}</p>
+          </div>
+          
+      <!-- Network Type Dropdown -->
+          <!-- <div class="form-field w-full">
+            <label for="neType">Select Network Type:</label>
+            <p-dropdown
+              inputId="neType"
+              [options]="neTypeOptions"
+              [(ngModel)]="selectedNeType"
+              placeholder="Select Type"
+              optionLabel="label"
+              optionValue="value"
+              styleClass="w-full">
+            </p-dropdown>
+          </div> -->
+
+<!-- Network Type Dropdown (only once) -->
+<div class="flex gap-3 w-full mb-3">
+  <div class="flex-1">
+    <label for="neType">Select Network Type:</label>
+    <p-dropdown
+      inputId="neType"
+      [options]="neTypeOptions"
+      [(ngModel)]="selectedNeType"
+      [showClear]="true"
+      placeholder="Select Type"
+      optionLabel="label"
+      optionValue="value"
+      styleClass="w-full"
+      appendTo="body"
+      (onChange)="onNeTypeChanged()">
+    </p-dropdown>
+  </div>
+
+<!-- Only for CDU/MDU -->
+<div class="flex-1" *ngIf="selectedNeType !== 'SDU'">
+  <label>Select Nearby Element:</label>
+  <p-dropdown
+    [options]="nearbySdus"
+    [(ngModel)]="selectedNeId"
+    [showClear]="true"
+    placeholder="Select Network Element"
+    optionLabel="name"
+    optionValue="id"
+    styleClass="w-full"
+    appendTo="body"
+    [virtualScroll]="true"
+    [itemSize]="40"
+    (onChange)="onNeSelected($event.value, 0)">
+  </p-dropdown>
+</div>
+
+</div>
+
+<!-- Connection rows: only ports + home pass -->
+<div *ngFor="let conn of connections; let i = index" class="flex gap-3 w-full mb-2">
+  <div class="flex-1">
+    <label>Select Splitter Port:</label>
+    <p-dropdown
+      [options]="getAvailablePortsForRow(i)"
+      [(ngModel)]="connections[i].portNumber"
+      [showClear]="true"
+      placeholder="Select Port"
+      optionLabel="portNumber"
+      optionValue="portNumber"
+      styleClass="w-full"
+      appendTo="body"
+      [virtualScroll]="true"
+      [itemSize]="40">
+    </p-dropdown>
+  </div>
+
+  <!-- Only for SDU -->
+  <div class="flex-1" *ngIf="selectedNeType === 'SDU'">
+    <label>Select SDU:</label>
+    <p-dropdown
+      [options]="getAvailableSdusForRow(i)"
+      [(ngModel)]="connections[i].sduId"
+      [showClear]="true"
+      placeholder="Select SDU"
+      optionLabel="name"
+      optionValue="id"
+      styleClass="w-full"
+      appendTo="body"
+      [virtualScroll]="true"
+      [itemSize]="40">
+    </p-dropdown>
+  </div>
+
+  <!-- Only for CDU/MDU -->
+  <div class="flex-1" *ngIf="selectedNeType !== 'SDU'">
+    <label>Select Home Pass:</label>
+    <p-dropdown
+      [options]="getAvailableHomePassesForRow(i)"
+      [(ngModel)]="connections[i].homePassesId"
+      [showClear]="true"
+      placeholder="Select Home Pass"
+      optionLabel="name"
+      optionValue="id"
+      styleClass="w-full"
+      appendTo="body"
+      [virtualScroll]="true"
+      [itemSize]="40">
+    </p-dropdown>
+  </div>
+
+  <div class="flex align-items-center">
+    <button pButton icon="pi pi-trash" class="p-button-danger p-button-rounded mt-5"
+      (click)="removeConnectionRow(i)" *ngIf="connections.length > 1"></button>
+  </div>
+</div>
+
+
+          <p-button label="+ Add" (onClick)="addConnectionRow()" [disabled]="!canAddConnection()" class="p-button-secondary"></p-button>
+
+        </div>
+      </div>
+        <!-- </ng-container> -->
+      <!-- </ng-container> -->
+    </div>
+  </div>
+  <!-- <div class="flex justify-content-between mt-4">
+    <p-button label="Back" icon="pi pi-chevron-left" (onClick)="goBack()" [disabled]="active === 0"></p-button>
+    <ng-container *ngIf="active === items.length - 1; else nextBtn">
+      <p-button label="Connectivity" icon="pi pi-link"  (onClick)="onConnectivityClick()" class="p-button-success"></p-button>
+    </ng-container>
+    <ng-template #nextBtn>
+      <p-button label="Next" icon="pi pi-chevron-right" iconPos="right" (onClick)="goNext()" [disabled]="active === items.length - 1"></p-button>
+    </ng-template>
+  </div> -->
+
+  <div class="flex justify-content-end mt-4">
+  <p-button label="Connectivity" icon="pi pi-link" (onClick)="onConnectivityClick()" class="p-button-success"></p-button>
+</div>
+
+</p-dialog>

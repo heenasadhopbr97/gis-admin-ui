@@ -1,0 +1,102 @@
+<div class="">
+  <div class="icon-title">
+    <img src="assets/icons/fdt.svg" alt="FDT" width="24" height="24">
+    <h3 class="truncate" title="Fiber Distribution Terminal">FDT (Fiber Distribution Terminal)</h3>
+  </div>
+
+  <br>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="form-field">
+      <label for="name">Name: <span class="required-star">*</span></label>
+      <input id="name" type="text" formControlName="name">
+      <span class="error-message" *ngIf="form.get('name')?.errors?.['required'] && form.get('name')?.touched">
+        Name is required
+      </span>
+    </div>
+
+    <!-- Dynamic non-accessory fields -->
+<!-- Dynamic non-accessory fields -->
+
+    <!-- Accessories FormArray -->
+<ng-container *ngIf="shouldShowAccessoryFields()">  
+
+<ng-container *ngFor="let field of specificationParametersDTOList">
+  <div class="form-field" *ngIf="!field.isAccessories && shouldShowField(field)">
+    <label>
+      {{ field.paramName }}:
+      <span *ngIf="form.get(field.paramName)?.hasValidator(Validators.required)" class="required-star">*</span>
+    </label>
+
+    <select *ngIf="field.isMultiValueParam" [formControlName]="field.paramName">
+      <option value="">-- Select --</option>
+      <option *ngFor="let val of field.paramMultiValues" [value]="val">{{ val }}</option>
+    </select>
+
+    <input *ngIf="!field.isMultiValueParam" type="text" [formControlName]="field.paramName">
+  </div>
+</ng-container>
+
+
+    <!-- Accessories section -->
+    <div *ngIf="shouldShowAccessoryFields()" [formGroup]="accessoryForm" class="form-field-group">
+      <div class="form-field">
+        <label>Accessory Field</label>
+        <select formControlName="paramName" (change)="onSingleAccessoryFieldChanged()">
+          <option value="">-- Select Field --</option>
+          <option *ngFor="let param of accessoryCategoryList" [value]="param">{{ param }}</option>
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label>Accessory Value</label>
+        <select formControlName="paramValue">
+          <option value="">-- Select Value --</option>
+          <option *ngFor="let val of singleAccessoryValues" [value]="val">{{ val }}</option>
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label>Quantity</label>
+        <input type="number" formControlName="quantity">
+      </div>
+
+      <div class="form-field">
+        <button class="addbutton" type="button" (click)="addAccessoryToList()">+ Add Accessory</button>
+      </div>
+    </div>
+
+    </ng-container>  
+
+    <div class="form-actions-wrapper">
+      <div class="form-actions">
+        <button type="submit" [disabled]="form.invalid" class="submit-btn">Submit</button>
+        <button type="button" (click)="onCancel()" class="cancel-btn">Cancel</button>
+      </div>
+    </div>
+
+        <!-- Accessories table -->
+    <table class="accessory-table upgraded-table" *ngIf="inventoryList.length > 0">
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Value</th>
+          <th>Qty</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let group of inventoryList.controls; let i = index">
+          <td>{{ group.get('paramName')?.value }}</td>
+          <td>{{ group.get('paramValue')?.value }}</td>
+          <td>{{ group.get('quantity')?.value }}</td>
+          <td>
+            <button pButton type="button" icon="pi pi-trash"
+              class="p-button-text p-button-danger p-button-sm"
+              (click)="removeAccessoryDetail(i)"></button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </form>
+</div>

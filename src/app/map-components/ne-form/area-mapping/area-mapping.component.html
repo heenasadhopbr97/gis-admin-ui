@@ -1,0 +1,57 @@
+<div class="area-mapping-panel" *ngIf="visible">
+  <div class="area-mapping-header">
+    <h3>Area Mapping</h3>
+    <button class="close-btn" (click)="close()">×</button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-msg">Loading areas...</div>
+
+  <!-- Data available -->
+  <div *ngIf="!isLoading && areaMappingData?.countries?.length">
+
+    <!-- Countries -->
+    <div *ngFor="let country of areaMappingData.countries" class="layer-item">
+      <input type="checkbox"
+        [id]="'area-mapping-country-' + country.countryName"
+        [(ngModel)]="countryVisibility[country.countryName]"
+        (change)="onAreaMappingCountryToggle(country)">
+      <label [for]="'area-mapping-country-' + country.countryName">
+        {{ country.countryName }}
+      </label>
+
+      <!-- States inside country -->
+      <div *ngIf="country.states?.length" class="ms-3">
+        <div *ngFor="let state of country.states" class="layer-item">
+          <input type="checkbox"
+            [id]="'area-mapping-state-' + state.stateName"
+            [(ngModel)]="stateVisibility[state.stateName]"
+            (change)="onAreaMappingStateToggle(state)">
+          <label [for]="'area-mapping-state-' + state.stateName">
+            {{ state.stateName }}
+          </label>
+
+          <!-- Districts inside state -->
+          <div *ngIf="state.districts?.length" class="ms-3">
+            <div *ngFor="let district of state.districts" class="layer-item">
+              <input type="checkbox"
+                [id]="'area-mapping-district-' + district.districtName"
+                [(ngModel)]="districtsVisibility[district.districtName]"
+                (change)="onAreaMappingDistrictToggle(district)">
+              <label [for]="'area-mapping-district-' + district.districtName">
+                {{ district.districtName }}
+              </label>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- No data -->
+  <div *ngIf="!isLoading && !areaMappingData?.countries?.length" class="no-data-msg">
+    No area mapping data available.
+  </div>
+</div>

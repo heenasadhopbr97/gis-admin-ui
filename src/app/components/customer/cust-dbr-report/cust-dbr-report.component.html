@@ -1,0 +1,266 @@
+<div class="row">
+  <div class="col-md-12 col-sm-12">
+    <div class="panel">
+      <div class="panel-heading">
+        <div class="displayflex">
+          <button
+            (click)="customerDetailOpen()"
+            class="btn btn-secondary backbtn"
+            data-placement="bottom"
+            data-bs-toggle="tooltip"
+            title="Go to Customer Details"
+            type="button"
+          >
+            <i
+              class="fa fa-arrow-circle-left"
+              style="color: darkblue !important; font-size: 28px"
+            ></i>
+          </button>
+          <h3 class="panel-title">
+            Search {{ custData.title }} {{ custData.firstname }} {{ custData.lastname }} Revenue
+            Report
+          </h3>
+        </div>
+        <div class="right">
+          <button
+            aria-controls="DBRSearchShow"
+            aria-expanded="false"
+            class="btn-toggle-collapse"
+            data-bs-target="#DBRSearchShow"
+            data-bs-toggle="collapse"
+            type="button"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-collapse collapse show" id="DBRSearchShow">
+        <div class="panel-body table-responsive">
+          <div class="searchForm">
+            <div class="row">
+              <div class="col-lg-3 col-md-3 marginTopSearchinput">
+                <div class="form-group">
+                  <label>From Date</label>
+                  <input
+                    [(ngModel)]="searchDBRFormDate"
+                    class="form-control"
+                    placeholder="From Date"
+                    type="date"
+                    (keydown.enter)="searchDBR()"
+                  />
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-3 marginTopSearchinput">
+                <div class="form-group">
+                  <label>To Date</label>
+                  <input
+                    [(ngModel)]="searchDBREndDate"
+                    [min]="searchDBRFormDate"
+                    class="form-control"
+                    placeholder="To Date"
+                    type="date"
+                    (keydown.enter)="searchDBR()"
+                  />
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-4 marginTopSearchBtn">
+                <label style="display: block">&nbsp;</label>
+                <button (click)="searchDBR()" class="btn btn-primary" id="searchbtn" type="button">
+                  <i class="fa fa-search"></i>
+                  Search
+                </button>
+                <button
+                  (click)="searchClearDBR()"
+                  class="btn btn-default"
+                  id="searchbtn"
+                  type="button"
+                >
+                  <i class="fa fa-refresh"></i>
+                  Clear
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-12 col-sm-12">
+    <div class="panel">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          {{ custData.title }}
+          {{ custData.firstname }}
+          {{ custData.lastname }} Revenue Report
+        </h3>
+        <div class="right">
+          <button
+            aria-controls="DBRListShow"
+            aria-expanded="false"
+            class="btn-toggle-collapse"
+            data-bs-target="#DBRListShow"
+            data-bs-toggle="collapse"
+            type="button"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-collapse collapse show" id="DBRListShow">
+        <div class="panel-body table-responsive">
+          <div class="row">
+            <div class="col-lg-12 col-md-12">
+              <table *ngIf="dbrListData.length > 0" class="table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>{{ custType }} Revenue</th>
+                    <th>Revenue</th>
+                    <th>Cumulative Revenue</th>
+                    <th>Remark</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="font-weight: 800" *ngIf="outStandingData.outstandingDbr">
+                    <td>Outstanding</td>
+                    <td>
+                      {{ outStandingData.outstandingPending }}
+                    </td>
+                    <td>
+                      {{ outStandingData.outstandingDbr }}
+                    </td>
+
+                    <td>
+                      {{ outStandingData.outstandingRevenue }}
+                    </td>
+                    <td></td>
+                  </tr>
+                  <tr
+                    *ngFor="
+                      let dbr of dbrListData
+                        | paginate
+                          : {
+                              id: 'dbrListData',
+                              itemsPerPage: DBRListdataitemsPerPage,
+                              currentPage: currentPageDBRListdata,
+                              totalItems: DBRListdatatotalRecords
+                            };
+                      index as i
+                    "
+                  >
+                    <td>
+                      <button
+                        *ngIf="dbr.isContainsMultipleService"
+                        class="btn btn-primary"
+                        style="border-radius: 5px; padding: 0; line-height: 1; margin-right: 5px"
+                        (click)="multiService(dbr.month)"
+                      >
+                        <i class="fa fa-plus-square"></i>
+                      </button>
+                      {{ dbr.month }}
+                    </td>
+                    <td>
+                      {{ dbr.pendingamt | number: "1.2-2" }}
+                    </td>
+                    <td>{{ dbr.dbr | number: "1.2-2" }}</td>
+                    <td>{{ dbr.cumm_revenue | number: "1.2-2" }}</td>
+                    <td>{{ dbr.remark ? dbr.remark : "-" }}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div *ngIf="dbrListData.length > 0" class="pagination_Dropdown">
+                <pagination-controls
+                  (pageChange)="pageChangedDbrList($event)"
+                  *ngIf="dbrListData.length > 0"
+                  [directionLinks]="true"
+                  id="dbrListData"
+                  [maxSize]="10"
+                  nextLabel=""
+                  previousLabel=""
+                >
+                </pagination-controls>
+                <div id="itemPerPageDropdown">
+                  <p-dropdown
+                    (onChange)="TotalItemDBRPerPage($event)"
+                    [options]="pageLimitOptions"
+                    optionLabel="value"
+                    optionValue="value"
+                  ></p-dropdown>
+                </div>
+              </div>
+
+              <div *ngIf="dbrListData.length <= 0">Revenue data not found</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div
+  aria-labelledby="myModalLabel"
+  class="modal fade"
+  id="multiService"
+  role="dialog"
+  tabindex="-1"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="myModalLabel" style="color: #fff !important">
+          Multiple Services
+        </h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-12 col-md-12">
+            <table *ngIf="multiServiceData.length > 0" class="table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Service Name</th>
+                  <th>{{ custType }} Revenue</th>
+                  <th>Revenue</th>
+                  <th>Cumulative Revenue</th>
+                  <th>Remark</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let dbr of multiServiceData">
+                  <td>
+                    <button
+                      *ngIf="dbr.isContainsMultipleService"
+                      class="btn btn-primary"
+                      style="border-radius: 5px; padding: 5px; line-height: 1"
+                      (click)="multiService(dbr)"
+                    >
+                      <i class="fa fa-plus-square"></i>
+                    </button>
+                    {{ dbr.startdate }}
+                  </td>
+                  <td>{{ dbr.serviceName }}</td>
+                  <td>
+                    {{ dbr.pendingamt | number: "1.2-2" }}
+                  </td>
+                  <td>{{ dbr.dbr | number: "1.2-2" }}</td>
+                  <td>{{ dbr.cumm_revenue | number: "1.2-2" }}</td>
+                  <td>{{ dbr.remark ? dbr.remark : "-" }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div *ngIf="dbrListData.length <= 0">Service data not found</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

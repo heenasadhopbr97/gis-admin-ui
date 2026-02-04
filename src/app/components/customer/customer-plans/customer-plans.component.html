@@ -1,0 +1,1504 @@
+<div class="row">
+  <div class="col-md-12 col-sm-12">
+    <div class="panel">
+      <div class="panel-heading">
+        <button
+          *ngIf="extendValidityPlanAccess"
+          class="curson_pointer approve-btn"
+          (click)="extendValidityForBulk()"
+          style="border: none; background: transparent; padding: 0; margin-right: 3px"
+          title="Extend Validity"
+          type="button"
+          [disabled]="!extendValidityBulkFlag || custType !== 'Prepaid'"
+        >
+          <img class="icon" style="max-width: 40px" src="assets/img/02_Service-Extension.png" />
+        </button>
+        <button
+          *ngIf="promiseToPayPlanAccess"
+          class="curson_pointer approve-btn"
+          style="border: none; background: transparent; padding: 0; margin-right: 3px"
+          title="Promise to Pay "
+          type="button"
+          [disabled]="!promiseToPayBulkFlag || custType !== 'Prepaid'"
+          (click)="onPromiseToPayClick()"
+        >
+          <img class="icon" style="max-width: 40px" src="assets/img/01_Promise-to-Pay.png" />
+        </button>
+      </div>
+    </div>
+    <div *ngIf="istrialplan == true" class="panel">
+      <div class="panel-heading">
+        <div class="displayflex">
+          <button
+            (click)="customerDetailOpen()"
+            class="btn btn-secondary backbtn"
+            data-placement="bottom"
+            data-bs-toggle="tooltip"
+            title="Go to Customer Details"
+            type="button"
+          >
+            <i
+              class="fa fa-arrow-circle-left"
+              style="color: darkblue !important; font-size: 28px"
+            ></i>
+          </button>
+          <h3 class="panel-title">
+            {{ customerLedgerDetailData?.title }}
+            {{ customerLedgerDetailData?.firstname }}
+            {{ customerLedgerDetailData?.lastname }} Trial Plan
+          </h3>
+        </div>
+        <div class="right">
+          <button class="btn refreshbtn" type="reset" (click)="getTrailPlanList(customerId, '')">
+            <i class="fa fa-refresh"></i>
+          </button>
+          <button
+            aria-controls="trailPresCustPlan"
+            aria-expanded="false"
+            class="btn-toggle-collapse"
+            data-bs-target="#trailPresCustPlan"
+            data-bs-toggle="collapse"
+            type="button"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-collapse collapse show" id="trailPresCustPlan">
+        <div class="panel-body table-responsive">
+          <div class="row">
+            <div class="col-lg-12 col-md-12">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Plan Group</th>
+                    <th>Validity</th>
+                    <th>Start Date</th>
+                    <th>Expiry Date</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="
+                      let plan of TrailPlanList
+                        | paginate
+                          : {
+                              id: 'custTrailPlanListData',
+                              itemsPerPage: custTrailPlanItemPerPage,
+                              currentPage: currentTrailPlanListdata,
+                              totalItems: custTrailPlantotalRecords
+                            };
+                      index as i
+                    "
+                  >
+                    <td>{{ plan.planName }}</td>
+                    <td>{{ plan.planGroupName }}</td>
+                    <td>
+                      <div *ngIf="custType === 'Postpaid'">
+                        <span
+                          *ngIf="
+                            ['Volume Booster', 'Bandwidthbooster', 'DTV Addon'].includes(
+                              plan.plangroup
+                            )
+                          "
+                        >
+                          {{ plan.validity }}
+                        </span>
+                        <span
+                          *ngIf="
+                            ['Renew', 'Registration', 'Registration and Renewal'].includes(
+                              plan.plangroup
+                            )
+                          "
+                        >
+                          N/A
+                        </span>
+                      </div>
+                      <div *ngIf="custType === 'Prepaid'">
+                        <span>
+                            {{ plan.validity }}
+                        </span>
+                      </div>
+                    </td>
+                    <td>{{ plan.dbStartDate | date: "yyyy-MM-dd hh:mm a" }}</td>
+                    <td>
+                      <div *ngIf="custType === 'Postpaid'">
+                        <span
+                          *ngIf="
+                            ['Volume Booster', 'Bandwidthbooster', 'DTV Addon'].includes(
+                              plan.plangroup
+                            )
+                          "
+                        >
+                          {{ plan.dbExpiryDate | date: "yyyy-MM-dd hh:mm a" }}
+                        </span>
+                        <span
+                          *ngIf="
+                            ['Renew', 'Registration', 'Registration and Renewal'].includes(
+                              plan.plangroup
+                            )
+                          "
+                        >
+                          N/A
+                        </span>
+                      </div>
+                      <div *ngIf="custType === 'Prepaid'">
+                        <span>
+                            {{ plan.dbExpiryDate | date: "yyyy-MM-dd hh:mm a" }}
+                        </span>
+                      </div>
+                    </td>
+                    <td class="btnAction">
+                      <button
+                        [disabled]="plan.custPlanStatus == 'STOP'"
+                        (click)="extanTrailPlanModel(plan, 'extend')"
+                        class="approve-btn"
+                        style="
+                          border: none;
+                          background: darkblue;
+                          padding: 3.5px 7px;
+                          margin: 3px 3px 0 0;
+                        "
+                        title="Extend Trail"
+                        type="button"
+                        *ngIf="
+                          customerLedgerDetailData?.status !== 'Terminate' && extendTrailPlanAccess
+                        "
+                      >
+                        <i class="fa fa-expand" style="color: white; font-size: 14px"></i>
+                      </button>
+
+                      <button
+                        [disabled]="plan.custPlanStatus == 'STOP'"
+                        (click)="subscribeTrailPlanModel(plan)"
+                        class="approve-btn"
+                        style="
+                          border: none;
+                          background: darkblue;
+                          padding: 3.5px 7px;
+                          margin: 3px 3px 0 0;
+                        "
+                        title="Subscribe Plan"
+                        type="button"
+                        *ngIf="
+                          customerLedgerDetailData?.status !== 'Terminate' && subscribePlanAccess
+                        "
+                      >
+                        <i class="fa fa-bell" style="color: white; font-size: 14px"></i>
+                      </button>
+
+                      <button
+                        (click)="cancelConfirmonTrialmode(plan)"
+                        class="approve-btn"
+                        style="border: none"
+                        title="Cancel Trail"
+                        type="button"
+                        [disabled]="plan.custPlanStatus == 'STOP'"
+                        *ngIf="
+                          customerLedgerDetailData?.status !== 'Terminate' && deleteTrailPlanAccess
+                        "
+                      >
+                        <img src="assets/img/ioc02.jpg" />
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="pagination_Dropdown">
+                <pagination-controls
+                  (pageChange)="pageCustTrailPlanListData($event)"
+                  [directionLinks]="true"
+                  id="custTrailPlanListData"
+                  [maxSize]="10"
+                  nextLabel=""
+                  previousLabel=""
+                ></pagination-controls>
+                <div id="itemPerPageDropdown">
+                  <p-dropdown
+                    (onChange)="TotalTrailPlanItemPerPage($event)"
+                    [options]="pageLimitOptions"
+                    optionLabel="value"
+                    optionValue="value"
+                  ></p-dropdown>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-heading">
+        <div class="displayflex">
+          <button
+            (click)="customerDetailOpen()"
+            class="btn btn-secondary backbtn"
+            data-placement="bottom"
+            data-bs-toggle="tooltip"
+            title="Go to Customer Details"
+            type="button"
+          >
+            <i
+              class="fa fa-arrow-circle-left"
+              style="color: darkblue !important; font-size: 28px"
+            ></i>
+          </button>
+          <h3 class="panel-title">
+            {{ customerLedgerDetailData?.title }}
+            {{ customerLedgerDetailData?.firstname }}
+            {{ customerLedgerDetailData?.lastname }} Current Plan
+          </h3>
+        </div>
+        <div class="right">
+          <button class="btn refreshbtn" type="reset" (click)="getcustCurrentPlan(customerId, '')">
+            <i class="fa fa-refresh"></i>
+          </button>
+          <button
+            aria-controls="currenPresCustPlan"
+            aria-expanded="false"
+            class="btn-toggle-collapse"
+            data-bs-target="#currenPresCustPlan"
+            data-bs-toggle="collapse"
+            type="button"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-collapse collapse show" id="currenPresCustPlan">
+        <div class="panel-body table-responsive">
+          <div class="row">
+            <div class="col-lg-12 col-md-12">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th width="2%"></th>
+                    <th width="10%">Service Name</th>
+                    <th width="10%">Serial No</th>
+                    <th width="10%">Plan Name</th>
+                    <th width="10%">Plan Group</th>
+                    <th width="6%">Validity</th>
+                    <th width="10%">Plan Status</th>
+                    <th width="10%">Start Date</th>
+                    <th width="10%">Service Expiry Date</th>
+                    <th width="10%">Billing End Date</th>
+                    <th width="10%">Remaining Days</th>
+                    <th width="8%">Promise To Pay Taken</th>
+                    <th width="8%">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="
+                      let plan of custCurrentPlanList
+                        | paginate
+                          : {
+                              id: 'custCurrentPlanListData',
+                              itemsPerPage: customerCurrentPlanListdataitemsPerPage,
+                              currentPage: currentPagecustomerCurrentPlanListdata,
+                              totalItems: customerCurrentPlanListdatatotalRecords
+                            };
+                      index as i
+                    "
+                  >
+                    <td>
+                      <div class="centerCheckbox">
+                        <p-checkbox
+                          *ngIf="
+                            isExtendInCurrentPlan(plan.custPlanMapppingId, plan.expiryDate) &&
+                            plan.plangroup !== 'Volume Booster' &&
+                            plan.plangroup !== 'Bandwidthbooster' &&
+                            plan.plangroup !== 'DTV Addon' &&
+                            plan.istrialplan !== true &&
+                            customerLedgerDetailData?.status !== 'Terminate' &&
+                            chekcPlanGroup(plan, custCurrentPlanList) &&
+                            !checkIfChildCustomer(plan) &&
+                            plan.invoiceType != 'Group' &&
+                            plan.custPlanStatus.toLowerCase() != 'disable' &&
+                            plan.custPlanStatus.toLowerCase() != 'hold' &&
+                            plan.custPlanStatus.toLowerCase() != 'newactivation'
+                          "
+                          (onChange)="extendValidityBulk(plan, $event)"
+                          class="p-field-checkbox"
+                          [binary]="true"
+                        ></p-checkbox>
+                      </div>
+                    </td>
+                    <td>{{ plan.service }}</td>
+                    <td>
+                      <span
+                        class="curson_pointer"
+                        style="color: darkblue"
+                        (click)="openPlanConnectionModal(plan)"
+                      >
+                        {{ getSerialNumber(plan) !== "" ? getSerialNumber(plan) : "NA" }}
+                      </span>
+                    </td>
+                    <td
+                      class="curson_pointer"
+                      style="color: darkblue"
+                      (click)="
+                        quotaPlanDetailsModel(
+                          'quotaModalOpen',
+                          this.customerLedgerDetailData.id,
+                          plan
+                        )
+                      "
+                    >
+                      {{ plan.planName }}
+                    </td>
+                    <td>{{ plan.planGroupName }}</td>
+                    <td>
+                      <div *ngIf="custType === 'Postpaid'">
+                        <span
+                          *ngIf="
+                            ['Volume Booster', 'Bandwidthbooster', 'DTV Addon'].includes(
+                              plan.plangroup
+                            )
+                          "
+                        >
+                          {{ plan.validity }}
+                        </span>
+                        <span
+                          *ngIf="
+                            ['Renew', 'Registration', 'Registration and Renewal'].includes(
+                              plan.plangroup
+                            )
+                          "
+                        >
+                          N/A
+                        </span>
+                      </div>
+                      <div *ngIf="custType === 'Prepaid'">
+                        <span>
+                            {{ plan.validity }}
+                        </span>
+                      </div>
+                    </td>
+                    <td>
+                      <span *ngIf="checkStatus(plan.custPlanStatus, plan.custServMappingStatus)">
+                        <span
+                          [ngClass]="
+                            badgeTypeForStatus == 'green'
+                              ? 'badge badge-success'
+                              : badgeTypeForStatus == 'grey'
+                                ? 'badge badge-primary'
+                                : 'badge badge-danger'
+                          "
+                          >{{ displayStatus }}</span
+                        >
+                      </span>
+                    </td>
+                    <td>{{ plan.dbStartDate | date: "yyyy-MM-dd hh:mm a" }}</td>
+                    <td>
+                      <div *ngIf="custType === 'Postpaid'">
+                        <span
+                          *ngIf="
+                            ['Volume Booster', 'Bandwidthbooster', 'DTV Addon'].includes(
+                              plan.plangroup
+                            )
+                          "
+                        >
+                          {{ plan.dbExpiryDate | date: "yyyy-MM-dd hh:mm a" }}
+                        </span>
+                        <span
+                          *ngIf="
+                            ['Renew', 'Registration', 'Registration and Renewal'].includes(
+                              plan.plangroup
+                            )
+                          "
+                        >
+                          N/A
+                        </span>
+                      </div>
+                      <div *ngIf="custType === 'Prepaid'">
+                        <span>{{plan.dbExpiryDate | date: "yyyy-MM-dd hh:mm a"}}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div *ngIf="custType === 'Postpaid'">
+                        <span
+                          *ngIf="
+                            ['Volume Booster', 'Bandwidthbooster', 'DTV Addon'].includes(
+                              plan.plangroup
+                            )
+                          "
+                        >
+                          {{ plan.dbExpiryDate | date: "yyyy-MM-dd hh:mm a" }}
+                        </span>
+                        <span
+                          *ngIf="
+                            ['Renew', 'Registration', 'Registration and Renewal'].includes(
+                              plan.plangroup
+                            )
+                          "
+                        >
+                          N/A
+                        </span>
+                      </div>
+                      <div *ngIf="custType === 'Prepaid'">
+                       <span>{{ plan.dbExpiryDate | date: "yyyy-MM-dd hh:mm a" }}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div *ngIf="custType === 'Prepaid'">
+                        <span> {{ this.findDuration(plan.dbEndDate) }}</span>
+                      </div>
+                      <div *ngIf="custType !== 'Prepaid'">
+                        <span> N/A </span>
+                      </div>
+                    </td>
+                    <td>
+                      <div *ngIf="plan.isPromiseToPayTaken == false">
+                        <span class="badge badge-secondary"> No </span>
+                      </div>
+                      <div *ngIf="plan.isPromiseToPayTaken == true && promiseToPayPlanAccess">
+                        <span
+                          (click)="
+                            promiseToPayDetailsClick(
+                              'promiseToPayDataModal',
+                              plan.promiseToPayStartDate,
+                              plan.promiseToPayEndDate,
+                              plan.promiseToPayDays
+                            )
+                          "
+                          class="badge badge-success curson_pointer"
+                        >
+                          Yes
+                        </span>
+                      </div>
+                    </td>
+                    <td class="btnAction">
+                      <button
+                        (click)="displayNote('plan')"
+                        class="curson_pointer approve-btn"
+                        data-backdrop="static"
+                        data-keyboard="false"
+                        data-bs-target="#note"
+                        data-bs-toggle="modal"
+                        style="border: none; background: transparent; padding: 0; margin: 0px 2px"
+                        title="Notes"
+                        type="button"
+                        *ngIf="customerLedgerDetailData?.status !== 'Terminate'"
+                      >
+                        <img class="icon" src="assets/img/icons-03.png" />
+                      </button>
+                      <button
+                        *ngIf="
+                          custType === 'Prepaid' &&
+                          isExtendInCurrentPlan(plan.custPlanMapppingId, plan.expiryDate) &&
+                          plan.plangroup !== 'Volume Booster' &&
+                          plan.plangroup !== 'Bandwidthbooster' &&
+                          plan.plangroup !== 'DTV Addon' &&
+                          plan.istrialplan !== true &&
+                          customerLedgerDetailData?.status !== 'Terminate' &&
+                          chekcPlanGroup(plan, custCurrentPlanList) &&
+                          !checkIfChildCustomer(plan) &&
+                          plan.invoiceType != 'Group' &&
+                          plan.custPlanStatus.toLowerCase() != 'disable' &&
+                          plan.custPlanStatus.toLowerCase() != 'hold' &&
+                          plan.custPlanStatus.toLowerCase() != 'newactivation' &&
+                          extendValidityPlanAccess
+                        "
+                        class="approve-btn"
+                        class="curson_pointer"
+                        (click)="extendValidityForPlanBundle(plan)"
+                        style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                        title="Extend Validity"
+                        type="button"
+                      >
+                        <img
+                          class="icon"
+                          style="max-width: 40px"
+                          src="assets/img/02_Service-Extension.png"
+                        />
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="pagination_Dropdown">
+                <pagination-controls
+                  (pageChange)="pageChangedcustomerCurrentPlanListData($event)"
+                  [directionLinks]="true"
+                  id="custCurrentPlanListData"
+                  [maxSize]="10"
+                  nextLabel=""
+                  previousLabel=""
+                ></pagination-controls>
+                <div id="itemPerPageDropdown">
+                  <p-dropdown
+                    (onChange)="TotalCurrentPlanItemPerPage($event)"
+                    [options]="pageLimitOptions"
+                    optionLabel="value"
+                    optionValue="value"
+                  ></p-dropdown>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-heading">
+        <div class="displayflex">
+          <button
+            (click)="customerDetailOpen()"
+            class="btn btn-secondary backbtn"
+            data-placement="bottom"
+            data-bs-toggle="tooltip"
+            title="Go to Customer Details"
+            type="button"
+          >
+            <i
+              class="fa fa-arrow-circle-left"
+              style="color: darkblue !important; font-size: 28px"
+            ></i>
+          </button>
+          <h3 class="panel-title">
+            {{ customerLedgerDetailData?.title }}
+            {{ customerLedgerDetailData?.firstname }}
+            {{ customerLedgerDetailData?.lastname }} Future Plan
+          </h3>
+        </div>
+        <div class="right">
+          <button
+            class="btn refreshbtn"
+            type="reset"
+            (click)="getcustFuturePlan(customerLedgerDetailData.id, '')"
+          >
+            <i class="fa fa-refresh"></i>
+          </button>
+          <button
+            aria-controls="futurePlanCust"
+            aria-expanded="false"
+            class="btn-toggle-collapse"
+            data-bs-target="#futurePlanCust"
+            data-bs-toggle="collapse"
+            type="button"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-collapse collapse show" id="futurePlanCust">
+        <div class="panel-body table-responsive">
+          <div class="row">
+            <div class="col-lg-12 col-md-12">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th width="2%"></th>
+                    <th width="10%">Service Name</th>
+                    <th width="10%">Serial No</th>
+                    <th width="10%">Plan Name</th>
+                    <th width="10%">Plan Group</th>
+                    <th width="5%">Validity</th>
+                    <th width="10%">Plan Status</th>
+                    <th width="10%">Start Date</th>
+                    <th width="10%">Service Expiry Date</th>
+                    <th width="10%">Billing End Date</th>
+                    <th width="10%">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="
+                      let plan of custFuturePlanList
+                        | paginate
+                          : {
+                              id: 'custFuturePlanListData',
+                              itemsPerPage: customerFuturePlanListdataitemsPerPage,
+                              currentPage: currentPagecustomerFuturePlanListdata,
+                              totalItems: customerFuturePlanListdatatotalRecords
+                            };
+                      index as i
+                    "
+                  >
+                    <td>
+                      <div class="centerCheckbox">
+                        <p-checkbox
+                          *ngIf="
+                            isLatestFuturePlan(plan.custPlanMapppingId, plan.expiryDate) &&
+                            plan.plangroup !== 'Volume Booster' &&
+                            plan.plangroup !== 'Bandwidthbooster' &&
+                            plan.plangroup !== 'DTV Addon' &&
+                            customerLedgerDetailData?.status !== 'Terminate' &&
+                            chekcPlanGroup(plan, custFuturePlanList) &&
+                            !checkIfChildCustomer(plan) &&
+                            plan.invoiceType != 'Group' &&
+                            plan.custPlanStatus.toLowerCase() != 'disable' &&
+                            plan.custPlanStatus.toLowerCase() != 'hold'
+                          "
+                          (onChange)="extendValidityBulk(plan, $event)"
+                          class="p-field-checkbox"
+                          [binary]="true"
+                        ></p-checkbox>
+                      </div>
+                    </td>
+                    <td>{{ plan.service }}</td>
+                    <td>
+                      <span
+                        class="curson_pointer"
+                        style="color: darkblue"
+                        (click)="openPlanConnectionModal(plan)"
+                      >
+                        {{ getSerialNumber(plan) !== "" ? getSerialNumber(plan) : "NA" }}
+                      </span>
+                    </td>
+                    <td
+                      class="curson_pointer"
+                      style="color: darkblue"
+                      (click)="
+                        quotaPlanDetailsModel(
+                          'quotaModalOpen',
+                          this.customerLedgerDetailData.id,
+                          plan
+                        )
+                      "
+                    >
+                      {{ plan.planName }}
+                    </td>
+
+                    <td>{{ plan.planGroupName }}</td>
+                    <td>
+                      <div *ngIf="custType === 'Postpaid'">
+                        <span
+                          *ngIf="
+                            ['Volume Booster', 'Bandwidthbooster', 'DTV Addon'].includes(
+                              plan.plangroup
+                            )
+                          "
+                        >
+                          {{ plan.validity }}
+                        </span>
+                        <span
+                          *ngIf="
+                            ['Renew', 'Registration', 'Registration and Renewal'].includes(
+                              plan.plangroup
+                            )
+                          "
+                        >
+                          N/A
+                        </span>
+                      </div>
+                      <div *ngIf="custType === 'Prepaid'">
+                        <span>
+                          {{ plan.validity }}
+                        </span>
+                      </div>
+                    </td>
+                    <td>
+                      <span *ngIf="checkStatus(plan.custPlanStatus, plan.custServMappingStatus)">
+                        <span
+                          [ngClass]="
+                            badgeTypeForStatus == 'green'
+                              ? 'badge badge-success'
+                              : badgeTypeForStatus == 'grey'
+                                ? 'badge badge-primary'
+                                : 'badge badge-danger'
+                          "
+                          >{{ displayStatus }}</span
+                        >
+                      </span>
+                    </td>
+                    <td>{{ plan.dbStartDate | date: "yyyy-MM-dd hh:mm a" }}</td>
+                    <td>
+                      <div *ngIf="custType === 'Postpaid'">
+                        <span
+                          *ngIf="
+                            ['Volume Booster', 'Bandwidthbooster', 'DTV Addon'].includes(
+                              plan.plangroup
+                            )
+                          "
+                        >
+                          {{ plan.dbExpiryDate | date: "yyyy-MM-dd hh:mm a" }}
+                        </span>
+                        <span
+                          *ngIf="
+                            ['Renew', 'Registration', 'Registration and Renewal'].includes(
+                              plan.plangroup
+                            )
+                          "
+                        >
+                          N/A
+                        </span>
+                      </div>
+                      <div *ngIf="custType ==='Prepaid'">
+                        <span>{{ plan.dbExpiryDate | date: "yyyy-MM-dd hh:mm a" }}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div *ngIf="custType === 'Postpaid'">
+                        <span
+                          *ngIf="
+                            ['Volume Booster', 'Bandwidthbooster', 'DTV Addon'].includes(
+                              plan.plangroup
+                            )
+                          "
+                        >
+                          {{ plan.dbEndDate | date: "yyyy-MM-dd hh:mm a" }}
+                        </span>
+                        <span
+                          *ngIf="
+                            ['Renew', 'Registration', 'Registration and Renewal'].includes(
+                              plan.plangroup
+                            )
+                          "
+                        >
+                          N/A
+                        </span>
+                      </div>
+                      <div *ngIf="custType === 'Prepaid'">
+                        <span>
+                            {{ plan.dbEndDate | date: "yyyy-MM-dd hh:mm a" }}
+                        </span>
+                      </div>
+                    </td>
+                    <td class="btnAction">
+                      <button
+                        *ngIf="
+                          custType === 'Prepaid' &&
+                          isLatestFuturePlan(plan.custPlanMapppingId, plan.expiryDate) &&
+                          plan.plangroup !== 'Volume Booster' &&
+                          plan.plangroup !== 'Bandwidthbooster' &&
+                          plan.plangroup !== 'DTV Addon' &&
+                          customerLedgerDetailData?.status !== 'Terminate' &&
+                          chekcPlanGroup(plan, custFuturePlanList) &&
+                          !checkIfChildCustomer(plan) &&
+                          plan.invoiceType != 'Group' &&
+                          plan.custPlanStatus.toLowerCase() != 'disable' &&
+                          plan.custPlanStatus.toLowerCase() != 'hold' &&
+                          extendValidityPlanAccess
+                        "
+                        class="approve-btn"
+                        class="curson_pointer"
+                        (click)="extendValidityForPlanBundle(plan)"
+                        style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                        title="Extend Validity"
+                        type="button"
+                      >
+                        <img
+                          class="icon"
+                          style="max-width: 40px"
+                          src="assets/img/02_Service-Extension.png"
+                        />
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="pagination_Dropdown">
+                <pagination-controls
+                  (pageChange)="pageChangedcustFuturePlanListData($event)"
+                  [directionLinks]="true"
+                  [maxSize]="10"
+                  id="custFuturePlanListData"
+                  nextLabel=""
+                  previousLabel=""
+                ></pagination-controls>
+                <div id="itemPerPageDropdown">
+                  <p-dropdown
+                    (onChange)="TotalFuturePlanItemPerPage($event)"
+                    [options]="pageLimitOptions"
+                    optionLabel="value"
+                    optionValue="value"
+                  ></p-dropdown>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-heading">
+        <div class="displayflex">
+          <button
+            (click)="customerDetailOpen()"
+            class="btn btn-secondary backbtn"
+            data-placement="bottom"
+            data-bs-toggle="tooltip"
+            title="Go to Customer Details"
+            type="button"
+          >
+            <i
+              class="fa fa-arrow-circle-left"
+              style="color: darkblue !important; font-size: 28px"
+            ></i>
+          </button>
+          <h3 class="panel-title">
+            {{ customerLedgerDetailData?.title }} {{ customerLedgerDetailData?.firstname }}
+            {{ customerLedgerDetailData?.lastname }} Expired Plan
+          </h3>
+        </div>
+        <div class="right">
+          <button class="btn refreshbtn" type="reset" (click)="getcustExpiredPlan(customerId, '')">
+            <i class="fa fa-refresh"></i>
+          </button>
+          <button
+            aria-controls="ExpirePlanCust"
+            aria-expanded="false"
+            class="btn-toggle-collapse"
+            data-bs-target="#ExpirePlanCust"
+            data-bs-toggle="collapse"
+            type="button"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-collapse collapse show" id="ExpirePlanCust">
+        <div class="panel-body table-responsive">
+          <div class="row">
+            <div class="col-lg-12 col-md-12">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th width="2%"></th>
+                    <th width="10%">Service Name</th>
+                    <th width="10%">Serial No</th>
+                    <th width="10%">Plan Name</th>
+                    <th width="10%">Plan Group</th>
+                    <th width="5%">Validity</th>
+                    <th width="10%">Plan Status</th>
+                    <th width="10%">Start Date</th>
+                    <th width="10%">Service Expiry Date</th>
+                    <th width="10%">Billing End Date</th>
+                    <th width="10%">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="
+                      let plan of custExpiredPlanList
+                        | paginate
+                          : {
+                              id: 'custExpiryPlanListData',
+                              itemsPerPage: customerExpiryPlanListdataitemsPerPage,
+                              currentPage: currentPagecustomerExpiryPlanListdata,
+                              totalItems: customerExpiryPlanListdatatotalRecords
+                            };
+                      index as i
+                    "
+                  >
+                    <td>
+                      <div class="centerCheckbox">
+                        <p-checkbox
+                          *ngIf="
+                            (plan.custPlanStatus.toLowerCase() === 'stop' ||
+                              plan.custPlanStatus.toLowerCase() === 'expired') &&
+                            plan.plangroup !== 'Volume Booster' &&
+                            plan.plangroup !== 'Bandwidthbooster' &&
+                            plan.plangroup !== 'DTV Addon' &&
+                            !plan.istrialplan &&
+                            !plan.isVoid &&
+                            chekcPlanGroup(plan, custExpiredPlanList) &&
+                            plan.custPlanStatus.toLowerCase() != 'disable' &&
+                            plan.custPlanStatus.toLowerCase() != 'hold' &&
+                            plan.isPromiseTopay
+                          "
+                          (onChange)="
+                            extendValidityBulk(plan, $event);
+                            promiseToPayBulk(plan.planmapid, $event)
+                          "
+                          class="p-field-checkbox"
+                          [binary]="true"
+                        ></p-checkbox>
+                      </div>
+                    </td>
+                    <td>{{ plan.service }}</td>
+                    <td>
+                      <span
+                        class="curson_pointer"
+                        style="color: darkblue"
+                        (click)="openPlanConnectionModal(plan)"
+                      >
+                        {{ getSerialNumber(plan) !== "" ? getSerialNumber(plan) : "NA" }}
+                      </span>
+                    </td>
+                    <td
+                      class="curson_pointer"
+                      style="color: darkblue"
+                      (click)="
+                        quotaPlanDetailsModel(
+                          'quotaModalOpen',
+                          this.customerLedgerDetailData.id,
+                          plan
+                        )
+                      "
+                    >
+                      {{ plan.planName }}
+                    </td>
+
+                    <td>{{ plan.planGroupName }}</td>
+                    <td>
+                      <div *ngIf="custType === 'Postpaid'">
+                        <span
+                          *ngIf="
+                            ['Volume Booster', 'Bandwidthbooster', 'DTV Addon'].includes(
+                              plan.plangroup
+                            )
+                          "
+                        >
+                          {{ plan.validity }}
+                        </span>
+                        <span
+                          *ngIf="
+                            ['Renew', 'Registration', 'Registration and Renewal'].includes(
+                              plan.plangroup
+                            )
+                          "
+                        >
+                          N/A
+                        </span>
+                      </div>
+                      <div *ngIf="custType === 'Prepaid'">
+                        <span>
+                             {{ plan.validity }}
+                        </span>
+                      </div>
+                    </td>
+                    <td>
+                      <span *ngIf="checkStatus(plan.custPlanStatus, plan.custServMappingStatus)">
+                        <span
+                          [ngClass]="
+                            badgeTypeForStatus == 'green'
+                              ? 'badge badge-success'
+                              : badgeTypeForStatus == 'grey'
+                                ? 'badge badge-primary'
+                                : 'badge badge-danger'
+                          "
+                          >{{ displayStatus }}</span
+                        >
+                      </span>
+                    </td>
+                    <td>{{ plan.dbStartDate | date: "yyyy-MM-dd hh:mm a" }}</td>
+                    <td>
+                      <div *ngIf="custType === 'Postpaid'">
+                        <span
+                          *ngIf="
+                            ['Volume Booster', 'Bandwidthbooster', 'DTV Addon'].includes(
+                              plan.plangroup
+                            )
+                          "
+                        >
+                          {{ plan.dbEndDate | date: "yyyy-MM-dd hh:mm a" }}
+                        </span>
+                        <span
+                          *ngIf="
+                            ['Renew', 'Registration', 'Registration and Renewal'].includes(
+                              plan.plangroup
+                            )
+                          "
+                        >
+                          N/A
+                        </span>
+                      </div>
+                      <div *ngIf="custType === 'Prepaid'">
+                        <span>
+                            {{ plan.dbEndDate | date: "yyyy-MM-dd hh:mm a" }}
+                        </span>
+                      </div>
+                    </td>
+                    <td>
+                      <div *ngIf="custType === 'Postpaid'">
+                        <span
+                          *ngIf="
+                            ['Volume Booster', 'Bandwidthbooster', 'DTV Addon'].includes(
+                              plan.plangroup
+                            )
+                          "
+                        >
+                          {{ plan.dbExpiryDate | date: "yyyy-MM-dd hh:mm a" }}
+                        </span>
+                        <span
+                          *ngIf="
+                            ['Renew', 'Registration', 'Registration and Renewal'].includes(
+                              plan.plangroup
+                            )
+                          "
+                        >
+                          N/A
+                        </span>
+                      </div>
+                      <div *ngIf="custType === 'Prepaid'">
+                        <span>
+                            {{ plan.dbExpiryDate | date: "yyyy-MM-dd hh:mm a" }}
+                        </span>
+                      </div>
+                    </td>
+                    <!-- <td>{{ plan.dbEndDate | date: "yyyy-MM-dd hh:mm a" }}</td>
+                    <td>{{ plan.dbExpiryDate | date: "yyyy-MM-dd hh:mm a" }}</td> -->
+                    <td class="btnAction">
+                      <button
+                        *ngIf="
+                          custType === 'Prepaid' &&
+                          !plan.isVoid &&
+                          plan.plangroup !== 'Volume Booster' &&
+                          plan.plangroup !== 'Bandwidthbooster' &&
+                          plan.plangroup !== 'DTV Addon' &&
+                          !plan.istrialplan &&
+                          plan.invoiceType != 'Group' &&
+                          plan.custPlanStatus.toLowerCase() != 'disable' &&
+                          plan.custPlanStatus.toLowerCase() != 'terminate' &&
+                          promiseToPayPlanAccess &&
+                          plan.isPromiseTopay
+                        "
+                        class="curson_pointer approve-btn"
+                        style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                        title="Promise to Pay "
+                        (click)="onPromiseToPay(plan.planmapid)"
+                        type="button"
+                      >
+                        <img
+                          class="icon"
+                          style="max-width: 40px"
+                          src="assets/img/01_Promise-to-Pay.png"
+                        />
+                      </button>
+                      <button
+                        *ngIf="
+                          custType === 'Prepaid' &&
+                          isExtendInExpiredPlan(plan.custPlanMapppingId, plan.planExpiryDate) &&
+                          plan.plangroup !== 'Volume Booster' &&
+                          plan.plangroup !== 'Bandwidthbooster' &&
+                          plan.plangroup !== 'DTV Addon' &&
+                          customerLedgerDetailData?.status !== 'Terminate' &&
+                          chekcPlanGroup(plan, custExpiredPlanList) &&
+                          !checkIfChildCustomer(plan) &&
+                          plan.custPlanStatus.toLowerCase() != 'disable' &&
+                          plan.custPlanStatus.toLowerCase() != 'terminate' &&
+                          plan.custPlanStatus.toLowerCase() != 'hold' &&
+                          !plan.isVoid &&
+                          extendValidityPlanAccess
+                        "
+                        class="approve-btn"
+                        class="curson_pointer"
+                        (click)="extendValidityForPlanBundle(plan)"
+                        style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                        title="Extend Validity"
+                        type="button"
+                      >
+                        <img
+                          class="icon"
+                          style="max-width: 40px"
+                          src="assets/img/02_Service-Extension.png"
+                        />
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="pagination_Dropdown">
+                <pagination-controls
+                  (pageChange)="pageChangedcustomerExpiryPlanListData($event)"
+                  [directionLinks]="true"
+                  id="custExpiryPlanListData"
+                  [maxSize]="10"
+                  nextLabel=""
+                  previousLabel=""
+                ></pagination-controls>
+                <div id="itemPerPageDropdown">
+                  <p-dropdown
+                    (onChange)="TotalExpiredPlanItemPerPage($event)"
+                    [options]="pageLimitOptions"
+                    optionLabel="value"
+                    optionValue="value"
+                  ></p-dropdown>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p-dialog
+  header="Extend Validity"
+  [(visible)]="displayExtendValidity"
+  [style]="{ width: '50vw' }"
+  [modal]="true"
+  [responsive]="true"
+  [draggable]="false"
+  [closable]="false"
+>
+  <div class="modal-body" style="height: 300px">
+    <form [formGroup]="extendValidityForm">
+      <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+          <label>Downtime Start Date *</label>
+          <div class="calendar-container">
+            <p-calendar
+              [hideOnDateTimeSelect]="true"
+              [showButtonBar]="true"
+              [showIcon]="true"
+              [minDate]="custPlanMappingStartDate"
+              [maxDate]="custPlanMappingEndDate"
+              [defaultDate]="custPlanMappingStartDate"
+              dateFormat="dd/mm/yy"
+              formControlName="downStartDate"
+              placeholder="Enter Extension Start Date"
+            ></p-calendar>
+          </div>
+          <div
+            class="error text-danger"
+            *ngIf="extendValiditysubmitted && extendValidityForm.controls['downStartDate'].errors"
+          >
+            Downtime Start Date is required.
+          </div>
+          <br />
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+          <label>Downtime End Date *</label>
+          <p-calendar
+            [hideOnDateTimeSelect]="true"
+            [showButtonBar]="true"
+            [disabled]="
+              extendValidityForm.value.downStartDate == null ||
+              extendValidityForm.value.downStartDate == ''
+            "
+            [showIcon]="true"
+            [minDate]="extendValidityForm.value.downStartDate"
+            [maxDate]="custPlanMappingEndDate"
+            [defaultDate]="custPlanMappingStartDate"
+            dateFormat="dd/mm/yy"
+            formControlName="downEndDate"
+            placeholder="Enter Extension End Date"
+            (onSelect)="getTotalDays()"
+          ></p-calendar>
+          <div
+            class="error text-danger"
+            *ngIf="extendValiditysubmitted && extendValidityForm.controls['downEndDate'].errors"
+          >
+            Downtime End Date is required.
+          </div>
+          <br />
+        </div>
+
+        <div
+          *ngIf="totalDays"
+          class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
+          style="margin-top: 10px"
+        >
+          <label class="datalbl">Total Downtime Days: </label>
+          <span>{{ totalDays }}</span>
+        </div>
+        <!-- <div class="error text-danger" *ngIf="totalDays &#60;= 0">
+              Total days should not be -ve or 0 !
+            </div> -->
+
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="margin-top: 10px">
+          <label>Remarks*</label>
+          <textarea
+            class="form-control"
+            name="remark"
+            formControlName="extend_validity_remarks"
+            placeholder="Enter Remark"
+            id="remark"
+          >
+          </textarea>
+          <div
+            class="error text-danger"
+            *ngIf="
+              extendValiditysubmitted && extendValidityForm.controls['extend_validity_remarks'].errors
+            "
+          >
+            Remarks is required.
+          </div>
+          <br />
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button
+      (click)="extendValidityConfirmation()"
+      class="btn btn-primary"
+      id="submit"
+      type="submit"
+    >
+      <i class="fa fa-times-circle"></i>
+      Save
+    </button>
+    <button class="btn btn-default" data-dismiss="modal" type="button" (click)="onCloseValidity()">
+      Close
+    </button>
+  </div>
+</p-dialog>
+<div
+  aria-labelledby="myModalLabel"
+  class="modal fade"
+  id="subscribetrailPlanModel"
+  role="dialog"
+  tabindex="-1"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="myModalLabel" style="color: #fff !important">
+          Subscriber Trial Plan
+        </h4>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="Subscriberform">
+          <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+              <label>Billing Starts*</label>
+
+              <p-dropdown
+                [filter]="true"
+                [options]="trialDateData"
+                filterBy="label"
+                optionLabel="label"
+                optionValue="date"
+                placeholder="Select Date"
+                [(ngModel)]="selectScbscribeDate"
+                formControlName="billinng"
+                (onChange)="showRemark($event, trialDateData)"
+              ></p-dropdown>
+              <br />
+            </div>
+
+            <div *ngIf="plane" class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+              <br />
+              <label>Remark</label>
+              <textarea
+                [(ngModel)]="changeTrialPlanRemark"
+                class="form-control"
+                name="remark"
+                formControlName="remarks"
+                placeholder="Enter Remark"
+                id="remark"
+              >
+              </textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button
+          (click)="subscribeTrailPlan()"
+          [disabled]="!selectScbscribeDate"
+          class="btn btn-primary"
+          id="submit"
+          type="submit"
+        >
+          <i class="fa fa-times-circle"></i>
+          Save
+        </button>
+        <button
+          (click)="closesubscribeTrailPlan()"
+          class="btn btn-default"
+          data-dismiss="modal"
+          type="button"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div
+  aria-labelledby="myModalLabel"
+  class="modal fade"
+  id="trailPlanModel"
+  role="dialog"
+  tabindex="-1"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="myModalLabel" style="color: #fff !important">
+          <span *ngIf="trailbtnTypeSelect == 'extend'">Extend Trial Plan</span>
+          <span *ngIf="trailbtnTypeSelect == 'cancel'">Cancel Trial Plan</span>
+        </h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <label>Extend Days*</label>
+            <input
+              [(ngModel)]="ExtendDays"
+              class="form-control"
+              name="remark"
+              placeholder="Enter of Days"
+              (keyup)="keypressId($event)"
+            />
+            <br />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          (click)="extendTrailPlan()"
+          *ngIf="trailbtnTypeSelect == 'extend'"
+          [disabled]="!ExtendDays"
+          class="btn btn-primary"
+          id="submit"
+          type="submit"
+        >
+          <i class="fa fa-times-circle"></i>
+          Save
+        </button>
+        <button
+          (click)="cancelTrailPlan()"
+          *ngIf="trailbtnTypeSelect == 'cancel'"
+          [disabled]="!ExtendDays"
+          class="btn btn-primary"
+          id="submit"
+          type="submit"
+        >
+          <i class="fa fa-times-circle"></i>
+          Save
+        </button>
+        <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div aria-labelledby="myModalLabel" class="modal fade" id="note" role="dialog" tabindex="-1">
+  <div class="modal-dialog" role="document" style="width: 75%">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="myModalLabel" style="color: #fff !important">Audit</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <table class="table" *ngIf="!planNotes">
+              <thead>
+                <tr>
+                  <th>Event</th>
+                  <th>Date</th>
+                  <th>Remark</th>
+                  <th>Modified By</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let data of showdata">
+                  <td *ngIf="data.billrunstatus === 'Cancelled'">Cancel and Regenerate Invoice</td>
+                  <td *ngIf="data.billrunstatus === 'VOID'">Void Invoice</td>
+                  <td>{{ data.createdate }}</td>
+                  <td *ngIf="data.invoiceCancelRemarks !== null">
+                    {{ data.invoiceCancelRemarks }}
+                  </td>
+                  <td>{{ data.lastModifiedByName }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <table class="table" *ngIf="planNotes">
+              <thead>
+                <tr>
+                  <th>Event</th>
+                  <th>Connection no.</th>
+                  <th>Staff Name</th>
+                  <th>Date</th>
+                  <th>Remark</th>
+                  <th>Modified By</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let data of showdata">
+                  <td *ngIf="data.extendValidityremarks !== null">Extend Validity</td>
+                  <td *ngIf="data.promiseToPayRemarks !== null">Promise To Pay</td>
+                  <td
+                    *ngIf="data.promiseToPayRemarks === null && data.extendValidityremarks === null"
+                  >
+                    -
+                  </td>
+                  <td>{{ data.connection_no }}</td>
+                  <td>{{ data.createbyname }}</td>
+                  <td>{{ data.createdate }}</td>
+                  <td *ngIf="data.extendValidityremarks !== null">
+                    {{ data.extendValidityremarks }}
+                  </td>
+                  <td *ngIf="data.promiseToPayRemarks !== null">{{ data.promiseToPayRemarks }}</td>
+                  <td>{{ data.lastModifiedByName }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <br />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer"></div>
+    </div>
+  </div>
+</div>
+
+<p-dialog
+  header="Remark"
+  [(visible)]="remarkModel"
+  [modal]="true"
+  [style]="{ width: '40vw' }"
+  [draggable]="false"
+  [resizable]="false"
+  [responsive]="true"
+  [closable]="true"
+  (onHide)="closeRemarkModel()"
+>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <label>Remak*</label>
+        <input
+          [(ngModel)]="remark"
+          class="form-control"
+          name="remark"
+          placeholder="Enter of Remark"
+        />
+        <br />
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button
+      (click)="saveRemark()"
+      [disabled]="!remark"
+      class="btn btn-primary"
+      id="submit"
+      type="submit"
+    >
+      <i class="fa fa-times-circle"></i>
+      Save
+    </button>
+    <button class="btn btn-default" data-dismiss="modal" type="button" (click)="closeRemarkModel()">
+      Close
+    </button>
+  </div>
+</p-dialog>
+
+<app-quota-details-modal
+  *ngIf="visibleQuotaDetails"
+  [PlanQuota]="PlanQuota"
+  dialogId="quotaModalOpen"
+  (closeDialogg)="closeModel()"
+></app-quota-details-modal>
+<app-plan-connection-no
+  *ngIf="planNameOpen"
+  [planForConnection]="planForConnection"
+  (closeDialog)="closeDialog()"
+></app-plan-connection-no>
+<app-promisetopay-details-modal
+  [promiseToPayData]="promiseToPayData"
+  dialogId="promiseToPayDataModal"
+></app-promisetopay-details-modal>

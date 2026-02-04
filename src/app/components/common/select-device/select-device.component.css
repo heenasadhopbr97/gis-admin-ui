@@ -1,0 +1,26 @@
+input[type="checkbox"][readonly] {
+  pointer-events: none;
+}
+.panel button[type="reset"] {
+  padding: 0;
+  margin-left: 5px;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  color: #000 !important;
+  vertical-align: middle;
+}
+
+:host ::ng-deep .p-dialog .p-dialog-header {
+  background: darkblue !important ;
+}
+
+:host ::ng-deep .p-dialog .p-dialog-header .p-dialog-title {
+  font-weight: 700;
+  font-size: 1.25rem;
+  width: 40%;
+}
+
+.disabled {
+  pointer-events: none;
+}

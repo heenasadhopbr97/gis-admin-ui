@@ -1,0 +1,601 @@
+<p-dialog
+  header="Customer Details"
+  [(visible)]="dialogId"
+  [baseZIndex]="10000"
+  [style]="{ width: '60%' }"
+  [modal]="true"
+  [responsive]="true"
+  [draggable]="false"
+  [closable]="true"
+  (onHide)="closeDialogId()"
+>
+  <div class="modal-body">
+    <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+      <legend>Basic Details</legend>
+      <div class="boxWhite">
+        <div class="row">
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Name :</label>
+            <span>
+              {{ customerDetailData?.title }}
+              {{ customerDetailData?.firstname }}
+              {{ customerDetailData?.lastname }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Contact Person :</label>
+            <span>{{ customerDetailData?.contactperson }}</span>
+          </div>
+
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">CAF No. :</label>
+            <span>{{ customerDetailData?.cafno }}</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Act No. :</label>
+            <span>{{ customerDetailData?.acctno }}</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Username :</label>
+            <span>{{ customerDetailData?.username }}</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Status :</label>
+            <span>{{ customerDetailData?.status }}</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+            <label class="datalbl">Customer Type :</label>
+            <span>{{ customerDetailData?.custtype }}</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+            <label class="datalbl">Calendar Type :</label>
+            <span>{{ customerDetailData?.calendarType }}</span>
+          </div>
+          <div
+            class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0"
+            *ngIf="customerDetailData?.custtype == postpasidCustType"
+          >
+            <label class="datalbl">Next bill date :</label>
+            <span>{{ customerDetailData?.nextBillDate | date: "dd-MM-yyy" }}</span>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+    <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+      <legend>KYC Details</legend>
+      <div class="boxWhite">
+        <div class="row">
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">GST :</label>
+            <span *ngIf="customerDetailData?.gst">
+              {{ customerDetailData?.gst }}
+            </span>
+            <span *ngIf="!customerDetailData?.gst">-</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">PAN No. :</label>
+            <span *ngIf="customerDetailData?.pan">
+              {{ customerDetailData?.pan }}
+            </span>
+            <span *ngIf="!customerDetailData?.pan">-</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">National Id.:</label>
+            <span *ngIf="customerDetailData?.aadhar">
+              {{ customerDetailData?.aadhar }}
+            </span>
+            <span *ngIf="!customerDetailData?.aadhar">-</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Passport No.:</label>
+            <span *ngIf="customerDetailData?.passportNo">
+              {{ customerDetailData?.passportNo }}
+            </span>
+            <span *ngIf="!customerDetailData?.passportNo">-</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">VAT :</label>
+            <span *ngIf="customerDetailData?.tinNo">
+              {{ customerDetailData?.tinNo }}
+            </span>
+            <span *ngIf="!customerDetailData?.tinNo">-</span>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+    <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+      <legend>Contact Details</legend>
+      <div class="boxWhite">
+        <div class="row">
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+            <label class="datalbl">Mobile :</label>
+            <span>
+              <span *ngIf="customerDetailData?.countryCode">
+                ( {{ customerDetailData?.countryCode }} )&nbsp;
+              </span>
+              {{ customerDetailData?.mobile }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+            <label class="datalbl">Tel Phone :</label>
+            <span *ngIf="customerDetailData?.phone">
+              {{ customerDetailData?.phone }}
+            </span>
+            <span *ngIf="!customerDetailData?.phone">-</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+            <label class="datalbl">Email :</label>
+            <span>{{ customerDetailData?.email }}</span>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+    <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+      <legend>Subscriber Location Details</legend>
+      <div class="boxWhite">
+        <div class="row">
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+            <label class="datalbl">Service Area:</label>
+            <span *ngIf="customerDetailData?.serviceareaid">
+              {{ serviceAreaDATA }}
+            </span>
+            <span *ngIf="!customerDetailData?.serviceareaid">-</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+            <label class="datalbl">Latitude:</label>
+            <span *ngIf="customerDetailData?.latitude">
+              {{ customerDetailData?.latitude }}
+            </span>
+            <span *ngIf="!customerDetailData?.latitude">-</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+            <label class="datalbl">Longitude:</label>
+            <span *ngIf="customerDetailData?.longitude">
+              {{ customerDetailData?.longitude }}
+            </span>
+            <span *ngIf="!customerDetailData?.longitude">-</span>
+          </div>
+          <!-- <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                                                <label class="datalbl">Service Type : </label>
+                                                <span>{{customerDetailData?.servicetype}}</span>
+                                            </div> -->
+        </div>
+      </div>
+    </fieldset>
+    <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+      <legend>Additional Service Details</legend>
+      <div class="boxWhite">
+        <div class="row">
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+            <label class="datalbl">Voice Service Type:</label>
+            <span *ngIf="customerDetailData?.voicesrvtype">
+              {{ customerDetailData?.voicesrvtype }}
+            </span>
+            <span *ngIf="!customerDetailData?.voicesrvtype">-</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+            <label class="datalbl">DID No :</label>
+            <span *ngIf="customerDetailData?.didno">
+              {{ customerDetailData?.didno }}
+            </span>
+            <span *ngIf="!customerDetailData?.didno">-</span>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+    <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+      <legend>Business Partner Details</legend>
+      <div class="boxWhite">
+        <div class="row">
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Partner:</label>
+            <span>{{ partnerDATA }}</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Sales Mark :</label>
+            <span *ngIf="customerDetailData?.salesremark">
+              {{ customerDetailData?.salesremark }}
+            </span>
+            <span *ngIf="!customerDetailData?.salesremark">-</span>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+    <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+      <legend>Payment Details</legend>
+      <div class="boxWhite">
+        <div class="row">
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Amount :</label>
+            <span *ngIf="customerDetailData?.creditDocuments">
+              {{ paymentDataamount }}
+            </span>
+            <span *ngIf="!customerDetailData?.creditDocuments">-</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+            <label class="datalbl">Reference No :</label>
+            <span *ngIf="customerDetailData?.creditDocuments">
+              {{ paymentDatareferenceno }}
+            </span>
+            <span *ngIf="!customerDetailData?.creditDocuments">-</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+            <label class="datalbl">Payment Date :</label>
+            <span *ngIf="customerDetailData?.creditDocuments">
+              {{ paymentDatapaymentdate }}
+            </span>
+            <span *ngIf="!customerDetailData?.creditDocuments">-</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+            <label class="datalbl">Payment mode :</label>
+            <span *ngIf="customerDetailData?.creditDocuments">
+              {{ paymentDatapaymentMode }}
+            </span>
+            <span *ngIf="!customerDetailData?.creditDocuments">-</span>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+    <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+      <legend>Present Address Details</legend>
+      <div class="boxWhite">
+        <div class="row">
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Address:</label>
+            <span *ngIf="customerDetailData?.addressList?.length > 0">{{
+              customerDetailData?.addressList[0]?.landmark
+            }}</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">{{ pincodeTitle }} :</label>
+            <span>{{ presentAdressDATA?.code }}</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">{{ areaTitle }} :</label>
+            <span>{{ presentAdressDATA?.name }}</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+            <label class="datalbl">{{ cityTitle }} :</label>
+            <span>{{ presentAdressDATA?.cityName }}</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+            <label class="datalbl">{{ stateTitle }} :</label>
+            <span>{{ presentAdressDATA?.stateName }}</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+            <label class="datalbl">{{ countryTitle }} :</label>
+            <span>{{ presentAdressDATA?.countryName }}</span>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+    <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+      <legend>Payment Address Details</legend>
+      <div class="boxWhite">
+        <div class="row">
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Address:</label>
+            <span *ngIf="paymentAddressData?.length">
+              {{ paymentAddressData[0]?.landmark }}
+            </span>
+            <span *ngIf="!paymentAddressData?.length">-</span>
+          </div>
+
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">{{ pincodeTitle }} :</label>
+            <span *ngIf="paymentAddressData?.length">
+              {{ paymentAdressDATA?.code }}
+            </span>
+            <span *ngIf="!paymentAddressData?.length">-</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">{{ areaTitle }} :</label>
+            <span *ngIf="paymentAddressData?.length">
+              {{ paymentAdressDATA?.name }}
+            </span>
+            <span *ngIf="!paymentAddressData?.length">-</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+            <label class="datalbl">{{ cityTitle }} :</label>
+            <span *ngIf="paymentAddressData?.length">
+              {{ paymentAdressDATA?.cityName }}
+            </span>
+            <span *ngIf="!paymentAddressData?.length">-</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+            <label class="datalbl">{{ stateTitle }} :</label>
+            <span *ngIf="paymentAddressData?.length">
+              {{ paymentAdressDATA?.stateName }}
+            </span>
+            <span *ngIf="!paymentAddressData?.length">-</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+            <label class="datalbl">{{ countryTitle }} :</label>
+            <span *ngIf="paymentAddressData?.length">
+              {{ paymentAdressDATA?.countryName }}
+            </span>
+            <span *ngIf="!paymentAddressData?.length">-</span>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+    <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+      <legend>Permanent Address Details</legend>
+      <div class="boxWhite">
+        <div class="row">
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Address:</label>
+            <span *ngIf="permanentAddressData?.length">
+              {{ permanentAddressData[0].landmark }}
+            </span>
+            <span *ngIf="!permanentAddressData?.length">-</span>
+          </div>
+
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">{{ pincodeTitle }} :</label>
+            <span *ngIf="permanentAddressData?.length">
+              {{ permentAdressDATA?.code }}
+            </span>
+            <span *ngIf="!permanentAddressData?.length">-</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">{{ areaTitle }} :</label>
+            <span *ngIf="permanentAddressData?.length">
+              {{ permentAdressDATA?.name }}
+            </span>
+            <span *ngIf="!permanentAddressData?.length">-</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+            <label class="datalbl">{{ cityTitle }} :</label>
+            <span *ngIf="permanentAddressData?.length">
+              {{ permentAdressDATA?.cityName }}
+            </span>
+            <span *ngIf="!permanentAddressData?.length">-</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+            <label class="datalbl">{{ stateTitle }} :</label>
+            <span *ngIf="permanentAddressData?.length">
+              {{ permentAdressDATA?.stateName }}
+            </span>
+            <span *ngIf="!permanentAddressData?.length">-</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+            <label class="datalbl">{{ countryTitle }} :</label>
+            <span *ngIf="permanentAddressData?.length">
+              {{ permentAdressDATA?.countryName }}
+            </span>
+            <span *ngIf="!permanentAddressData?.length">-</span>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+    <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+      <legend>Plan Details</legend>
+      <div class="boxWhite">
+        <div class="row">
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+            <label class="datalbl">Bill To:</label>
+
+            <span *ngIf="customerBill">
+              {{ customerBill }}
+            </span>
+          </div>
+          <!-- <div
+                class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0"
+                *ngIf="this.customerBill == 'ORGANIZATION'"
+              >
+                <label class="datalbl">Invoice To Org:</label>
+
+                <span>
+                  {{ custInvoiceToOrg }}
+                </span>
+
+              </div> -->
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0" *ngIf="ifPlanGroup">
+            <label class="datalbl">PlanGroup:</label>
+            <span *ngIf="customerDetailData?.plangroupid">
+              {{ planGroupName }}
+            </span>
+            <span *ngIf="!customerDetailData?.plangroupid">-</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0" *ngIf="ifPlanGroup">
+            <label class="datalbl">Discount (%):</label>
+            <span *ngIf="customerDetailData?.discount">
+              {{ customerDetailData?.discount }}
+            </span>
+            <span *ngIf="!customerDetailData?.discount">-</span>
+          </div>
+        </div>
+        <div class="row table-responsive" *ngIf="ifIndividualPlan" style="margin-top: 1.5rem">
+          <div class="col-lg-12 col-md-12">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Service</th>
+                  <th>Plan</th>
+                  <th>Validity</th>
+                  <th>Discount (%)</th>
+                  <!-- <th *ngIf="this.customerBill == 'ORGANIZATION'">
+                        Old offerPrice
+                      </th>
+                      <th *ngIf="this.customerBill == 'ORGANIZATION'">
+                        New offerPrice
+                      </th> -->
+                  <th>Final Offer Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="
+                    let plan of customerDetailData?.planMappingList
+                      | paginate
+                        : {
+                            id: 'custPlanpageData',
+                            itemsPerPage: custPlanDeatilItemPerPage,
+                            currentPage: currentPagecustPlanDeatilList,
+                            totalItems: custPlanDeatiltotalRecords
+                          };
+                    index as i
+                  "
+                >
+                  <td>{{ plan.service }}</td>
+                  <td>
+                    <span *ngFor="let list of dataPlan; index as j">
+                      <span *ngIf="i === j">{{ list.name }}</span>
+                    </span>
+                  </td>
+                  <td>
+                    <span *ngFor="let list of dataPlan; index as j">
+                      <span *ngIf="i === j"> {{ list.validity }} {{ list.unitsOfValidity }} </span>
+                    </span>
+                  </td>
+                  <td>
+                    <span *ngIf="!plan.discount">0</span>
+                    <span *ngIf="plan.discount">{{ plan.discount }}</span>
+                  </td>
+                  <!-- <td *ngIf="this.customerBill == 'ORGANIZATION'">
+                        {{ plan.offerPrice }}
+                      </td>
+                      <td *ngIf="this.customerBill == 'ORGANIZATION'">
+                        {{ plan.newAmount }}
+                      </td> -->
+                  <td>
+                    <span *ngFor="let list of FinalAmountList; index as k">
+                      <span *ngIf="i === k">{{ list }}</span>
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <pagination-controls
+              id="custPlanpageData"
+              [maxSize]="10"
+              [directionLinks]="true"
+              previousLabel=""
+              nextLabel=""
+              (pageChange)="pageChangedcustPlanDetailList($event)"
+            ></pagination-controls>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+    <fieldset
+      style="margin-top: 0rem; margin-bottom: 2rem"
+      *ngIf="customerDetailData?.overChargeList?.length > 0"
+    >
+      <legend>Charge Details</legend>
+      <div class="boxWhite">
+        <div class="row table-responsive">
+          <div class="col-lg-12 col-md-12">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Charge Type</th>
+                  <th>Validity</th>
+                  <th>Price</th>
+                  <th>Actual Price</th>
+                  <th>Charge Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="
+                    let charge of customerDetailData?.overChargeList
+                      | paginate
+                        : {
+                            id: 'custChargepageData',
+                            itemsPerPage: custChargeDeatilItemPerPage,
+                            currentPage: currentPagecustChargeDeatilList,
+                            totalItems: custChargeDeatiltotalRecords
+                          };
+                    index as i
+                  "
+                >
+                  <td>{{ charge.chargetype }}</td>
+                  <!-- <td>
+                                                <span *ngFor=" let list of chargeDATA ; index as j ">
+                                                    <span *ngIf="i === j ">{{list}}</span>
+                                                </span>
+                                            </td> -->
+                  <td>{{ charge.validity }}</td>
+                  <td>{{ charge.price }}</td>
+                  <td>{{ charge.actualprice }}</td>
+                  <td>{{ charge.charge_date | date: "yyyy-MM-dd" }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <pagination-controls
+              id="custChargepageData"
+              [maxSize]="10"
+              [directionLinks]="true"
+              previousLabel=""
+              nextLabel=""
+              (pageChange)="pageChangedcustChargeDetailList($event)"
+            ></pagination-controls>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+    <fieldset
+      style="margin-top: 0rem; margin-bottom: 2rem"
+      *ngIf="customerDetailData?.custMacMapppingList?.length > 0"
+    >
+      <legend>Mac Mapping List</legend>
+      <div class="boxWhite">
+        <div class="row table-responsive">
+          <div class="col-lg-12 col-md-12">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>MACAddress</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="
+                    let macAdd of customerDetailData?.custMacMapppingList
+                      | paginate
+                        : {
+                            id: 'macAddresspageData',
+                            itemsPerPage: custMacAddItemPerPage,
+                            currentPage: currentPagecustMacAddList,
+                            totalItems: custMacAddtotalRecords
+                          };
+                    index as i
+                  "
+                >
+                  <td>{{ macAdd.macAddress }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <pagination-controls
+              id="macAddresspageData"
+              [maxSize]="10"
+              [directionLinks]="true"
+              previousLabel=""
+              nextLabel=""
+              (pageChange)="pageChangedcustMacAddDetailList($event)"
+            ></pagination-controls>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+  <div class="modal-footer">
+    <button type="button" (click)="closeDialogId()" class="btn btn-default" data-dismiss="modal">
+      Close
+    </button>
+  </div>
+</p-dialog>

@@ -1,0 +1,20 @@
+<p-dialog header="Select Layer" [(visible)]="visible" (onHide)="hide()" [modal]="true" [draggable]="false" [style]="{ width: '30%' }">
+  <div class="p-3">
+    <div class="form-group" *ngFor="let layer of filteredLayerOptions">
+      <p-radioButton
+        name="layer"
+        [value]="layer.value"
+        [(ngModel)]="selectedLayer"
+        inputId="{{layer.value}}"
+      ></p-radioButton>
+
+      <label [for]="layer.value" class="layer-label">{{ layer.name }}</label>
+      <img *ngIf="layer.img" [src]="layer.img" class="inline-block" width="20px" alt="{{ layer.name }}" />
+    </div>
+  </div>
+
+  <div class="flex justify-end gap-2 mt-4">
+    <button pButton type="button" label="Cancel" (click)="hide()" severity="secondary"></button>
+    <button pButton type="button" label="Select" (click)="confirmSelection()" [disabled]="!selectedLayer"></button>
+  </div>
+</p-dialog>

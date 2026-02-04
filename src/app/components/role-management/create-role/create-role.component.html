@@ -1,0 +1,144 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="panel">
+      <div class="panel-heading">
+        <h3 class="panel-title">{{ editMode ? "Update" : "Create" }} Role</h3>
+        <div class="right">
+          <button
+            type="button"
+            class="btn-toggle-collapse"
+            data-bs-toggle="collapse"
+            data-bs-target="#createrole"
+            aria-expanded="false"
+            aria-controls="createrole"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+      <div id="createrole" class="panel-collapse collapse show">
+        <div class="panel-body">
+          <form class="form-auth-small" [formGroup]="roleGroupForm">
+            <div class="form-group row">
+              <div class="col-md-4 ml-15">
+                <label>Name *</label>
+                <input
+                  id="rolename"
+                  type="text"
+                  name="rolename"
+                  class="form-control"
+                  placeholder="Enter name"
+                  formControlName="rolename"
+                  [ngClass]="{
+                    'is-invalid': submitted && roleGroupForm.controls['rolename'].errors
+                  }"
+                />
+                <!-- [readOnly]="editMode" -->
+
+                <div
+                  class="errorWrap text-danger"
+                  *ngIf="submitted && roleGroupForm.controls['rolename'].errors"
+                >
+                  <div class="error text-danger">Name is required.</div>
+                </div>
+              </div>
+              <div class="col-md-4 ml-15">
+                <label>Status *</label>
+                <p-dropdown
+                  [options]="commonStatusList"
+                  optionValue="value"
+                  optionLabel="text"
+                  [filter]="true"
+                  filterBy="text"
+                  placeholder="Select a Status"
+                  formControlName="status"
+                  [ngClass]="{
+                    'is-invalid': submitted && roleGroupForm.controls['status'].errors
+                  }"
+                ></p-dropdown>
+                <div></div>
+
+                <div
+                  class="errorWrap text-danger"
+                  *ngIf="submitted && roleGroupForm.controls['status'].errors"
+                >
+                  <div class="error text-danger">Status is required.</div>
+                </div>
+              </div>
+            </div>
+          </form>
+          <div class="row pt-3">
+            <div class="col-md-12">
+              <div class="card">
+                <p-treeTable
+                  [value]="data"
+                  selectionMode="single"
+                  [metaKeySelection]="true"
+                  [(selection)]="selectedNodes"
+                  [scrollable]="true"
+                  [tableStyle]="{ 'min-width': '50rem' }"
+                  (onNodeExpand)="onNodeExpand($event)"
+                >
+                  <ng-template pTemplate="header" let-columns>
+                    <tr>
+                      <!-- <th style="text-align: center">Operations</th>
+        <th style="text-align: center">Permissions</th> -->
+                      <th>Operations</th>
+                      <th class="flex-class">
+                        <p-checkbox
+                          class="p-field-checkbox"
+                          name="checkAccess"
+                          [(ngModel)]="isSelectAll"
+                          (onChange)="onNodeSelect($event, null)"
+                          [binary]="true"
+                        ></p-checkbox
+                        ><span class="pl-1"> Permissions </span>
+                      </th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
+                    <tr
+                      [ttRow]="rowNode"
+                      [ngClass]="{ 'custom-tree-row': true }"
+                      [style.background-color]="rowNode.level == 0 ? 'rgb(240, 240, 240)' : ''"
+                    >
+                      <!-- <tr [ttRow]="rowNode"> -->
+                      <td>
+                        <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
+                        <span
+                          [style.font-weight]="
+                            rowNode.node.children?.length > 0 ? 'bold' : 'normal'
+                          "
+                        >
+                          {{ rowData.name }}
+                        </span>
+                      </td>
+                      <!-- <td class="center"> -->
+                      <td>
+                        <p-checkbox
+                          class="p-field-checkbox"
+                          name="checkAccess"
+                          [(ngModel)]="rowData.isSelected"
+                          (onChange)="onNodeSelect($event, rowNode)"
+                          [binary]="true"
+                        ></p-checkbox>
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-treeTable>
+              </div>
+            </div>
+          </div>
+
+          <div class="addUpdateBtn pt-3">
+            <button type="submit" class="btn btn-primary" (click)="addUpdateRole()" id="submit">
+              <i class="fa fa-check-circle"></i>
+              {{ editMode ? "Update" : "Add" }} Role
+            </button>
+            <br />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

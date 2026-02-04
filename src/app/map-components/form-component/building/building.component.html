@@ -1,0 +1,159 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <!-- Name Field -->
+  <div class="form-field">
+    <label for="name">
+      Name: <span class="required-star">*</span>
+      <span class="error-message" *ngIf="form.get('name')?.errors?.['require']">
+        Name is required
+      </span>
+    </label>
+    <input id="name" type="text" formControlName="name">
+  </div>
+
+  <!-- Address Field -->
+  <div class="form-field">
+    <label for="address">Address:</label>
+    <input id="address" type="text" formControlName="address">
+  </div>
+
+ <!-- Home Passes Field -->
+<div class="form-field">
+  <label for="homePasses">Home Passes:</label>
+  <input id="homePasses" type="text" formControlName="homePasses" (keypress)="numericOnly($event)">
+  <span class="error-message" *ngIf="form.get('homePasses')?.errors?.['pattern']">
+    Please enter numbers only
+  </span>
+</div>
+
+<!-- Floors Field -->
+<div class="form-field">
+  <label for="floors">Floors:</label>
+  <input id="floors" type="text" formControlName="floors" (keypress)="numericOnly($event)">
+  <span class="error-message" *ngIf="form.get('floors')?.errors?.['pattern']">
+    Please enter numbers only
+  </span>
+</div>
+
+<!-- Towers Field -->
+<div class="form-field">
+  <label for="blocks">Blocks:</label>
+  <input id="blocks" type="text" formControlName="blocks" (keypress)="numericOnly($event)">
+  <span class="error-message" *ngIf="form.get('blocks')?.errors?.['pattern']">
+    Please enter numbers only
+  </span>
+</div>
+
+  <!-- Building Type Field -->
+  <div class="form-field">
+    <label for="buildingType">
+      Building Type: <span class="required-star">*</span>
+      <span class="error-message" *ngIf="form.get('buildingType')?.errors?.['require']">
+        Building type is required
+      </span>
+    </label>
+    <select id="buildingType" formControlName="buildingType">
+      <option value="">-- Select Type --</option>
+      <option value="SDU">SDU</option>
+      <option value="MDU">MDU</option>
+      <option value="CDU">CDU</option>
+    </select>
+  </div>
+
+  <!-- Tenancy Field -->
+  <div class="form-field">
+    <label for="tenancy">
+      Tenancy: <span class="required-star">*</span>
+      <span class="error-message" *ngIf="form.get('tenancy')?.errors?.['require']">
+        Tenancy is required
+      </span>
+    </label>
+    <select id="tenancy" formControlName="tenancy">
+      <option value="">-- Select tenancy --</option>
+      <option value="Owned">Owned</option>
+      <option value="Rented">Rented</option>
+    </select>
+  </div>
+
+  <!-- Category Field -->
+  <div class="form-field">
+    <label for="category">
+      Category: <span class="required-star">*</span>
+      <span class="error-message" *ngIf="form.get('category')?.errors?.['require']">
+        Category is required
+      </span>
+    </label>
+    <select id="category" formControlName="category">
+      <option value="">-- Select category --</option>
+      <option value="Residential">Residential</option>
+      <option value="Commercial">Commercial</option>
+      <option value="MixedUse">Mixed Use</option>
+    </select>
+  </div>
+
+  <!-- Status Field -->
+  <div class="form-field">
+    <label for="status">
+      Status: <span class="required-star">*</span>
+      <span class="error-message" *ngIf="form.get('status')?.errors?.['require']">
+        Status is required
+      </span>
+    </label>
+    <select id="status" formControlName="status">
+      <option value="">-- Select status --</option>
+      <option value="InService">In Service</option>
+      <option value="Planned">Planned</option>
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label for="fatNo">Fat No</label>
+    <input id="fatNo" type="text" formControlName="fatNo">
+  </div>
+
+  <div class="form-field">
+    <label for="fdtNO">Fdt No</label>
+    <input id="fdtNO" type="text" formControlName="fdtNO">
+  </div>
+  
+  <div class="form-field">
+    <label for="streetName">Street Name</label>
+    <input id="streetName" type="text" formControlName="streetName">
+  </div>
+
+  <div class="form-field">
+    <label for="opticalLevel">Optical Level</label>
+    <input id="opticalLevel" type="text" formControlName="opticalLevel">
+  </div>
+
+  <div class="form-field">
+    <label for="photo1">Photo 1</label>
+    <input id="photo1" type="file" formControlName="photo1">
+  </div>
+  
+  <div class="form-field">
+    <label for="photo2">Photo 2</label>
+    <input id="photo2" type="file" formControlName="photo2">
+  </div>
+
+  <div class="form-field">
+    <label for="remarks">Remarks</label>
+    <input id="remarks" type="text" formControlName="remarks">
+    <span class="error-message" *ngIf="form.get('remarks')?.errors?.['pattern']">
+      Remarks is required
+    </span>
+  </div>
+
+
+  <!-- Coordinates Validation -->
+   <button type="submit" [disabled]="form.invalid">Submit</button>
+</form>
+
+<!-- <div class="form-field" *ngIf="form.value.surveyAreaId">
+  <label>Selected Survey Area:</label>
+  <div class="selected-survey-area">
+    Survey Area ID: {{ form.value.surveyAreaId }}
+    <button type="button" class="clear-btn" (click)="clearSurveyArea()">
+      Clear
+    </button>
+  </div>
+</div> -->

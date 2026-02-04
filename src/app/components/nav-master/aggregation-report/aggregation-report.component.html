@@ -1,0 +1,484 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="panel">
+      <div id="searchPanelAggreagtionReport" class="panel-collapse collapse show">
+        <div class="panel-body">
+          <fieldset style="margin-top: 0px">
+            <legend>Aggregation Report For {{ this.navMasterData.serviceName }}</legend>
+            <div class="boxWhite">
+              <div class="row">
+                <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+                  <legend>Basic Details</legend>
+                  <div class="boxWhite">
+                    <div class="row">
+                      <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 dataGroup">
+                        <label class="datalbl">Service Name :</label>
+                        <span>
+                          {{ this.navMasterData.serviceName }}
+                        </span>
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 dataGroup">
+                        <label class="datalbl">Aggregation Frequency:</label>
+                        <span>{{ this.navMasterData.aggregationFrequency }}</span>
+                      </div>
+
+                      <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 dataGroup">
+                        <label class="datalbl">Batch Name :</label>
+                        <span>{{ this.navMasterData.batchName }}</span>
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 dataGroup">
+                        <label class="datalbl">Username :</label>
+                        <span>{{ this.navMasterData.userName }}</span>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 dataGroup">
+                        <label class="datalbl">Password :</label>
+                        <span>{{ this.navMasterData.pwd }}</span>
+                      </div>
+                      <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 dataGroup">
+                        <label class="datalbl">Aggregation Parameter Name :</label>
+                        <span
+                          *ngFor="let data of navMasterData.navMasterAggregationParamMappingList"
+                          >{{ data.paramName }}{{ ", " }}</span
+                        >
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 dataGroup">
+                        <label class="datalbl">URL :</label>
+                        <span>{{ this.navMasterData.url }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </fieldset>
+
+                <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+                  <legend>Asynchronous Report</legend>
+                  <div class="boxWhite">
+                    <div class="row" [formGroup]="this.searchForm">
+                      <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 dataGroup">
+                        <p-calendar
+                          [ngClass]="{
+                            'is-invalid':
+                              this.searchSubmitted && searchForm.controls['startDate'].errors
+                          }"
+                          id="startDate"
+                          formControlName="startDate"
+                          appendTo="body"
+                          placeholder="Enter Start Date"
+                          dateFormat="dd M yy "
+                        ></p-calendar>
+                        <div
+                          *ngIf="this.searchSubmitted && searchForm.controls['startDate'].errors"
+                          class="errorWrap text-danger"
+                        >
+                          <div
+                            *ngIf="
+                              this.searchSubmitted && searchForm.controls['startDate'].errors?.['required']
+                            "
+                            class="error text-danger"
+                          >
+                            Start Date is required.
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 dataGroup">
+                        <p-calendar
+                          [ngClass]="{
+                            'is-invalid': this.searchSubmitted && searchForm.controls['endDate'].errors
+                          }"
+                          id="endDate"
+                          formControlName="endDate"
+                          appendTo="body"
+                          placeholder="Enter End Date"
+                          dateFormat="dd M yy "
+                        ></p-calendar>
+                        <div
+                          *ngIf="this.searchSubmitted && searchForm.controls['endDate'].errors"
+                          class="errorWrap text-danger"
+                        >
+                          <div
+                            *ngIf="
+                              this.searchSubmitted && searchForm.controls['endDate'].errors?.['required']
+                            "
+                            class="error text-danger"
+                          >
+                            End Date is required.
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 dataGroup">
+                        <button
+                          type="submit"
+                          class="btn btn-primary"
+                          id="fetchAggregationReport"
+                          data-dismiss="modal"
+                          (click)="this.fetchAggregationReport('')"
+                        >
+                          <i class="fa fa-check-circle"></i>
+                          Submit
+                        </button>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-12">
+                        <table class="table">
+                          <thead>
+                            <tr>
+                              <th>
+                                <input
+                                  (change)="checkUncheckAll()"
+                                  [(ngModel)]="this.masterSelected"
+                                  name="master-checkbox"
+                                  type="checkbox"
+                                />
+                              </th>
+                              <!--                          <th>Serial Number</th>-->
+                              <th>Date</th>
+                              <th>
+                                {{ navMasterData.batchName == "RCPT" ? "Payment Mode" : "Type" }}
+                              </th>
+                              <th>Amount</th>
+                              <th>BranchCode</th>
+                              <th>Business Unit</th>
+                              <th>Investment Code</th>
+                              <th>NAV Ledger ID</th>
+                              <th>Service Area</th>
+                              <th *ngIf="navMasterData.batchName == 'RCPT'">
+                                Source/Payment No./Cheque No.
+                              </th>
+                              <th>OLT</th>
+                              <th>POP</th>
+                              <th>Total Records</th>
+                              <th>Synchronization Status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr
+                              *ngFor="
+                                let data of this.aggregationReportListData
+                                  | paginate
+                                    : {
+                                        id: 'aggregationDataId',
+                                        itemsPerPage: aggregationReportListdataitemsPerPage,
+                                        currentPage: currentPageAggregationReportListdata,
+                                        totalItems: aggregationReportListDataTotalRecords
+                                      };
+                                index as i
+                              "
+                            >
+                              <td>
+                                <input
+                                  (change)="isAllSelected()"
+                                  [(ngModel)]="data.isSelected"
+                                  name="master-checkbox"
+                                  type="checkbox"
+                                />
+                              </td>
+                              <td>
+                                {{
+                                  navMasterData.batchName == "RCPT"
+                                    ? data.paymentDate
+                                    : (data.addedDate | date : "dd MMM yyyy")
+                                }}
+                              </td>
+                              <td>
+                                {{
+                                  navMasterData.batchName == "RCPT"
+                                    ? data.paymentMode
+                                    : data.transactionType
+                                }}
+                              </td>
+                              <td>{{ data.amount | number : "1.2-2" }}</td>
+                              <td>{{ data.branchCode }}</td>
+                              <td>{{ data.businessCode }}</td>
+                              <td>{{ data.iccode }}</td>
+                              <td>
+                                {{
+                                  data.pushableLedgerId ? data.pushableLedgerId : data.navledgerId
+                                }}
+                              </td>
+                              <td>{{ data.serviceAreaName }}</td>
+                              <td *ngIf="navMasterData.batchName == 'RCPT'">
+                                {{ data.otherDetails }}
+                              </td>
+                              <td>{{ data.olt }}</td>
+                              <td>{{ data.pop }}</td>
+                              <td *ngIf="navMasterData.batchName == 'RCPT'">
+                                {{ data.otherDetails }}
+                              </td>
+                              <td>
+                                <a
+                                  (click)="openRawDataModal(data, false)"
+                                  href="javascript:void(0)"
+                                  style="color: darkblue"
+                                  >{{ data.totalRecords }}</a
+                                >
+                              </td>
+                              <td *ngIf="data.isPushed">
+                                <span class="badge badge-success">
+                                  {{ "Synced" | titlecase }}
+                                </span>
+                              </td>
+                              <td *ngIf="!data.isPushed">
+                                <span class="badge badge-danger">
+                                  {{ "Not Synced" | titlecase }}
+                                </span>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-12" style="display: flex">
+                        <pagination-controls
+                          id="aggregationDataId"
+                          [maxSize]="10"
+                          [directionLinks]="true"
+                          previousLabel=""
+                          nextLabel=""
+                          (pageChange)="pageChangedForAggregationReport($event)"
+                        ></pagination-controls>
+                        <div id="itemPerPageDropdown">
+                          <p-dropdown
+                            [options]="pageLimitOptionsAggregationReport"
+                            optionLabel="value"
+                            optionValue="value"
+                            (onChange)="totalItemPerPageForAggregationReport($event)"
+                          ></p-dropdown>
+                        </div>
+                      </div>
+                      <br />
+                      <br />
+                      <div style="text-align: center">
+                        <button
+                          type="submit"
+                          class="btn btn-primary"
+                          id="push"
+                          data-dismiss="modal"
+                          (click)="this.push()"
+                          [disabled]="this.checkedList.length == 0"
+                        >
+                          <i class="fa fa-check-circle"></i>
+                          Push
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+            </div>
+            <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+              <legend>Synchronous Report</legend>
+              <div class="boxWhite">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Line No.</th>
+                      <th>
+                        {{ navMasterData.batchName == "RCPT" ? "Payment Mode" : "Type" }}
+                      </th>
+                      <th>Date</th>
+                      <th>Amount</th>
+                      <th>BranchCode</th>
+                      <th>Business Unit</th>
+                      <th>Investment Code</th>
+                      <th>NAV Ledger ID</th>
+                      <th>OLT</th>
+                      <th>POP</th>
+                      <th>Total Records</th>
+                      <th>Batch Number</th>
+                      <th>Synchronization Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      *ngFor="
+                        let data of this.aggregationPushedReportListData
+                          | paginate
+                            : {
+                                id: 'aggregationPushedDataId',
+                                itemsPerPage: aggregationPushedReportListdataitemsPerPage,
+                                currentPage: currentPageAggregationPushedReportListdata,
+                                totalItems: aggregationPushedReportListDataTotalRecords
+                              };
+                        index as i
+                      "
+                    >
+                      <td>{{ data.serialNumber }}</td>
+                      <td>
+                        {{
+                          navMasterData.batchName == "RCPT"
+                            ? data.paymentMode
+                            : data.transactionType
+                        }}
+                      </td>
+                      <td>
+                        {{
+                          navMasterData.batchName == "RCPT"
+                            ? data.paymentDate
+                            : (data.addedDate | date : "dd MMM yyyy")
+                        }}
+                      </td>
+                      <td>{{ data.amount | number : "1.2-2" }}</td>
+                      <td>{{ data.branchCode }}</td>
+                      <td>{{ data.businessCode }}</td>
+                      <td>{{ data.iccode }}</td>
+                      <td>
+                        {{ data.pushableLedgerId ? data.pushableLedgerId : data.navledgerId }}
+                      </td>
+                        <td>{{ data.olt }}</td>
+                        <td>{{ data.pop }}</td>
+                      <td>
+                        <a
+                          (click)="openRawDataModal(data, true)"
+                          href="javascript:void(0)"
+                          style="color: darkblue"
+                          >{{ data.totalRecords }}</a
+                        >
+                      </td>
+                      <td>{{ data.documentNumber }}</td>
+                      <td *ngIf="data.isPushed">
+                        <span class="badge badge-success">
+                          {{ "Synced" | titlecase }}
+                        </span>
+                      </td>
+                      <td *ngIf="!data.isPushed">
+                        <span class="badge badge-danger">
+                          {{ "Not Synced" | titlecase }}
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <div class="row">
+                  <div class="col-md-12" style="display: flex">
+                    <pagination-controls
+                      id="aggregationPushedDataId"
+                      [maxSize]="10"
+                      [directionLinks]="true"
+                      previousLabel=""
+                      nextLabel=""
+                      (pageChange)="pageChangedForAggregationPushedReport($event)"
+                    ></pagination-controls>
+                    <div id="itemPerPageDropdown">
+                      <p-dropdown
+                        [options]="pageLimitOptionsAggregationReport"
+                        optionLabel="value"
+                        optionValue="value"
+                        (onChange)="totalItemPerPageForAggregationPushedReport($event)"
+                      ></p-dropdown>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="rawDataReportModal" role="dialog">
+  <div class="modal-dialog" style="width: 100%">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="panel-title">Details Of This Aggregation</h3>
+      </div>
+      <div class="modal-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Customer Username</th>
+              <th>Invoice Number</th>
+              <th>Name</th>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>BranchCode</th>
+              <th>Business Unit</th>
+              <th>Investment Code</th>
+              <th>NAV Ledger ID</th>
+              <th>Service Area</th>
+              <th>OLT</th>
+              <th>POP</th>
+              <th>Synchronization Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="
+                let data of this.rawReportListData
+                  | paginate
+                    : {
+                        id: 'rawDataTablePageOption',
+                        itemsPerPage: rawReportListdataitemsPerPage,
+                        currentPage: currentPageRawReportListData,
+                        totalItems: rawReportListDataTotalRecords
+                      };
+                index as i
+              "
+            >
+              <td>{{ data.customerUserName }}</td>
+              <td>{{ data.docNumber }}</td>
+              <td>{{ data.transactionName }}</td>
+              <td>{{ data.addedDate | date : "dd MMM yyyy" }}</td>
+              <td>{{ data.amount | number : "1.2-2" }}</td>
+              <td>{{ data.branchCode }}</td>
+              <td>{{ data.businessCode }}</td>
+              <td>{{ data.iccode }}</td>
+              <td>{{ data.navledgerId }}</td>
+              <td>{{ data.serviceAreaName }}</td>
+              <td>{{ data.olt }}</td>
+              <td>{{ data.pop }}</td>
+              <td *ngIf="data.isPushed">
+                <span class="badge badge-success">
+                  {{ "Synced" | titlecase }}
+                </span>
+              </td>
+              <td *ngIf="!data.isPushed">
+                <span class="badge badge-danger">
+                  {{ "Not Synced" | titlecase }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="row">
+          <div class="col-md-12" style="display: flex">
+            <pagination-controls
+              id="rawDataTablePageOption"
+              [maxSize]="10"
+              [directionLinks]="true"
+              previousLabel=""
+              nextLabel=""
+              (pageChange)="pageChangedForRawReport($event)"
+            ></pagination-controls>
+            <div id="itemPerPageDropdown">
+              <p-dropdown
+                [options]="pageLimitOptionsRawReport"
+                optionLabel="value"
+                optionValue="value"
+                (onChange)="totalItemPerPageForRawReport($event)"
+              ></p-dropdown>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="addUpdateBtn">
+          <button
+            type="button"
+            class="btn btn-danger btn-sm"
+            data-dismiss="modal"
+            (click)="closeModal()"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

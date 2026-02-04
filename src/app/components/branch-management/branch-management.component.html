@@ -1,0 +1,734 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="panel top">
+      <div class="panel-heading">
+        <h3 class="panel-title">Branch Management</h3>
+        <div class="right">
+          <button
+            type="button"
+            class="btn-toggle-collapse"
+            data-bs-toggle="collapse"
+            data-bs-target="#searchData"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+      <div id="searchData" class="panel-collapse collapse show">
+        <div id="" class="panel-body">
+          <div class="row">
+            <div class="col-lg-3 col-md-3">
+              <input
+                id="taxName"
+                type="text"
+                [(ngModel)]="searchName"
+                class="form-control"
+                placeholder="Global Search Filter"
+                (keydown.enter)="search()"
+              />
+            </div>
+            <div class="col-lg-3 col-md-4 marginTopSearchBtn">
+              <button type="button" class="btn btn-primary" id="searchbtn" (click)="search()">
+                <i class="fa fa-search"></i>
+                Search
+              </button>
+              <button type="reset" class="btn btn-default" id="searchbtn" (click)="clearSearch()">
+                <i class="fa fa-refresh"></i>
+                Clear
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <ng-container *ngIf="!branchDataDetailsShow">
+    <div class="col-md-6 left">
+      <div class="panel">
+        <div class="panel-heading">
+          <h3 class="panel-title">Branch Management</h3>
+          <div class="right">
+            <button
+              type="button"
+              class="btn-toggle-collapse"
+              data-bs-toggle="collapse"
+              data-bs-target="#allData"
+              aria-expanded="false"
+              aria-controls="allData"
+            >
+              <i class="fa fa-minus-circle"></i>
+            </button>
+          </div>
+        </div>
+        <div id="allData" class="panel-collapse collapse show">
+          <div class="panel-body table-responsive">
+            <div>
+              <div class="row">
+                <div class="col-lg-12 col-md-12">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <!-- <th>Service Area</th> -->
+                        <th>Status</th>
+                        <th *ngIf="deleteAccess || editAccess">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        *ngFor="
+                          let branchManagement of branchListData
+                            | paginate
+                              : {
+                                  id: 'ListData',
+                                  itemsPerPage: itemsPerPage,
+                                  currentPage: currentPageSlab,
+                                  totalItems: totalRecords
+                                };
+                          index as i
+                        "
+                      >
+                        <td
+                          class="curson_pointer"
+                          (click)="branchAllDetails(branchManagement)"
+                          style="color: darkblue"
+                        >
+                          {{ branchManagement.name }}
+                        </td>
+                        <!-- <td>{{branchManagement.serviceAreaNameList}}</td> -->
+                        <td
+                          *ngIf="
+                            branchManagement.status == 'ACTIVE' ||
+                            branchManagement.status == 'Active'
+                          "
+                        >
+                          <span class="badge badge-success">Active</span>
+                        </td>
+                        <td
+                          *ngIf="
+                            branchManagement.status == 'INACTIVE' ||
+                            branchManagement.status == 'Inactive'
+                          "
+                        >
+                          <span class="badge badge-danger">Inactive</span>
+                        </td>
+                        <td class="btnAction" *ngIf="deleteAccess || editAccess">
+                          <a
+                            *ngIf="editAccess"
+                            id="edit-button"
+                            href="javascript:void(0)"
+                            type="button"
+                            (click)="edit(branchManagement.id)"
+                          >
+                            <img src="assets/img/ioc01.jpg" />
+                          </a>
+                          <a
+                            *ngIf="deleteAccess"
+                            id="delete-button"
+                            href="javascript:void(0)"
+                            (click)="deleteConfirmon(branchManagement.id)"
+                          >
+                            <img src="assets/img/ioc02.jpg" />
+                          </a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="row">
+                    <div class="col-md-12" style="display: flex">
+                      <pagination-controls
+                        id="ListData"
+                        [maxSize]="10"
+                        [directionLinks]="true"
+                        previousLabel=""
+                        nextLabel=""
+                        (pageChange)="pageChangedList($event)"
+                      ></pagination-controls>
+                      <div id="itemPerPageDropdown">
+                        <p-dropdown
+                          [options]="pageLimitOptions"
+                          optionLabel="value"
+                          optionValue="value"
+                          (onChange)="TotalItemPerPage($event)"
+                        ></p-dropdown>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 right">
+      <div class="panel">
+        <div class="panel-heading">
+          <h3 class="panel-title">{{ isEdit ? "Update" : "Create" }} Branch Management</h3>
+          <div class="right">
+            <button
+              type="button"
+              class="btn-toggle-collapse"
+              data-bs-toggle="collapse"
+              data-bs-target="#createData"
+              aria-expanded="false"
+              aria-controls="createData"
+            >
+              <i class="fa fa-minus-circle"></i>
+            </button>
+          </div>
+        </div>
+        <div id="createData" class="panel-collapse collapse show">
+          <!-- <div class="panel-body"> -->
+          <!-- <div class="panel-body"> -->
+          <div class="panel-body table-responsive" *ngIf="!createAccess && !isEdit">
+            Sorry you have not privilege to create operation!
+          </div>
+          <div class="panel-body" *ngIf="createAccess || (isEdit && editAccess)">
+            <form [formGroup]="branchFormGroup">
+              <div>
+                <label>Name*</label>
+                <input
+                  id="name"
+                  type="text"
+                  class="form-control"
+                  placeholder="Enter Name"
+                  formControlName="name"
+                  [ngClass]="{
+                    'is-invalid': submitted && branchFormGroup.get('name')?.errors
+                  }"
+                />
+                <div
+                  class="errorWrap text-danger"
+                  *ngIf="submitted && branchFormGroup.get('name')?.errors"
+                >
+                  <div
+                    class="error text-danger"
+                    *ngIf="submitted && branchFormGroup.get('name')?.errors?.['required']"
+                  >
+  get('Name')? is required.
+                  </div>
+                  <div
+                    class="error text-danger"
+                    *ngIf="submitted && branchFormGroup.get('name')?.errors?.['cannotContainSpace']"
+                  >
+                    <p class="error">White space are not allowed.</p>
+                  </div>
+                </div>
+                <br />
+              </div>
+              <div>
+                <label>Branch Code</label>
+                <input
+                  id="name"
+                  type="text"
+                  class="form-control"
+                  placeholder="Enter Branch Code"
+                  formControlName="branch_code"
+                />
+                <div
+                  class="errorWrap text-danger"
+                  *ngIf="submitted && branchFormGroup.get('branch_code')?.errors"
+                >
+                  <div
+                    class="error text-danger"
+                    *ngIf="submitted && branchFormGroup.get('branch_code')?.errors?.['required']"
+                  >
+                    Branch Code is required.
+                  </div>
+                </div>
+                <br />
+              </div>
+              <div>
+                <label>Service Area*</label>
+                <p-multiSelect
+                  id="roles"
+                  [options]="serviceAreaDropdownList"
+                  formControlName="serviceAreaIdsList"
+                  defaultLabel="Select Area"
+                  optionLabel="name"
+                  optionValue="id"
+                  [ngClass]="{
+                    'is-invalid': submitted && branchFormGroup.get('serviceAreaIdsList')?.errors
+                  }"
+                >
+                <ng-template let-option pTemplate="item">
+                    <span>
+                    {{ option.name }}
+                    &nbsp;
+                    <span *ngIf="option.isUnderDevelopment" class="badge badge-info underDevelopBadge">
+                        UnderDevelopment
+                    </span>
+                    </span>
+                </ng-template>
+                </p-multiSelect>
+                <div
+                  class="errorWrap text-danger"
+                  *ngIf="submitted && branchFormGroup.get ('serviceAreaIdsList')?.errors"
+                >
+                  <div
+                    class="error text-danger"
+                    *ngIf="submitted && branchFormGroup.get('serviceAreaIdsList')?.errors?.['required']"
+                  >
+                    Service Area is required.
+                  </div>
+                </div>
+              </div>
+              <br />
+              <div>
+                <label>Revenue Sharing *</label>
+                <p-dropdown
+                  [options]="revenueSharingData"
+                  optionValue="value"
+                  optionLabel="label"
+                  [filter]="true"
+                  filterBy="label"
+                  placeholder="Select a Revenue Sharing"
+                  formControlName="revenue_sharing"
+                  (onChange)="revenueSharingEvent($event)"
+                  [ngClass]="{
+                    'is-invalid': submitted && branchFormGroup.get('revenue_sharing')?.errors
+                  }"
+                ></p-dropdown>
+                <div
+                  class="errorWrap text-danger"
+                  *ngIf="submitted && branchFormGroup.get ('revenue_sharing')?.errors"
+                >
+                  <div
+                    class="error text-danger"
+                    *ngIf="submitted && branchFormGroup.get ('revenue_sharing')?.errors?.['required']"
+                  >
+                    Revenue Sharing is required.
+                  </div>
+                </div>
+                <div></div>
+                <br />
+              </div>
+              <div *ngIf="branchFormGroup.value.revenue_sharing == true">
+                <div class="boxWhite">
+                  <div class="row" [formGroup]="serviceCommonFromGroup">
+                    <div class="col-lg-5 col-md-5 col-sm-5 col-12">
+                      <div>
+                        <p-dropdown
+                          [options]="this.planserviceData"
+                          optionValue="id"
+                          optionLabel="name"
+                          [filter]="true"
+                          filterBy="name"
+                          placeholder="Select a Service"
+                          formControlName="serviceId"
+                          [ngClass]="{
+                            'is-invalid':
+                              serviceCommisionSubmitted &&
+                              serviceCommonFromGroup.get('serviceId')?.errors
+                          }"
+                        ></p-dropdown>
+                      </div>
+                      <div
+                        class="errorWrap text-danger"
+                        *ngIf="
+                          serviceCommisionSubmitted &&
+                          serviceCommonFromGroup.get('serviceId')?.errors
+                        "
+                      >
+                        <div class="error text-danger">Service required.</div>
+                      </div>
+                    </div>
+                    <div class="col-lg-5 col-md-5 col-sm-5 col-12">
+                      <input
+                        class="form-control"
+                        type="number"
+                        placeholder="Enter Revenue Share Percentage"
+                        name="revenueShareper"
+                        id="revenueShareper"
+                        formControlName="revenueShareper"
+                        [ngClass]="{
+                          'is-invalid':
+                            serviceCommisionSubmitted &&
+                            serviceCommonFromGroup.get('revenueShareper')?.errors
+                        }"
+                      />
+
+                      <div
+                        class="errorWrap text-danger"
+                        *ngIf="
+                          serviceCommisionSubmitted &&
+                          serviceCommonFromGroup.get('revenueShareper')?.errors
+                        "
+                      >
+                        <div class="error text-danger">Revenue Share Percentage is required.</div>
+                        <div
+                          class="error text-danger"
+                          *ngIf="
+                            serviceCommisionSubmitted &&
+                            serviceCommonFromGroup.get('revenueShareper')?.errors?.['min']
+                          "
+                        >
+                          Minimum 0 Percentage allowed..
+                        </div>
+                        <div
+                          class="error text-danger"
+                          *ngIf="
+                            serviceCommisionSubmitted &&
+                            serviceCommonFromGroup.get('revenueShareper')?.errors?.['max']
+                          "
+                        >
+                          Maximum 100 Percentage allowed.
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-2 col-md-2 col-sm-2 col-12">
+                      <button
+                        style="object-fit: cover; padding: 5px 8px"
+                        class="btn btn-primary"
+                        (click)="onAddServiceCommissionField()"
+                      >
+                        <i class="fa fa-plus-square" aria-hidden="true"></i>
+                        Add
+                      </button>
+                    </div>
+                  </div>
+                  <table class="table coa-table" style="margin-top: 10px">
+                    <thead>
+                      <tr>
+                        <th style="text-align: center">Service</th>
+                        <th style="text-align: center">Revenue Share Percentage</th>
+                        <th style="text-align: right; padding: 8px">Delete</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        *ngFor="
+                          let row of serviceCommonListFromArray.controls
+                            | paginate
+                              : {
+                                  id: 'serviceCommonListID',
+                                  itemsPerPage: serviceitemsPerPage,
+                                  currentPage: currentPageservice,
+                                  totalItems: servicetotalRecords
+                                };
+                          let index = index
+                        "
+                      >
+                        <td style="padding-left: 8px">
+                          <div>
+                            <p-dropdown
+                              [options]="this.commondropdownService.planserviceData"
+                              optionValue="id"
+                              optionLabel="name"
+                              [filter]="true"
+                              filterBy="name"
+                              placeholder="Select a Service"
+                              [formControl]="getControl(row, 'serviceId')"
+                              [disabled]="true"
+                            ></p-dropdown>
+                          </div>
+                        </td>
+                        <td>
+                          <input
+                            class="form-control"
+                            type="text"
+                            placeholder="Enter Revenue Share Percentage"
+                            name="revenueShareper"
+                            id="revenueShareper"
+                            [formControl]="getControl(row, 'revenueShareper')"
+                            [disabled]="true"
+                          />
+                        </td>
+                        <td style="text-align: right">
+                          <a
+                            *ngIf="serviceCommonListFromArray.controls.length !== 1"
+                            id="deleteAtt"
+                            href="javascript:void(0)"
+                            (click)="deleteConfirmonServiceCommisiionField(index, row)"
+                          >
+                            <img src="assets/img/ioc02.jpg" />
+                          </a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  <div class="row">
+                    <div class="col-md-12">
+                      <pagination-controls
+                        id="serviceCommonListID"
+                        [maxSize]="10"
+                        [directionLinks]="true"
+                        previousLabel=""
+                        nextLabel=""
+                        (pageChange)="pageChangedServiceCommission($event)"
+                      ></pagination-controls>
+                    </div>
+                  </div>
+                </div>
+                <br />
+              </div>
+              <div>
+                <label>Document Dunning Day</label>
+                <p-dropdown
+                  [options]="dunningData"
+                  optionValue="value"
+                  optionLabel="text"
+                  [filter]="true"
+                  filterBy="text"
+                  placeholder="Select a Document Dunning Day"
+                  formControlName="dunningDays"
+                ></p-dropdown>
+                <div></div>
+                <br />
+              </div>
+              <div>
+                <label>Status*</label>
+                <p-dropdown
+                  [options]="statusOptions"
+                  optionValue="label"
+                  optionLabel="label"
+                  [filter]="true"
+                  filterBy="label"
+                  placeholder="Select a Status"
+                  formControlName="status"
+                  [ngClass]="{
+                    'is-invalid': submitted && branchFormGroup.get('status')?.errors
+                  }"
+                ></p-dropdown>
+                <div
+                  class="errorWrap text-danger"
+                  *ngIf="submitted && branchFormGroup.get('status')?.errors"
+                >
+                  <div
+                    class="error text-danger"
+                    *ngIf="submitted && branchFormGroup.get('status')?.errors?.['required']"
+                  >
+                    Status is required.
+                  </div>
+                </div>
+              </div>
+              <br />
+
+              <div class="addUpdateBtn">
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  *ngIf="!isEdit"
+                  id="submit"
+                  (click)="addEdit('')"
+                >
+                  <i class="fa fa-check-circle"></i>
+                  Add Branch
+                </button>
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  *ngIf="isEdit"
+                  id="submit"
+                  (click)="addEdit(viewListData.id)"
+                >
+                  <i class="fa fa-check-circle"></i>
+                  Update Branch
+                </button>
+                <br />
+              </div>
+            </form>
+          </div>
+          <!-- </div> -->
+          <!-- </div> -->
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- <div class="row"> -->
+  <div *ngIf="branchDataDetailsShow">
+    <div class="col-md-12">
+      <div class="panel">
+        <div class="panel-heading">
+          <div class="displayflex">
+            <button
+              type="button"
+              class="btn btn-secondary backbtn"
+              data-bs-toggle="tooltip"
+              data-placement="bottom"
+              title="Go to Branch Details"
+              (click)="clearSearch()"
+            >
+              <i
+                class="fa fa-arrow-circle-left"
+                style="color: darkblue !important; font-size: 28px"
+              ></i>
+            </button>
+            <h3 class="panel-title">{{ branchDataDetails.name }} Branch Details</h3>
+          </div>
+          <div class="right">
+            <button
+              type="button"
+              class="btn-toggle-collapse"
+              data-bs-toggle="collapse"
+              data-bs-target="#BranchDetailsData"
+            >
+              <i class="fa fa-minus-circle"></i>
+            </button>
+          </div>
+        </div>
+        <div id="BranchDetailsData" class="panel-collapse collapse show">
+          <div id="" class="panel-body">
+            <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+              <legend>Basic Details</legend>
+              <div class="boxWhite">
+                <div class="row">
+                  <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                    <label class="datalbl">Name :</label>
+                    <span>{{ branchDataDetails.name }}</span>
+                  </div>
+                  <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                    <label class="datalbl">Branch Code :</label>
+                    <span *ngIf="branchDataDetails.branch_code">{{
+                      branchDataDetails.branch_code
+                    }}</span>
+                    <span *ngIf="!branchDataDetails.branch_code">-</span>
+                  </div>
+                  <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                    <label class="datalbl">Revenue Sharing :</label>
+                    <span *ngIf="branchDataDetails.revenue_sharing == true">Yes</span>
+                    <span *ngIf="branchDataDetails.revenue_sharing == false">No</span>
+                  </div>
+                  <div
+                    class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup"
+                    *ngIf="branchDataDetails.revenue_sharing == true"
+                  >
+                    <label class="datalbl">Sharing Percentage :</label>
+                    <span>{{ branchDataDetails.sharing_percentage }} %</span>
+                  </div>
+                  <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                    <label class="datalbl">Service Area :</label>
+                    <span
+                      class="HoverEffect"
+                      (click)="openModel()"
+                      data-backdrop="static"
+                      data-keyboard="false"
+                      title="Go To service Area List"
+                    >
+                      Click here
+                    </span>
+                  </div>
+
+                  <div class="col-lg-4 col-md-4 dataGroup">
+                    <label class="datalbl">Status :</label>
+                    <span *ngIf="branchDataDetails.status == 'Active'" class="badge badge-success">
+                      Active
+                    </span>
+                    <span *ngIf="branchDataDetails.status == 'Inactive'" class="badge badge-danger">
+                      Inactive
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+            <fieldset *ngIf="branchDataDetails.revenue_sharing == true">
+              <legend>Service Commission List</legend>
+              <div class="boxWhite">
+                <div class="row table-responsive">
+                  <div class="col-lg-12 col-md-12">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Service</th>
+                          <th>Revenue Share Percentage</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr
+                          *ngFor="
+                            let data of branchDataDetails.branchServiceMappingEntityList
+                              | paginate
+                                : {
+                                    id: 'serviceCommonListID',
+                                    itemsPerPage: serviceitemsPerPage,
+                                    currentPage: currentPageservice,
+                                    totalItems: servicetotalRecords
+                                  };
+                            let index = index
+                          "
+                        >
+                          <td>
+                            <span *ngFor="let list of serviListName; index as j">
+                              <span *ngIf="index === j">
+                                {{ list }}
+                              </span>
+                            </span>
+                          </td>
+                          <td>{{ data.revenueShareper }} %</td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    <div class="row">
+                      <div class="col-md-12">
+                        <pagination-controls
+                          id="serviceCommonListID"
+                          [maxSize]="10"
+                          [directionLinks]="true"
+                          previousLabel=""
+                          nextLabel=""
+                          (pageChange)="pageChangedServiceCommission($event)"
+                        ></pagination-controls>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <br />
+              </div>
+            </fieldset>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- </div> -->
+
+  <!-- service area list -->
+</div>
+<p-dialog
+  header="Service Area List For Branch - ({{ branchDataDetails?.name }})"
+  [(visible)]="serviceAreaModal"
+  [style]="{ width: '50%' }"
+  [modal]="true"
+  [responsive]="true"
+  [draggable]="false"
+  [closable]="true"
+  (onHide)="closeModal()"
+>
+  <!-- <div class="modal-content"> -->
+  <!-- <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal">&times;</button>
+      <h3 class="panel-title">Service Area List For Branch - ({{ branchDataDetails?.name }})</h3>
+    </div> -->
+  <div class="modal-body">
+    <div class="panel-body table-responsive" id="networkDeviceTabel">
+      <table class="table">
+        <tbody>
+          <tr>
+            <td><label class="networkLabel">Service Area :</label></td>
+            <td>
+              <span
+                style="word-break: break-all"
+                *ngFor="let serviceName of branchDataDetails?.serviceAreaNameList"
+              >
+                <span>
+                  {{ serviceName }}
+                  <br />
+                </span>
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- </div> -->
+    <!-- <div class="modal-footer">
+      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+    </div> -->
+  </div>
+</p-dialog>

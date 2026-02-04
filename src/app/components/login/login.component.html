@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en" class="fullscreen-bg">
+  <head>
+    <title>Login | Keyanna Dashboard</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+    />
+    <!-- VENDOR CSS -->
+    <!-- <link rel="stylesheet" href="assets/vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/vendor/linearicons/style.css"> -->
+    <!-- MAIN CSS -->
+    <!-- <link rel="stylesheet" href="assets/css/main.css"> -->
+
+    <!-- GOOGLE FONTS -->
+    <link
+      href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700"
+      rel="stylesheet"
+    />
+    <!-- ICONS -->
+    <link rel="apple-touch-icon" sizes="76x76" href="assets/img/apple-icon.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="assets/img/favicon.png" />
+  </head>
+
+  <body class="loginbg">
+    <!-- <p-toast [style]="{ height: 'auto', width: '20vw', fontSize: '16px' }"></p-toast> -->
+    <!-- <ngx-spinner type="ball-clip-rotate-multiple" size="medium">
+        <p class="loading">Loading...</p>
+    </ngx-spinner> -->
+    <ngx-spinner
+      template='<img class="rotate" width="100" height="100" src="assets/img/ajaxwaiting.png" >'
+    ></ngx-spinner>
+    <!-- WRAPPER -->
+    <div id="wrapper" pFocusTrap>
+      <div class="vertical-align-wrap">
+        <div class="vertical-align-middle">
+          <div class="auth-box">
+            <div class="left">
+              <div class="content">
+                <div class="header">
+                  <div class="logo text-center">
+                    <!--  -->
+                    <img src="../../assets/img/PNG Keyanna tech-03.png" alt="Keyanna Logo" class="keyannalogo" />
+                  </div>
+                  <p class="lead">Start Your Journy</p>
+                </div>
+                <form class="form-auth-small" [formGroup]="createLoginForm">
+                  <!-- Username Field -->
+                  <div class="form-group">
+                    <label for="signin-email" class="control-label sr-only">Username</label>
+                    <input
+                      type="email"
+                      name="username"
+                      class="form-control"
+                      id="signin-email"
+                      formControlName="username"
+                      [ngClass]="{
+                        'is-invalid': submitted && createLoginForm.controls['username'].errors
+                      }"
+                      placeholder="Username"
+                    />
+                    <div
+                      class="errorWrap text-danger"
+                      style="text-align: left"
+                      *ngIf="submitted && createLoginForm.controls['username'].errors"
+                    >
+                      <div
+                        class="error text-danger"
+                        *ngIf="submitted && createLoginForm.controls['username'].errors?.['required']"
+                      >
+                        Username is required
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Password Field -->
+                  <div class="form-group">
+                    <label for="signin-password" class="control-label sr-only">Password</label>
+                    <div class="form-control displayflex">
+                      <div style="width: 95%">
+                        <input
+                          [type]="_passwordType"
+                          class="inputPassword"
+                          name="password"
+                          id="signin-password"
+                          placeholder="Password"
+                          formControlName="password"
+                          [ngClass]="{
+                            'is-invalid': submitted && createLoginForm.controls['password'].errors
+                          }"
+                        />
+                      </div>
+                      <div style="width: 5%">
+                        <div *ngIf="showPassword">
+                          <i
+                            class="fa fa-eye"
+                            (click)="showPassword = false; _passwordType = 'password'"
+                          ></i>
+                        </div>
+                        <div *ngIf="!showPassword">
+                          <i
+                            class="fa fa-eye-slash"
+                            (click)="showPassword = true; _passwordType = 'text'"
+                          ></i>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="errorWrap text-danger"
+                      style="text-align: left"
+                      *ngIf="submitted && createLoginForm.controls['password'].errors"
+                    >
+                      <div
+                        class="error text-danger"
+                        *ngIf="submitted && createLoginForm.controls['password'].errors?.['required']"
+                      >
+                        Password is required
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- OTP Input Field -->
+                  <div class="form-group" *ngIf="showOtpInput">
+                    <label for="otp" class="control-label sr-only">OTP</label>
+                    <input
+                      type="text"
+                      name="otp"
+                      class="form-control"
+                      id="otp"
+                      formControlName="otp"
+                      placeholder="Enter OTP"
+                    />
+                    <div
+                      class="errorWrap text-danger"
+                      style="text-align: left"
+                      *ngIf="otpSubmitted && createLoginForm.controls['otp'].errors"
+                    >
+                      <div
+                        class="error text-danger"
+                        *ngIf="otpSubmitted && createLoginForm.controls['otp'].errors?.['required']"
+                      >
+                        OTP is required
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Captcha -->
+                  <!-- <re-captcha
+                  *ngIf="loginEnable" [config]="captchaConfig">
+                </re-captcha> -->
+                
+                  <!-- <ngx-captcha *ngIf="loginEnable" [config]="captchaConfig"></ngx-captcha> -->
+                  <div class="error text-danger" *ngIf="captchaError">
+                    {{ captchaError }}
+                  </div>
+                  <div class="error text-success" *ngIf="captchaSuccess">
+                    {{ captchaSuccess }}
+                  </div>
+
+                  <!-- Submit Button -->
+                  <button
+                    *ngIf="showOtpInput"
+                    style="background-color: #ddd !important; color: black !important"
+                    type="submit"
+                    class="btn btn-lg"
+                    (click)="resendotp()"
+                    [disabled]="resendOTP"
+                  >
+                    Resend OTP
+                    <span *ngIf="resendOTP"> ({{ otpCountDown }}) </span>
+                  </button>
+                  <button
+                    [disabled]="loginEnable"
+                    type="submit"
+                    class="btn btn-primary btn-lg"
+                    (click)="showOtpInput ? verifyOtp() : checkLogin()"
+                  >
+                    {{ showOtpInput ? "Verify OTP" : "Login" }}
+                  </button>
+                </form>
+              </div>
+            </div>
+            <div class="right">
+              <div class="overlay"></div>
+              <div class="content text">
+                <h1 class="heading">Lorem ipsum dolor sit consectetur.</h1>
+                <p>Adipiscing elit</p>
+              </div>
+            </div>
+            <div class="clearfix"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END WRAPPER -->
+
+    <!-- reset Password -->
+    <div class="modal fade" id="getotp" role="dialog">
+      <div class="modal-dialog" style="width: 35%">
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="panel-title">RESET PASSWORD</h3>
+          </div>
+          <div class="modal-body">
+            <form name="resetOTPTopupForm" [formGroup]="searchPartnerForm">
+              <div class="form-group" style="margin: 1rem 11px -5px">
+                <div style="margin-top: 5px">
+                  <input
+                    type="userName"
+                    min="0"
+                    class="form-control"
+                    id="userName"
+                    placeholder="Enter Username"
+                    name="userName"
+                    formControlName="userName"
+                  />
+                </div>
+              </div>
+              <br />
+            </form>
+          </div>
+          <div class="modal-footer">
+            <div class="addUpdateBtn">
+              <button
+                type="submit"
+                class="btn btn-primary btn-sm"
+                (click)="searchResellerByName()"
+                [disabled]="!searchPartnerForm.valid"
+              >
+                <i class="fa fa-check-circle"></i>
+                GET OTP
+              </button>
+              <button
+                type="button"
+                class="btn btn-danger btn-sm"
+                (click)="searchPartnerForm.reset()"
+                data-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div class="modal fade" id="changePasswordModal" role="dialog">
+      <div class="modal-dialog" style="width: 35%">
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="panel-title">RESET PASSWORD</h3>
+          </div>
+          <div class="modal-body">
+            <div class="SuccessOTPBox">
+              <div class="sucessLabel">
+                <i class="fa fa-check" style="font-size: 19px; color: #2b7b2c"></i>
+                OTP sent successfully
+              </div>
+            </div>
+            <form name="changePasswordForm" [formGroup]="changePasswordForm">
+              <div class="form-group">
+                <!-- <label for="otp">Otp :</label> -->
+                <input
+                  type="text"
+                  class="form-control"
+                  id="otp"
+                  name="otp"
+                  placeholder="Enter OTP"
+                  formControlName="otp"
+                />
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; align-items: center">
+                <div class="resendOTPLabel" (click)="getOtp()" style="cursor: pointer">
+                  Resend OTP
+                </div>
+              </div>
+              <div class="form-group" style="margin-top: 1rem">
+                <!-- <label for="newPassword">New Password :</label> -->
+                <div class="form-control displayflex">
+                  <div style="width: 95%">
+                    <input
+                      [type]="_passwordNewType"
+                      class="inputPassword"
+                      id="newPassword"
+                      name="newPassword"
+                      formControlName="newPassword"
+                      placeholder="Enter New Password"
+                    />
+                  </div>
+                  <div style="width: 5%">
+                    <div *ngIf="showNewPassword">
+                      <i
+                        class="fa fa-eye"
+                        (click)="showNewPassword = false; _passwordNewType = 'password'"
+                      ></i>
+                    </div>
+                    <div *ngIf="!showNewPassword">
+                      <i
+                        class="fa fa-eye-slash"
+                        (click)="showNewPassword = true; _passwordNewType = 'text'"
+                      ></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- <input
+                  type="password"
+                  id="newPassword"
+                  name="newPassword"
+                  formControlName="newPassword"
+                  class="form-control"
+                  placeholder="Enter New Password"
+                /> -->
+                <!-- <span
+                  class="help-block"
+                  *ngIf="
+                    (changePasswordForm.get('newPassword').touched ||
+                      changePasswordForm.get('newPassword').dirty) &&
+                    changePasswordForm.get('newPassword').hasError('required')
+                  "
+                >
+                  Please enter New Password.
+                </span> -->
+              </div>
+              <div class="form-group">
+                <!-- <label for="confirmNewPassword">Confirm New Password :</label> -->
+                <div class="form-control displayflex">
+                  <div style="width: 95%">
+                    <input
+                      [type]="_passwordconfirmType"
+                      class="inputPassword"
+                      id="confirmNewPassword"
+                      placeholder="Enter Confirm Password"
+                      name="confirmNewPassword"
+                      formControlName="confirmNewPassword"
+                    />
+                    <!-- <span
+                      class="help-block"
+                      *ngIf="
+                        (changePasswordForm.get('confirmNewPassword').touched ||
+                          changePasswordForm.get('confirmNewPassword').dirty) &&
+                        changePasswordForm
+                          .get('confirmNewPassword')
+                          .hasError('required')
+                      "
+                    >
+                      Please enter Confirm Password .
+                    </span> -->
+                  </div>
+                  <div style="width: 5%">
+                    <div *ngIf="showconfirmPassword">
+                      <i
+                        class="fa fa-eye"
+                        (click)="showconfirmPassword = false; _passwordconfirmType = 'password'"
+                      ></i>
+                    </div>
+                    <div *ngIf="!showconfirmPassword">
+                      <i
+                        class="fa fa-eye-slash"
+                        (click)="showconfirmPassword = true; _passwordconfirmType = 'text'"
+                      ></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- <input
+                  type="password"
+                  class="form-control"
+                  id="confirmNewPassword"
+                  placeholder="Enter Confirm Password"
+                  name="confirmNewPassword"
+                  formControlName="confirmNewPassword"
+                /> -->
+                <!-- <span
+                  class="help-block"
+                  *ngIf="
+                    (changePasswordForm.get('confirmNewPassword').touched ||
+                      changePasswordForm.get('confirmNewPassword').dirty) &&
+                    changePasswordForm
+                      .get('confirmNewPassword')
+                      .hasError('required')
+                  "
+                >
+                  Please enter Confirm Password .
+                </span> -->
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <div class="addUpdateBtn">
+              <button
+                type="submit"
+                class="btn btn-primary btn-sm"
+                (click)="validateOTPChangePassword()"
+                [disabled]="!changePasswordForm.valid"
+              >
+                <i class="fa fa-check-circle"></i>
+                RESET PASSWORD
+              </button>
+              <button
+                type="button"
+                class="btn btn-default"
+                data-dismiss="modal"
+                (click)="changePasswordForm.reset()"
+              >
+                CLOSE
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,263 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="panel top">
+      <div class="panel-heading">
+        <h3 class="panel-title">{{ title }} Management</h3>
+        <div class="right">
+          <button
+            type="button"
+            class="btn-toggle-collapse"
+            data-bs-toggle="collapse"
+            data-bs-target="#searchDataDepartment"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+      <div id="searchDataDepartment" class="panel-collapse collapse show">
+        <div id="" class="panel-body">
+          <div class="row">
+            <div class="col-lg-3 col-md-3">
+              <input
+                id="taxName"
+                type="text"
+                [(ngModel)]="searchDepartmentName"
+                class="form-control"
+                placeholder="Global Search Filter"
+                (keydown.enter)="searchDepartment()"
+              />
+            </div>
+            <div class="col-lg-3 col-md-4 marginTopSearchBtn">
+              <button
+                type="button"
+                class="btn btn-primary"
+                id="searchbtn"
+                (click)="searchDepartment()"
+              >
+                <i class="fa fa-search"></i>
+                Search
+              </button>
+              <button
+                type="reset"
+                class="btn btn-default"
+                id="searchbtn"
+                (click)="clearSearchDepartment()"
+              >
+                <i class="fa fa-refresh"></i>
+                Clear
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-6 left">
+    <div class="panel">
+      <div class="panel-heading">
+        <h3 class="panel-title">{{ title }}</h3>
+        <div class="right">
+          <button
+            type="button"
+            class="btn-toggle-collapse"
+            data-bs-toggle="collapse"
+            data-bs-target="#allDataDepartment"
+            aria-expanded="false"
+            aria-controls="allDataDepartment"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+      <div id="allDataDepartment" class="panel-collapse collapse show">
+        <div class="panel-body table-responsive">
+          <div class="row">
+            <div class="col-lg-12 col-md-12">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th *ngIf="deleteAccess || editAccess">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="
+                      let country of departmentListData
+                        | paginate
+                          : {
+                              id: 'countryListData',
+                              itemsPerPage: departmentitemsPerPage,
+                              currentPage: currentPageDepartment,
+                              totalItems: departmenttotalRecords
+                            };
+                      index as i
+                    "
+                  >
+                    <td>{{ country.name }}</td>
+                    <td *ngIf="country.status == 'ACTIVE' || country.status == 'Active'">
+                      <span class="badge badge-success">Active</span>
+                    </td>
+                    <td *ngIf="country.status == 'INACTIVE' || country.status == 'Inactive'">
+                      <span class="badge badge-danger">Inactive</span>
+                    </td>
+                    <td class="btnAction" *ngIf="deleteAccess || editAccess">
+                      <a
+                        *ngIf="editAccess"
+                        id="edit-button"
+                        href="javascript:void(0)"
+                        type="button"
+                        (click)="editDepartment(country.id)"
+                      >
+                        <img src="assets/img/ioc01.jpg" />
+                      </a>
+                      <a
+                        *ngIf="deleteAccess"
+                        id="delete-button"
+                        href="javascript:void(0)"
+                        (click)="deleteConfirmonDepartment(country.id)"
+                      >
+                        <img src="assets/img/ioc02.jpg" />
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div class="row">
+                <div class="col-md-12" style="display: flex">
+                  <pagination-controls
+                    id="countryListData"
+                    [maxSize]="10"
+                    [directionLinks]="true"
+                    previousLabel=""
+                    nextLabel=""
+                    (pageChange)="pageChangedDepartmentList($event)"
+                  ></pagination-controls>
+                  <div id="itemPerPageDropdown">
+                    <p-dropdown
+                      [options]="pageLimitOptions"
+                      optionLabel="value"
+                      optionValue="value"
+                      (onChange)="TotalItemPerPage($event)"
+                    ></p-dropdown>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 right">
+    <div class="panel">
+      <div class="panel-heading">
+        <h3 class="panel-title">{{ isDepartmentEdit ? "Update" : "Create" }} {{ title }}</h3>
+        <div class="right">
+          <button
+            type="button"
+            class="btn-toggle-collapse"
+            data-bs-toggle="collapse"
+            data-bs-target="#createDataDepartment"
+            aria-expanded="false"
+            aria-controls="createDataDepartment"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+      <div id="createDataDepartment" class="panel-collapse collapse show">
+        <div class="panel-body table-responsive" *ngIf="!createAccess && !isDepartmentEdit">
+          Sorry you have not privilege to create operation!
+        </div>
+        <div class="panel-body" *ngIf="createAccess || (isDepartmentEdit && editAccess)">
+          <form [formGroup]="departmentFormGroup">
+            <label>{{ title }} Name*</label>
+            <input
+              id="name"
+              type="text"
+              class="form-control"
+              placeholder="Enter {{ title }} Name"
+              formControlName="name"
+              [ngClass]="{
+                'is-invalid': submitted && departmentFormGroup.controls['name'].errors
+              }"
+            />
+            <div
+              class="errorWrap text-danger"
+              *ngIf="submitted && departmentFormGroup.controls['name'].errors"
+            >
+              <div
+                class="error text-danger"
+                *ngIf="submitted && departmentFormGroup.controls['name'].errors?.['required']"
+              >
+                {{ title }} Name is required.
+              </div>
+              <div
+                class="error text-danger"
+                *ngIf="submitted && departmentFormGroup.controls['name'].errors?.['cannotContainSpace']"
+              >
+                <p class="error">White space are not allowed.</p>
+              </div>
+            </div>
+            <br />
+            <label>Status*</label>
+            <div>
+              <p-dropdown
+                [options]="statusOptions"
+                optionValue="label"
+                optionLabel="label"
+                [filter]="true"
+                filterBy="label"
+                placeholder="Select a Status"
+                formControlName="status"
+                [ngClass]="{
+                  'is-invalid': submitted && departmentFormGroup.controls['status'].errors
+                }"
+              ></p-dropdown>
+            </div>
+            <div
+              class="errorWrap text-danger"
+              *ngIf="submitted && departmentFormGroup.controls['status'].errors"
+            >
+              <div
+                class="error text-danger"
+                *ngIf="submitted && departmentFormGroup.controls['status'].errors?.['required']"
+              >
+                {{ title }} Status is required.
+              </div>
+            </div>
+            <br />
+            <div class="addUpdateBtn">
+              <button
+                *ngIf="!isDepartmentEdit"
+                type="submit"
+                class="btn btn-primary"
+                id="submit"
+                (click)="addEditDepartment('')"
+              >
+                <i class="fa fa-check-circle"></i>
+                Add {{ title }}
+              </button>
+              <button
+                *ngIf="isDepartmentEdit"
+                type="submit"
+                class="btn btn-primary"
+                id="submit"
+                (click)="addEditDepartment(viewDepartmentListData.id)"
+              >
+                <i class="fa fa-check-circle"></i>
+                Update {{ title }}
+              </button>
+              <br />
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

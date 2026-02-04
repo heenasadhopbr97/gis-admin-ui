@@ -1,0 +1,37 @@
+<p-dialog
+  header="{{planForConnection.planName}}"
+  [(visible)]="planNameOpen"
+  [modal]="true"
+  [style]="{ width: '50%'}"
+  [responsive]="true"
+  [draggable]="false"
+  [closable]="false"
+>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Service :</label>
+            <span>
+              {{ planForConnection.service }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Connection No :</label>
+            <span>
+              {{ planForConnection.connection_no }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Nick Name :</label>
+            <span>
+              {{ planForConnection.nickname ? planForConnection.nickname : "-" }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="addUpdateBtn">
+          <button (click)="closeModal()" class="btn btn-danger btn-sm" type="button">Close</button>
+        </div>
+      </div>
+</p-dialog>

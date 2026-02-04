@@ -1,0 +1,37 @@
+.myclass {
+  border: 1px solid #dadad6;
+  text-align: center;
+}
+
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  background-color: #ffffff; /* solid white so rows don't show through */
+  z-index: 20;              /* higher than row cells */
+  text-align: left;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.highlight-country {
+  background-color: #f4dffd; /* light yellow */
+  font-weight: bold;
+}
+
+.highlight-state {
+  background-color: #f4dffd; /* light blue */
+  font-weight: bold;
+}
+
+.highlight-district {
+  background-color: #f4dffd; /* light red/pink */
+  font-weight: bold;
+}
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  background: #f5f5f5;
+  z-index: 2;
+}
+

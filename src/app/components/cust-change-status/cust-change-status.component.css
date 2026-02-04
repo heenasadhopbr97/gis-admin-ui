@@ -1,0 +1,12 @@
+input[type="checkbox"][readonly] {
+  pointer-events: none;
+}
+.panel button[type="reset"] {
+  padding: 0;
+  margin-left: 5px;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  color: #000 !important;
+  vertical-align: middle;
+}

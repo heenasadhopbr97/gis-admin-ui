@@ -1,0 +1,572 @@
+<div class="row">
+  <div class="col-md-12 col-sm-12">
+    <div class="panel">
+      <div class="panel-heading">
+        <h3 *ngIf="!iscustomerEdit" class="panel-title">
+          {{ editMode ? "Update" : "Create" }} VLAN Profile
+        </h3>
+        <div class="right">
+          <button
+            id="create"
+            aria-controls="createPreCust"
+            aria-expanded="false"
+            class="btn-toggle-collapse"
+            data-bs-target="#createPreCust"
+            data-bs-toggle="collapse"
+            type="button"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-collapse collapse show" id="createPreCust">
+        <div class="panel-body">
+          <form [formGroup]="vlanProfileForm" class="form-auth-small">
+            <!-- Basic Details -->
+            <div class="row">
+              <div class="col-md-12">
+                <p-fieldset legend="VLAN Attribute">
+                  <!-- <legend>VLAN Attribute</legend> -->
+                  <div class="boxWhite">
+                    <div class="row">
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>VLAN Name</label>
+                        <input
+                        [ngClass]="{
+                            'is-invalid': submitted && vlanProfileForm.controls['vlanName'].errors
+                        }"
+                          type="text"
+                          name="vlanName"
+                          class="form-control"
+                          placeholder="Enter VLAN Name"
+                          formControlName="vlanName"
+                        />
+                        <div
+                            *ngIf="submitted && vlanProfileForm.controls['vlanName'].errors"
+                            class="errorWrap text-danger"
+                         >
+                            <div class="error text-danger">VLAN Name is required.</div>
+                        </div>
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>NAS Identifier</label>
+                        <input
+                        [ngClass]="{
+                        'is-invalid': submitted && vlanProfileForm.controls['nasIdentifier'].errors
+                      }"
+                          type="text"
+                          name="nasIdentifier"
+                          class="form-control"
+                          placeholder="Enter NAS Identifier"
+                          formControlName="nasIdentifier"
+                        />
+                        <div
+                            *ngIf="submitted && vlanProfileForm.controls['nasIdentifier'].errors"
+                            class="errorWrap text-danger"
+                         >
+                            <div class="error text-danger">NAS Identifier is required.</div>
+                        </div>
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>Circuit Type</label>
+                        <input
+                          type="text"
+                          name="circuitType"
+                          class="form-control"
+                          placeholder="Enter Circuit Type"
+                          formControlName="circuitType"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>NAS Port 2</label>
+                        <input
+                          type="text"
+                          name="nasPortId2"
+                          class="form-control"
+                          placeholder="Enter NAS Port 2"
+                          formControlName="nasPortId2"
+                        />
+                      </div>
+                       <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>NAS Port 4</label>
+                        <input
+                          type="text"
+                          name="nasPortId4"
+                          class="form-control"
+                          placeholder="Enter NAS Port 4"
+                          formControlName="nasPortId4"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>NAS Port 5</label>
+                        <input
+                          type="text"
+                          name="nasPortId5"
+                          class="form-control"
+                          placeholder="Enter NAS Port 5"
+                          formControlName="nasPortId5"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>Forward Policy</label>
+                        <input
+                          type="text"
+                          name="forwardPolicy"
+                          class="form-control"
+                          placeholder="Enter Forward Policy"
+                          formControlName="forwardPolicy"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>HTTP Redirect Profile</label>
+                        <input
+                          type="text"
+                          name="httpRedirectProfileName"
+                          class="form-control"
+                          placeholder="Enter HTTP Redirect Profile"
+                          formControlName="httpRedirectProfileName"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>Framed IP Address</label>
+                        <input
+                          type="text"
+                          name="framedIpAddress"
+                          class="form-control"
+                          placeholder="Enter Framed IP Address"
+                          formControlName="framedIpAddress"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>RB DHCP Max Leases</label>
+                        <input
+                          type="text"
+                          name="rbDhcpMaxLeases"
+                          class="form-control"
+                          placeholder="Enter RB DHCP Max Leases"
+                          formControlName="rbDhcpMaxLeases"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>IP Address Pool Name</label>
+                        <input
+                          type="text"
+                          name="ipAddressPoolName"
+                          class="form-control"
+                          placeholder="Enter IP Address Pool Name"
+                          formControlName="ipAddressPoolName"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>RB Interface Name</label>
+                        <input
+                          type="text"
+                          name="rbInterfaceName"
+                          class="form-control"
+                          placeholder="Enter RB Interface Name"
+                          formControlName="rbInterfaceName"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>HTTP Redirect URL</label>
+                        <input
+                          type="text"
+                          name="httpRedirectUrl"
+                          class="form-control"
+                          placeholder="Enter HTTP Redirect URL"
+                          formControlName="httpRedirectUrl"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>Framed IPv6 Prefix</label>
+                        <input
+                          type="text"
+                          name="framedIpv6Prefix"
+                          class="form-control"
+                          placeholder="Enter Framed IPv6 Prefix"
+                          formControlName="framedIpv6Prefix"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>Delegated IPv6 Prefix</label>
+                        <input
+                          type="text"
+                          name="delegatedIpv6Prefix"
+                          class="form-control"
+                          placeholder="Enter Delegated IPv6 Prefix"
+                          formControlName="delegatedIpv6Prefix"
+                        />
+                      </div>
+                       <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>Framed IPv6 Pool</label>
+                        <input
+                          type="text"
+                          name="framedIpv6Pool"
+                          class="form-control"
+                          placeholder="Enter Framed IPv6 Pool"
+                          formControlName="framedIpv6Pool"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>Delegated IPv6 Pool</label>
+                        <input
+                          type="text"
+                          name="delegatedIpv6Pool"
+                          class="form-control"
+                          placeholder="Enter Delegated IPv6 Pool"
+                          formControlName="delegatedIpv6Pool"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>Sub Profile</label>
+                        <input
+                          type="text"
+                          name="subProfile"
+                          class="form-control"
+                          placeholder="Enter Sub Profile"
+                          formControlName="subProfile"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </p-fieldset>
+
+                <p-fieldset legend="Additional Attribute" [toggleable]="true" [collapsed]="true">
+                  <!-- <legend>Additional Attribute</legend> -->
+                  <div class="boxWhite">
+                    <div class="row">
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>Radius Attribute Group Id</label>
+                        <input
+                          type="text"
+                          name="vlanName"
+                          class="form-control"
+                          placeholder="Enter Radius Attribute Group ID"
+                          formControlName="radiusAttributeGroupId"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>NAS Type</label>
+                        <input
+                          type="text"
+                          name="nasType"
+                          class="form-control"
+                          placeholder="Enter NAS Type"
+                          formControlName="nasType"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>NAS Port 1</label>
+                        <input
+                          type="text"
+                          name="nasPortId1"
+                          class="form-control"
+                          placeholder="Enter NAS Port 1"
+                          formControlName="nasPortId1"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>NAS Port 3</label>
+                        <input
+                          type="text"
+                          name="nasPortId3"
+                          class="form-control"
+                          placeholder="Enter NAS Port 3"
+                          formControlName="nasPortId3"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>Calling Station Id</label>
+                        <input
+                          type="text"
+                          name="callingStationId"
+                          class="form-control"
+                          placeholder="Enter Calling Station Id"
+                          formControlName="callingStationId"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>Filter Id</label>
+                        <input
+                          type="text"
+                          name="filterId"
+                          class="form-control"
+                          placeholder="Enter Filter Id"
+                          formControlName="filterId"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>Context Name</label>
+                        <input
+                          type="text"
+                          name="contextName"
+                          class="form-control"
+                          placeholder="Enter Context Name"
+                          formControlName="contextName"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>Rate Limit Rate</label>
+                        <input
+                          type="text"
+                          name="rateLimitRate"
+                          class="form-control"
+                          placeholder="Enter Rate Limit Rate"
+                          formControlName="rateLimitRate"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>Rate Limit Burst</label>
+                        <input
+                          type="text"
+                          name="rateLimitBurst"
+                          class="form-control"
+                          placeholder="Enter Rate Limit Burst"
+                          formControlName="rateLimitBurst"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>QOS Policing Policy Name</label>
+                        <input
+                          type="text"
+                          name="qosPolicingPolicyName"
+                          class="form-control"
+                          placeholder="Enter QOS Policing Policy Name"
+                          formControlName="qosPolicingPolicyName"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>QOS Metering Policy Name</label>
+                        <input
+                          type="text"
+                          name="qosMeteringPolicyName"
+                          class="form-control"
+                          placeholder="Enter QOS Metering Policy Name"
+                          formControlName="qosMeteringPolicyName"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>PPPOE URL</label>
+                        <input
+                          type="text"
+                          name="pppoeUrl"
+                          class="form-control"
+                          placeholder="Enter PPPOE URL"
+                          formControlName="pppoeUrl"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>PPP DNS Primary</label>
+                        <input
+                          type="text"
+                          name="pppDnsPrimary"
+                          class="form-control"
+                          placeholder="Enter PPP DNS Primary"
+                          formControlName="pppDnsPrimary"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>PPP DNS Secondary</label>
+                        <input
+                          type="text"
+                          name="pppDnsSecondary"
+                          class="form-control"
+                          placeholder="Enter PPP DNS Secondary"
+                          formControlName="pppDnsSecondary"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>PPP NBNS Primary</label>
+                        <input
+                          type="text"
+                          name="pppNbnsPrimary"
+                          class="form-control"
+                          placeholder="Enter PPP NBNS Primary"
+                          formControlName="pppNbnsPrimary"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>Session Timeout</label>
+                        <input
+                          type="text"
+                          name="sessionTimeOut"
+                          class="form-control"
+                          placeholder="Enter Session Timeout"
+                          formControlName="sessionTimeOut"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>Idle Timeout</label>
+                        <input
+                          type="text"
+                          name="idleTimeOut"
+                          class="form-control"
+                          placeholder="Enter Idle Timeout"
+                          formControlName="idleTimeOut"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>NAT Profile Name</label>
+                        <input
+                          type="text"
+                          name="natProfileName"
+                          class="form-control"
+                          placeholder="Enter NAT Profile Name"
+                          formControlName="natProfileName"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>Framed Interface Id</label>
+                        <input
+                          type="text"
+                          name="framedInterfaceId"
+                          class="form-control"
+                          placeholder="Enter Framed Interface Id"
+                          formControlName="framedInterfaceId"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>IPv6 Option</label>
+                        <input
+                          type="text"
+                          name="ipv6Option"
+                          class="form-control"
+                          placeholder="Enter IPv6 Option"
+                          formControlName="ipv6Option"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>IPv6 DNS</label>
+                        <input
+                          type="text"
+                          name="ipv6Dns"
+                          class="form-control"
+                          placeholder="Enter IPv6 DNS"
+                          formControlName="ipv6Dns"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>Delegated Max Prefix</label>
+                        <input
+                          type="text"
+                          name="delegatedMaxPrefix"
+                          class="form-control"
+                          placeholder="Enter Delegated Max Prefix"
+                          formControlName="delegatedMaxPrefix"
+                        />
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 mb-15">
+                        <label>Priority</label>
+                        <input
+                          type="text"
+                          name="priority"
+                          class="form-control"
+                          placeholder="Enter Priority"
+                          formControlName="priority"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </p-fieldset>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <p-fieldset legend="Attribute Mapping Details">
+                  <!-- <legend>Attribute Mapping Details</legend> -->
+                  <div class="boxWhite">
+                    <div id="Createradius" style="margin-top: 10px">
+                      <table class="table map-table">
+                        <thead>
+                          <tr>
+                            <th style="text-align: center; width: 41%">Profile Attribute</th>
+                            <th style="text-align: center; width: 41%">Regex</th>
+                            <th style="text-align: right; width: 18%; padding: 8px">
+                              <button
+                                id="addAtt"
+                                style="object-fit: cover; padding: 5px 8px"
+                                class="btn btn-primary"
+                                (click)="onAddAttribute()"
+                              >
+                                <i class="fa fa-plus-square" aria-hidden="true"></i>
+                                Add
+                              </button>
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let row of attribute.controls; let index = index">
+                            <td>
+                              <p-dropdown
+                                appendTo="body"
+                                [options]="dictionaryAttributeData.dictionaryAttributeList"
+                                placeholder="Select Radius Group Attribute"
+                                optionLabel="name"
+                                optionValue="name"
+                                [filter]="true"
+                                filterBy="name"
+                                [formControl]="getControl(row, 'radiusAttribute')"
+                                [ngClass]="{
+                                    'is-invalid': submitted && row.get('radiusAttribute').invalid
+                                }"
+                              ></p-dropdown>
+                              <div
+                                *ngIf="submitted && row.get('radiusAttribute').errors"
+                                class="errorWrap text-danger"
+                                >
+                                <div class="error text-danger">Attribute is required</div>
+                              </div>
+                            </td>
+                            <td style="padding-left: 8px">
+                              <input
+                                id="regex"
+                                class="form-control"
+                                placeholder="Enter Regex"
+                                [formControl]="getControl(row, 'regex')"
+                                [ngClass]="{
+                                    'is-invalid': submitted && row.get('regex').invalid
+                                }"
+                              />
+                              <div
+                                *ngIf="submitted && row.get('regex').errors"
+                                class="errorWrap text-danger"
+                                >
+                                <div class="error text-danger">Regex is required</div>
+                              </div>
+                            </td>
+                            <td style="text-align: right">
+                              <a
+                                id="deleteAtt"
+                                class="curson_pointer"
+                                (click)="deleteConfirmAttribute(index)"
+                              >
+                                <img src="assets/img/ioc02.jpg" />
+                              </a>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </p-fieldset>
+              </div>
+            </div>
+
+            <div class="addUpdateBtn" style="margin-top: 3.5rem">
+              <button
+                type="submit"
+                class="btn btn-primary"
+                title="Submit Radius Profile Details"
+                (click)="addVLANProfile()"
+              >
+                <i class="fa fa-check-circle"></i>
+                {{ editMode ? "Update Profile" : "Add Profile" }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

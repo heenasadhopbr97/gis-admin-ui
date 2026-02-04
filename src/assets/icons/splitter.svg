@@ -1,0 +1,21 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" fill="black">
+  <!-- Box -->
+  <rect x="40" y="40" width="120" height="80" rx="10" stroke="black" fill="none" stroke-width="3"></rect>
+
+  <!-- Connectors -->
+  <g transform="translate(70,120)">
+    <rect x="0" y="0" width="10" height="20"></rect>
+    <rect x="15" y="0" width="10" height="20"></rect>
+    <rect x="30" y="0" width="10" height="20"></rect>
+    <rect x="45" y="0" width="10" height="20"></rect>
+  </g>
+
+  <!-- Connector lines -->
+  <line x1="75" y1="120" x2="75" y2="110" stroke="black" stroke-width="2"></line>
+  <line x1="90" y1="120" x2="90" y2="110" stroke="black" stroke-width="2"></line>
+  <line x1="105" y1="120" x2="105" y2="110" stroke="black" stroke-width="2"></line>
+  <line x1="120" y1="120" x2="120" y2="110" stroke="black" stroke-width="2"></line>
+
+  <!-- Label -->
+  <text x="100" y="170" font-size="14" text-anchor="middle" fill="black">Splitter</text>
+</svg>

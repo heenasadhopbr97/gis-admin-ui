@@ -1,0 +1,1370 @@
+<div class="panel-collapse collapse show" id="changePlanPreCust2">
+  <div class="panel-body table-responsive">
+    <!-- <div class="row" *ngFor="let data of childCustomerList; let i = index"> -->
+    <div class="col-md-12 col-sm-12 col-lg-12 pd-1">
+      <p-card header="{{ childCustomer.custname }} Current Plans">
+        <div class="row">
+          <div class="col-lg-12 col-md-12">
+            <p-checkbox
+              (onChange)="onUpdateChange($event)"
+              label="Update Plan Details"
+              inputId="update"
+              labelStyleClass="font-weight:bold"
+            ></p-checkbox>
+            <!-- <label for="update">Update Plan Details</label> -->
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-12 col-md-12">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th width="10%">Service Name</th>
+                  <th width="15%">Serial No</th>
+                  <th width="10%">Nick Name</th>
+                  <th width="10%">Plan Name</th>
+                  <th width="10%">Plan Group</th>
+                  <th width="5%">Validity</th>
+                  <th width="10%">Plan Status</th>
+                  <th width="10%">Start Date</th>
+                  <th width="10%">Expiry Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="
+                    let plan of this.childActivePlans
+                      | paginate
+                        : {
+                            id: 'custCurrentPlanListData',
+                            itemsPerPage: customerCurrentPlanListdataitemsPerPage,
+                            currentPage: currentPagecustomerCurrentPlanListdata,
+                            totalItems: customerCurrentPlanListdatatotalRecords
+                          };
+                    index as i
+                  "
+                >
+                  <td>{{ plan.service }}</td>
+                  <td>
+                    <span
+                      class="curson_pointer"
+                      style="color: darkblue"
+                      (click)="openPlanConnectionModal(plan)"
+                    >
+                      {{ getSerialNumber(plan) !== "" ? getSerialNumber(plan) : "NA" }}
+                    </span>
+                  </td>
+                  <td>{{ plan.nickname ? plan.nickname : "-" }}</td>
+                  <td>{{ plan.planName }}</td>
+                  <td>{{ plan.planGroupName }}</td>
+                  <td>{{ plan.validity }}</td>
+                  <td>
+                    <span
+                      *ngIf="plan.custPlanStatus == 'ACTIVE' || plan.custPlanStatus == 'Active'"
+                    >
+                      <span class="badge badge-success">Active</span>
+                    </span>
+                    <span
+                      *ngIf="plan.custPlanStatus == 'INACTIVE' || plan.custPlanStatus == 'Inactive'"
+                    >
+                      <span class="badge badge-danger">Inactive</span>
+                    </span>
+                    <span *ngIf="plan.custPlanStatus == 'Stop' || plan.custPlanStatus == 'STOP'">
+                      <span class="badge badge-danger">Stop</span>
+                    </span>
+                  </td>
+                  <td>{{ plan.startDate }}</td>
+                  <td>{{ plan.expiryDate }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="pagination_Dropdown">
+              <pagination-controls
+                (pageChange)="pageChangedcustomerCurrentPlanListData($event)"
+                [directionLinks]="true"
+                id="custCurrentPlanListData"
+                [maxSize]="10"
+                nextLabel=""
+                previousLabel=""
+              ></pagination-controls>
+              <div id="itemPerPageDropdown">
+                <p-dropdown
+                  (onChange)="TotalCurrentPlanItemPerPage($event)"
+                  [options]="pageLimitOptions"
+                  optionLabel="value"
+                  optionValue="value"
+                ></p-dropdown>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p-divider></p-divider>
+        <div class="row" *ngIf="!isEmptyObject()">
+          <form class="pd-2" [formGroup]="custPlanForms">
+            <div class="row">
+              <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" *ngIf="!isShowConnection">
+                <label>Serial No. *</label>
+                <p-dropdown
+                  (onChange)="changeService($event)"
+                  [disabled]="!UpdateCustPlans"
+                  id="connectionNo"
+                  formControlName="connectionNo"
+                  [options]="serviceSerialNumbers"
+                  [filter]="true"
+                  filterBy="connection_no,service,nickname"
+                  optionLabel="serialNumber"
+                  optionValue="custPlanMapppingId"
+                  placeholder="Select a Serial No."
+                ></p-dropdown>
+                <div
+                  *ngIf="changePlansubmitted && custPlanForms.controls['connectionNo'].errors"
+                  class="errorWrap text-danger"
+                >
+                  <div class="error text-danger">Serial No. is required.</div>
+                </div>
+              </div>
+              <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" *ngIf="isShowConnection">
+                <label>Connection No. *</label>
+                <p-dropdown
+                  (onChange)="changeService($event)"
+                  [disabled]="!UpdateCustPlans"
+                  id="connectionNo"
+                  formControlName="connectionNo"
+                  [options]="custServiceData"
+                  [filter]="true"
+                  filterBy="connection_no,service,nickname"
+                  optionLabel="connection_no"
+                  optionValue="custPlanMapppingId"
+                  placeholder="Select a Connection No."
+                ></p-dropdown>
+                <div
+                  *ngIf="changePlansubmitted && custPlanForms.controls['connectionNo'].errors"
+                  class="errorWrap text-danger"
+                >
+                  <div class="error text-danger">Connection No. is required.</div>
+                </div>
+              </div>
+              <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                <label>Service Name *</label>
+                <p-dropdown
+                  [disabled]="true"
+                  id="serviceName"
+                  formControlName="serviceName"
+                  [options]="custServiceData"
+                  optionLabel="service"
+                  optionValue="custPlanMapppingId"
+                  placeholder="Select a Service"
+                ></p-dropdown>
+              </div>
+              <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                <label>Nick Name *</label>
+                <p-dropdown
+                  id="serviceNickName"
+                  formControlName="serviceNickName"
+                  [disabled]="true"
+                  [options]="custServiceData"
+                  optionLabel="nickname"
+                  optionValue="custPlanMapppingId"
+                  placeholder="-"
+                ></p-dropdown>
+              </div>
+            </div>
+            <br />
+            <div class="row">
+              <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                <label>Plan Type *</label>
+                <p-dropdown
+                  (onChange)="changePlanType($event)"
+                  [disabled]="
+                    !(UpdateCustPlans && parentPurchaseType === null) || !isConnectionSelected
+                  "
+                  [ngClass]="{
+                    'is-invalid': changePlansubmitted && custPlanForms.controls['purchaseType'].errors
+                  }"
+                  [options]="commondropdownService.planPurchaseTypeData"
+                  [filter]="true"
+                  filterBy="text"
+                  formControlName="purchaseType"
+                  optionLabel="text"
+                  optionValue="value"
+                  placeholder="Select a Plan Type"
+                ></p-dropdown>
+                <div
+                  *ngIf="changePlansubmitted && custPlanForms.controls['purchaseType'].errors"
+                  class="errorWrap text-danger"
+                >
+                  <div class="error text-danger">Plan Type is required.</div>
+                </div>
+                <div *ngIf="isDisableServicePlanChange" class="errorWrap text-danger">
+                  <div class="error text-danger">
+                    {{ custPlanForms.controls['value'] }} is not allowed as service is stopped.
+                  </div>
+                </div>
+              </div>
+              <div
+                *ngIf="changeplanGroupFlag && custPlanForms.value.purchaseType == 'Changeplan'"
+                class="col-lg-4 col-md-4 col-sm-6 col-xs-12"
+              >
+                <label>Change plan screen *</label>
+                <p-dropdown
+                  (onChange)="getChangePlan($event)"
+                  [disabled]="!isConnectionSelected"
+                  [filter]="true"
+                  filterBy="label"
+                  [options]="planDetailsCategory"
+                  formControlName="changePlanCategory"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Select a Change Plan"
+                ></p-dropdown>
+                <div></div>
+
+                <div
+                  *ngIf="changePlansubmitted && custPlanForms.controls['changePlanCategory'].errors"
+                  class="errorWrap text-danger"
+                >
+                  <div class="error text-danger">Change Plan is required.</div>
+                </div>
+              </div>
+              <div
+                *ngIf="
+                  isPlanGroup &&
+                  custPlanForms.value.purchaseType == 'Changeplan' &&
+                  custPlanForms.value.changePlanCategory === 'groupPlan'
+                "
+                class="col-lg-4 col-md-4 col-sm-6 col-xs-12 form-group"
+              >
+                <label> New Change Plan Group*</label>
+                <p-dropdown
+                  (onChange)="getSelectCustomerPlanType($event, 'PlanGroup')"
+                  [disabled]="!isConnectionSelected"
+                  [options]="planGroupList"
+                  [filter]="true"
+                  filterBy="planGroupId"
+                  formControlName="planGroupId"
+                  optionLabel="planGroupName"
+                  optionValue="planGroupId"
+                  placeholder="Select a New Plan Group"
+                ></p-dropdown>
+                <div
+                  *ngIf="changePlansubmitted && custPlanForms.controls['planGroupId'].errors"
+                  class="errorWrap text-danger"
+                >
+                  <div class="error text-danger">New Plan Group is required.</div>
+                </div>
+              </div>
+              <div
+                *ngIf="!isPlanGroup && custPlanForms.value.purchaseType == 'Changeplan'"
+                class="col-lg-4 col-md-4 col-sm-6 col-xs-12"
+              >
+                <label>New Change Plan *</label>
+                <p-dropdown
+                  (onChange)="getSelectCustomerPlanType($event, 'plan')"
+                  [options]="planByService"
+                  [disabled]="
+                    !UpdateCustPlans || isDisableServicePlanChange || !isConnectionSelected
+                  "
+                  [filter]="true"
+                  filterBy="label"
+                  formControlName="planList"
+                  optionLabel="label"
+                  optionValue="id"
+                  placeholder="Select a New Plan"
+                ></p-dropdown>
+                <div></div>
+
+                <div
+                  *ngIf="changePlansubmitted && custPlanForms.controls['planList'].errors"
+                  class="errorWrap text-danger"
+                >
+                  <div class="error text-danger">New Plan is required.</div>
+                </div>
+              </div>
+              <div
+                *ngIf="isPlanGroup && custPlanForms.value.purchaseType !== 'Changeplan'"
+                class="col-lg-4 col-md-4 col-sm-6 col-xs-12 form-group"
+              >
+                <label>Select Plan Group*</label>
+                <p-dropdown
+                  (onChange)="modalOpenPlanChange($event)"
+                  [disabled]="!UpdateCustPlans || !isConnectionSelected"
+                  [options]="filterSelectedPlanGroupListCust"
+                  [filter]="true"
+                  filterBy="planGroupId"
+                  formControlName="planGroupId"
+                  optionLabel="planGroupName"
+                  optionValue="planGroupId"
+                  placeholder="Select a Plan Group"
+                ></p-dropdown>
+                <div
+                  *ngIf="changePlansubmitted && custPlanForms.controls['planGroupId'].errors"
+                  class="errorWrap text-danger"
+                >
+                  <div class="error text-danger">Plan Group is required.</div>
+                </div>
+              </div>
+              <div
+                *ngIf="!isPlanGroup && custPlanForms.value.purchaseType !== 'Changeplan'"
+                class="col-lg-4 col-md-4 col-sm-6 col-xs-12 form-group"
+              >
+                <label>Select Plan *</label>
+                <p-dropdown
+                  (onChange)="getPlanDetailById($event)"
+                  [disabled]="
+                    !UpdateCustPlans || isDisableServicePlanChange || !isConnectionSelected
+                  "
+                  [ngClass]="{
+                    'is-invalid': changePlansubmitted && custPlanForms.controls['planId'].errors
+                  }"
+                  [options]="planByService"
+                  [filter]="true"
+                  filterBy="label"
+                  formControlName="planId"
+                  optionLabel="label"
+                  optionValue="id"
+                  placeholder="Select a Plan"
+                ></p-dropdown>
+                <div></div>
+
+                <div
+                  *ngIf="changePlansubmitted && custPlanForms.controls['planId'].errors"
+                  class="errorWrap text-danger"
+                >
+                  <div class="error text-danger">Plan is required.</div>
+                </div>
+              </div>
+              <div
+                *ngIf="custPlanForms.value.isPaymentReceived !== 'true'"
+                class="col-lg-4 col-md-4 col-sm-6 col-xs-12 form-group"
+              >
+                <label>Payment Owner *</label>
+                <!-- <p-dropdown
+                  [options]="staffDataList"
+                  optionLabel="displayLabel"
+                  optionValue="id"
+                  filterBy="displayLabel"
+                  placeholder="Select a staff"
+                  filter="true"
+                  formControlName="paymentOwnerId"
+                  resetFilterOnHide="true"
+                >
+                </p-dropdown> -->
+
+                <p-dropdown
+                  [disabled]="true"
+                  [options]="staffSelectList"
+                  optionLabel="name"
+                  optionValue="id"
+                  filterBy="firstname"
+                  placeholder="Select a staff"
+                  [filter]="true"
+                  formControlName="paymentOwnerId"
+                  [showClear]="true"
+                  styleClass="disableDropdown"
+                >
+                  <ng-template let-data pTemplate="item">
+                    <div class="item-drop1">
+                      <span class="item-value1"> {{ data.name }} </span>
+                    </div>
+                  </ng-template>
+                </p-dropdown>
+
+                <button
+                  type="button"
+                  (click)="modalOpenSelectStaff('paymentCharge')"
+                  class="btn btn-primary"
+                  style="border-radius: 5px; padding: 5px 10px; line-height: 1.5; margin-left: 10px"
+                  [disabled]="
+                    !UpdateCustPlans ||
+                    isDisableServicePlanChange ||
+                    !isConnectionSelected ||
+                    paymentOwnerId
+                  "
+                >
+                  <i class="fa fa-plus-square"></i>
+                </button>
+                <button
+                  [disabled]="paymentOwnerId == null"
+                  type="button"
+                  (click)="removeSelectStaff()"
+                  class="btn btn-danger"
+                  style="border-radius: 5px; padding: 5px 10px; line-height: 1.5; margin-left: 10px"
+                >
+                  <i class="fa fa-trash"></i>
+                </button>
+
+                <div></div>
+                <div
+                  *ngIf="changePlansubmitted && custPlanForms.controls['paymentOwnerId'].errors"
+                  class="errorWrap text-danger"
+                >
+                  <div class="error text-danger">payment owner is required</div>
+                </div>
+              </div>
+              <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 form-group">
+                <label>Billable To</label>
+                <br />
+                <p-dropdown
+                  [disabled]="true"
+                  [options]="billableCusList"
+                  [showClear]="true"
+                  [filter]="true"
+                  filterBy="name"
+                  formControlName="billableCustomerId"
+                  optionLabel="name"
+                  optionValue="id"
+                  placeholder="Select a Billable"
+                  styleClass="disableDropdown"
+                ></p-dropdown>
+                <button
+                  type="button"
+                  (click)="modalOpenParentCustomer('billable-change-plan')"
+                  class="btn btn-primary"
+                  style="border-radius: 5px; padding: 5px 10px; line-height: 1.5; margin-left: 10px"
+                >
+                  <i class="fa fa-plus-square"></i>
+                </button>
+                <button
+                  class="btn btn-danger"
+                  style="border-radius: 5px; padding: 5px 10px; line-height: 1.5; margin-left: 10px"
+                  (click)="removeSelParentCust('billable-change-plan')"
+                >
+                  <i class="fa fa-trash"></i>
+                </button>
+              </div>
+              <!-- <div
+                *ngIf="custPlanForms.value.isPaymentReceived !== 'true'"
+                class="col-lg-4 col-md-4 col-sm-6 col-xs-12 form-group"
+              >
+                <label>Payment Owner</label>
+                <p-dropdown
+                  [disabled]="!UpdateCustPlans || isDisableServicePlanChange"
+                  [options]="staffDataList"
+                  optionLabel="fullName"
+                  optionValue="fullName"
+                  filterBy="fullName"
+                  placeholder="Select a staff"
+                  filter="true"
+                  formControlName="paymentOwner"
+                  resetFilterOnHide="true"
+                ></p-dropdown>
+              </div> -->
+            </div>
+            <div class="row">
+              <div class="col-lg-4 col-md-4 col-xs-12 dataGroup">
+                <label class="datalbl">Quota Type :</label>
+                <span>{{ selPlanData.quotatype }}</span>
+              </div>
+              <div class="col-lg-4 col-md-4 col-xs-12 dataGroup">
+                <label class="datalbl">Data Quota :</label>
+                <span *ngIf="selPlanData.quota">
+                  {{ selPlanData.quota }}-{{ selPlanData.quotaUnit }}
+                </span>
+                <span *ngIf="!selPlanData.quota">-</span>
+              </div>
+              <div class="col-lg-4 col-md-4 col-xs-12 dataGroup">
+                <label class="datalbl">Time Quota :</label>
+                <span *ngIf="selPlanData.quotatime">
+                  {{ selPlanData.quotatime }}-{{ selPlanData.quotaunittime }}
+                </span>
+                <span *ngIf="!selPlanData.quotatime">-</span>
+              </div>
+            </div>
+            <div class="row">
+              <!-- <div class="col-lg-4 col-md-4 col-xs-12 dataGroup">
+                            <label class="datalbl">Activation Date : </label>
+                            <span>{{selPlanData.activationDate}}</span>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-xs-12 dataGroup">
+                            <label class="datalbl">Expiry Date : </label>
+                            <span>{{selPlanData.expiryDate}}</span>
+                        </div> -->
+              <div class="col-lg-4 col-md-4 col-xs-12 dataGroup">
+                <label class="datalbl">Price (incl. Tax) :</label>
+                <span *ngIf="selPlanData.category == 'Business Promotion'">{{
+                  selPlanData.newOfferPrice | number : "1.2-2"
+                }}</span>
+                <span *ngIf="selPlanData.category !== 'Business Promotion'">{{
+                  offerPrice | number : "1.2-2"
+                }}</span>
+              </div>
+              <div class="col-lg-4 col-md-4 col-xs-12 dataGroup">
+                <label class="datalbl">Discount (%) :</label>
+                <span>{{ planDiscount | number : "1.2-2" }}</span>
+              </div>
+              <!-- <div class="col-lg-4 col-md-4 col-xs-12 dataGroup">
+                <label class="datalbl">Final Payable Amount :</label>
+                <span>{{ selPlanData.finalAmount }}</span>
+              </div> -->
+              <div class="col-lg-4 col-md-4 col-xs-12 dataGroup">
+                <label class="datalbl">Final Offer Price :</label>
+                <span>{{ finalOfferPrice | number : "1.2-2" }}</span>
+              </div>
+              <div class="col-lg-4 col-md-4 col-xs-12 dataGroup">
+                <label class="datalbl">Validity :</label>
+                <span> {{ selPlanData.validity }} {{ selPlanData.unitsOfValidity }} </span>
+              </div>
+              <div class="col-lg-4 col-md-4 col-xs-12 dataGroup">
+                <label class="datalbl">Start Date :</label>
+                <span> {{ changePlanDate.startDate | date : "yyyy-MM-dd HH:mm:ss" }} </span>
+              </div>
+
+              <div class="col-lg-4 col-md-4 col-xs-12 dataGroup">
+                <label class="datalbl">End Date :</label>
+                <span> {{ changePlanDate.endDate | date : "yyyy-MM-dd HH:mm:ss" }} </span>
+              </div>
+            </div>
+            <div *ngIf="UpdateCustPlans" class="row">
+              <!-- <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 form-group">
+                <label>Payment Received :*</label>
+                &nbsp;&nbsp;
+                <input
+                  formControlName="isPaymentReceived"
+                  name="isPaymentReceived"
+                  type="radio"
+                  value="true"
+                />
+                &nbsp;&nbsp;Yes
+                <input
+                  class="ml-3"
+                  formControlName="isPaymentReceived"
+                  name="isPaymentReceived"
+                  type="radio"
+                  value="false"
+                />
+                &nbsp;&nbsp;No
+              </div> -->
+
+              <div
+                *ngIf="custPlanForms.value.purchaseType == 'Renew'"
+                [formGroup]="addChargeForm"
+                class="col-lg-4 col-md-4 col-sm-6 col-xs-12 form-group"
+              >
+                <p-checkbox
+                  [binary]="true"
+                  formControlName="chargeAdd"
+                  name="allChecked"
+                ></p-checkbox>
+                &nbsp;&nbsp;Add Direct Charge
+              </div>
+            </div>
+            <!--    Add Direct charge    -->
+            <fieldset
+              *ngIf="
+                custPlanForms.value.purchaseType == 'Renew' && addChargeForm.value.chargeAdd == true
+              "
+              style="margin-top: 0.5rem"
+            >
+              <legend>Add Direct Charge</legend>
+              <div class="boxWhite">
+                <table [formGroup]="chargeGroupForm" style="width: 100%">
+                  <tr>
+                    <td style="text-align: center; padding: 0 10px 0 0">
+                      <p-dropdown
+                        (onChange)="selectcharge($event)"
+                        [ngClass]="{
+                          'is-invalid': chargesubmitted && chargeGroupForm.controls['chargeid'].errors
+                        }"
+                        [options]="commondropdownService.chargeByTypeData"
+                        [filter]="true"
+                        filterBy="name"
+                        formControlName="chargeid"
+                        optionLabel="name"
+                        optionValue="id"
+                        placeholder="Select a Charge"
+                      ></p-dropdown>
+                      <div></div>
+                      <!-- <div
+                          class="errorWrap text-danger"
+                          *ngIf="
+                            chargesubmitted &&
+                            chargeGroupForm.controls.chargeid.errors
+                          "
+                        >
+                          <div class="error text-danger">Charge is required.</div>
+                        </div> -->
+                    </td>
+
+                    <td style="text-align: center; padding: 0 10px 0 0">
+                      <input
+                        *ngIf="selectchargeValueShow"
+                        class="form-control"
+                        [disabled]="true"
+                        formControlName="actualprice"
+                        id="actualprice        "
+                        min="0"
+                        name="actualprice"
+                        placeholder="Enter Actual Price"
+                        type="number"
+                      />
+
+                      <input
+                        *ngIf="!selectchargeValueShow"
+                        [ngClass]="{
+                          'is-invalid':
+                            chargesubmitted && chargeGroupForm.controls['actualprice'].errors
+                        }"
+                        class="form-control"
+                        formControlName="actualprice"
+                        id="actualprice        "
+                        min="0"
+                        name="actualprice"
+                        placeholder="Enter Actual Price"
+                        type="number"
+                      />
+                    </td>
+
+                    <td
+                      style="text-align: center; padding: 0 10px 0 0"
+                      *ngIf="isStaticIPAdrress(chargeGroupForm.value.chargeid)"
+                    >
+                      <input
+                        class="form-control"
+                        type="text"
+                        placeholder="Enter Static IP"
+                        name="staticIPAdrress"
+                        id="staticIPAdrress"
+                        formControlName="staticIPAdrress"
+                      />
+                    </td>
+
+                    <!-- <td style="text-align: center; padding: 0 10px 0 0">
+                      <p-dropdown
+                        (onChange)="selectTypecharge($event)"
+                        [ngClass]="{
+                          'is-invalid': chargesubmitted && chargeGroupForm.controls.type.errors
+                        }"
+                        [options]="chargeType"
+                        filter="true"
+                        filterBy="name"
+                        formControlName="type"
+                        optionLabel="label"
+                        optionValue="label"
+                        placeholder="Select a Type"
+                      ></p-dropdown>
+                      <div></div>
+                    </td>
+
+                    <td
+                      *ngIf="chargeGroupForm.value.type == 'Recurring'"
+                      style="text-align: center; padding: 0 10px 0 0"
+                    >
+                      <p-dropdown
+                        [ngClass]="{
+                          'is-invalid':
+                            chargesubmitted && chargeGroupForm.controls.billingCycle.errors
+                        }"
+                        [options]="billingCycle"
+                        filter="true"
+                        filterBy="label"
+                        formControlName="billingCycle"
+                        optionLabel="label"
+                        optionValue="label"
+                        placeholder="Select a Billing Cycle"
+                      ></p-dropdown>
+                      <div></div>
+                    </td> -->
+
+                    <td style="text-align: center; padding: 0 10px 0 0">
+                      <p-dropdown
+                        (onChange)="getPlanValidityForChagre($event)"
+                        [ngClass]="{
+                          'is-invalid': chargesubmitted && chargeGroupForm.controls['planid'].errors
+                        }"
+                        [options]="planDropdownInChageData"
+                        [filter]="true"
+                        filterBy="name"
+                        formControlName="planid"
+                        optionLabel="name"
+                        optionValue="id"
+                        placeholder="Select a Plan *"
+                      ></p-dropdown>
+                      <div></div>
+                    </td>
+                    <td style="text-align: center; padding: 0 10px 0 0">
+                      <!-- <div style="display: flex">
+                        <div style="width: 40%">
+                          <input
+                            class="form-control"
+                            formControlName="validity"
+                            id="validity"
+                            min="1"
+                            placeholder="Enter Validity"
+                            readonly
+                            type="number"
+                          />
+                        </div>
+                        <div style="width: 60%; height: 34px">
+                          <p-dropdown
+                            [disabled]="true"
+                            [options]="commondropdownService.validityUnitData"
+                            filter="true"
+                            filterBy="label"
+                            formControlName="unitsOfValidity"
+                            optionLabel="label"
+                            optionValue="label"
+                            placeholder="Select a Unit"
+                          ></p-dropdown>
+                        </div>
+                      </div> -->
+                      <p-calendar
+                        dateFormat="dd/mm/yy"
+                        [showIcon]="true"
+                        [showButtonBar]="true"
+                        [hideOnDateTimeSelect]="true"
+                        placeholder="Service Expiry Date"
+                        formControlName="expiry"
+                        [minDate]="dateTime"
+                      ></p-calendar>
+                    </td>
+                    <td style="text-align: center; padding: 0 10px 0 0">
+                      <input
+                        [ngClass]="{
+                          'is-invalid': chargesubmitted && chargeGroupForm.controls['price'].errors
+                        }"
+                        class="form-control"
+                        formControlName="price"
+                        id="price"
+                        min="0"
+                        name="price"
+                        placeholder="Enter New Price"
+                        type="number"
+                      />
+                    </td>
+                    <td style="text-align: left; padding: 0 10px 0 0">
+                      <input
+                        [disabled]="true"
+                        class="form-control"
+                        formControlName="discount"
+                        id="discount"
+                        min="0"
+                        name="discount"
+                        placeholder="Enter discount"
+                        type="number"
+                      />
+                    </td>
+                    <td style="text-align: center; width: 5%">
+                      <button
+                        (click)="onAddoverChargeListField()"
+                        class="btn btn-primary"
+                        style="object-fit: cover; padding: 5px 8px"
+                      >
+                        <i aria-hidden="true" class="fa fa-plus-square"></i>
+                        Add
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div
+                        *ngIf="chargesubmitted && chargeGroupForm.controls['chargeid'].errors"
+                        class="errorWrap text-danger"
+                      >
+                        <div class="error text-danger">Charge is required.</div>
+                      </div>
+                    </td>
+                    <td>
+                      <div
+                        *ngIf="chargesubmitted && chargeGroupForm.controls['actualprice'].errors"
+                        class="errorWrap text-danger"
+                      >
+                        <div class="error text-danger">Charge Amount is required.</div>
+                      </div>
+                    </td>
+                    <!-- <td style="text-align: center; padding: 0 10px 0 0">
+                      <div
+                        *ngIf="chargesubmitted && chargeGroupForm.controls.type.errors"
+                        class="errorWrap text-danger"
+                      >
+                        <div class="error text-danger">Charge Type is required.</div>
+                      </div>
+                    </td>
+                    <td
+                      *ngIf="chargeGroupForm.value.type == 'Recurring'"
+                      style="text-align: center; padding: 0 10px 0 0"
+                    >
+                      <div
+                        *ngIf="chargesubmitted && chargeGroupForm.controls.billingCycle.errors"
+                        class="errorWrap text-danger"
+                      >
+                        <div class="error text-danger">Billing Cycle is required.</div>
+                      </div>
+                    </td> -->
+                    <td *ngIf="isStaticIPAdrress(chargeGroupForm.value.chargeid)">
+                      <div
+                        class="errorWrap text-danger"
+                        *ngIf="chargesubmitted && chargeGroupForm.controls['staticIPAdrress'].errors"
+                      >
+                        <div class="error text-danger">Static IP Address is required.</div>
+                      </div>
+                    </td>
+                    <td>
+                      <div
+                        *ngIf="chargesubmitted && chargeGroupForm.controls['planid'].errors"
+                        class="errorWrap text-danger"
+                      >
+                        <div class="error text-danger">Plan is required.</div>
+                      </div>
+                    </td>
+                    <td style="text-align: center; padding: 0 10px 0 0">
+                      <div
+                        class="errorWrap text-danger"
+                        *ngIf="chargesubmitted && chargeGroupForm.controls['expiry'].errors"
+                      >
+                        <div class="error text-danger">Expiry Date is required.</div>
+                      </div>
+                    </td>
+                    <td style="text-align: center; padding: 0 10px 0 0">
+                      <div
+                        *ngIf="chargesubmitted && chargeGroupForm.controls['price'].errors"
+                        class="errorWrap text-danger"
+                      >
+                        <div class="error text-danger">New Price is required.</div>
+                      </div>
+                    </td>
+                    <td style="text-align: center; padding: 0 10px 0 0"></td>
+                    <td style="text-align: center; width: 5%"></td>
+                  </tr>
+                </table>
+
+                <div
+                  *ngIf="this.chargeGroupForm.value.price < this.chargeGroupForm.value.actualprice"
+                  class="errorWrap text-danger"
+                >
+                  <div class="error text-danger">
+                    New Price must not be less than the actual charge price
+                  </div>
+                </div>
+
+                <table class="table coa-table" style="margin-top: 3rem">
+                  <thead>
+                    <tr>
+                      <th style="text-align: center">Charge Name</th>
+                      <th style="text-align: center">Charge Amount</th>
+                      <th style="text-align: center">Charge Type</th>
+                      <th style="text-align: center">Plan Name</th>
+                      <th style="text-align: center">Plan Validity</th>
+                      <th style="text-align: center">New Price</th>
+                      <th style="text-align: right; width: 5%; padding: 8px">Delete</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      *ngFor="
+                        let row of overChargeListFromArray.controls
+                          | paginate
+                            : {
+                                id: 'overChargeListFromArrayData',
+                                itemsPerPage: overChargeListItemPerPage,
+                                currentPage: currentPageoverChargeList,
+                                totalItems: overChargeListtotalRecords
+                              };
+                        let index = index
+                      "
+                    >
+                      <td style="padding-left: 8px">
+                        <p-dropdown
+                          [disabled]="true"
+                          [formControl]="getControl(row, 'chargeid')"
+                          [options]="commondropdownService.chargeByTypeData"
+                          [filter]="true"
+                          filterBy="name"
+                          optionLabel="name"
+                          optionValue="id"
+                        ></p-dropdown>
+                        <div></div>
+                      </td>
+                      <td>
+                        <input
+                          [formControl]="getControl(row, 'actualprice')"
+                          class="form-control"
+                          id="actualprice        "
+                          min="0"
+                          name="actualprice"
+                          placeholder="Enter Actual Price"
+                          readonly
+                          type="number"
+                        />
+                      </td>
+                      <td style="padding-left: 8px">
+                        <p-dropdown
+                          [disabled]="true"
+                          [formControl]="getControl(row, 'type')"
+                          [options]="chargeType"
+                          [filter]="true"
+                          filterBy="label"
+                          optionLabel="label"
+                          optionValue="label"
+                        ></p-dropdown>
+                        <div></div>
+                      </td>
+                      <td>
+                        <select
+                          [formControl]="getControl(row, 'planid')"
+                          class="form-control"
+                          [disabled]="true"
+                          id="planId"
+                          name="planId"
+                          style="width: 100%"
+                        >
+                          <option value="">Select Plan</option>
+                          <option
+                            *ngFor="let item of commondropdownService.postpaidplanData"
+                            value="{{ item.id }}"
+                          >
+                            {{ item.name }}
+                          </option>
+                        </select>
+                      </td>
+                      <td>
+                        <div style="display: flex">
+                          <div style="width: 40%">
+                            <input
+                              [formControl]="getControl(row, 'validity')"
+                              class="form-control"
+                              id="validity"
+                              min="1"
+                              placeholder="Enter Validity"
+                              readonly
+                              type="number"
+                            />
+                          </div>
+                          <div style="width: 60%; height: 34px">
+                            <p-dropdown
+                              [disabled]="true"
+                              [formControl]="getControl(row, 'unitsOfValidity')"
+                              [options]="commondropdownService.validityUnitData"
+                              [filter]="true"
+                              filterBy="label"
+                              optionLabel="label"
+                              optionValue="label"
+                            ></p-dropdown>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <input
+                          [formControl]="getControl(row, 'price')"
+                          class="form-control"
+                          id="price"
+                          min="0"
+                          name="price"
+                          placeholder="Enter Price"
+                          readonly
+                          type="number"
+                        />
+                      </td>
+                      <td style="text-align: right">
+                        <span>
+                          <button
+                            (click)="deleteConfirmonChargeField(index, 'Charge')"
+                            class="approve-btn"
+                            id="deleteAtt"
+                            style="
+                              border: none;
+                              background: transparent;
+                              padding: 0;
+                              margin-right: 3px;
+                            "
+                            type="button"
+                          >
+                            <img src="assets/img/ioc02.jpg" />
+                          </button>
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <div class="row">
+                  <div class="col-md-12">
+                    <pagination-controls
+                      (pageChange)="pageChangedOverChargeList($event)"
+                      [directionLinks]="true"
+                      id="overChargeListFromArrayData"
+                      [maxSize]="10"
+                      nextLabel=""
+                      previousLabel=""
+                    >
+                    </pagination-controls>
+                  </div>
+                </div>
+                <br />
+              </div>
+            </fieldset>
+            <div class="row">
+              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 form-group">
+                <label>Remark*</label>
+                <textarea
+                  [ngClass]="{
+                    'is-invalid': changePlansubmitted && custPlanForms.controls['remarks'].errors
+                  }"
+                  [readonly]="!UpdateCustPlans"
+                  class="form-control"
+                  formControlName="remarks"
+                ></textarea>
+                <div
+                  *ngIf="changePlansubmitted && custPlanForms.controls['remarks'].errors"
+                  class="errorWrap text-danger"
+                >
+                  <div class="error text-danger">Remark is required.</div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </p-card>
+    </div>
+    <!-- </div> -->
+  </div>
+</div>
+<div class="modal fade" id="{{ dialogId }}" role="dialog" data-backdrop="static" aria-hidden="true">
+  <div class="modal-dialog" style="width: 70%">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="panel-title">Select Plan</h3>
+      </div>
+      <div class="modal-body">
+        <h5 style="margin-top: 15px">Select Plan</h5>
+        <p-table #dt [value]="custServiceData" responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Service Name</th>
+              <th>Connection No</th>
+              <th>Current Plan</th>
+              <th>Nick Name</th>
+              <th>Select Plan</th>
+            </tr>
+          </ng-template>
+          <ng-template let-plan let-rowIndex="rowIndex" pTemplate="body">
+            <tr>
+              <td>{{ plan.service }}</td>
+              <td>{{ plan.connection_no }}</td>
+              <td>{{ plan.planName }}</td>
+              <td>{{ plan.nickname ? plan.nickname : "-" }}</td>
+              <td>
+                <p-dropdown
+                  (click)="filterplanGroup(plan.serviceId, plan.custPlanMapppingId, rowIndex)"
+                  (onChange)="selectedPlan($event, rowIndex, 'additionalArgument')"
+                  [options]="
+                    custPlanForms.value.changePlanCategory === 'groupPlan' ||
+                    this.custPlanForms.value.purchaseType === 'Renew'
+                      ? planByService
+                      : plansByServiceArr[rowIndex]
+                  "
+                  [filter]="true"
+                  filterBy="name"
+                  optionLabel="name"
+                  optionValue="id"
+                  placeholder="Select a Plan"
+                ></p-dropdown>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="summary">
+            <p-paginator
+              [first]="newFirst"
+              [rows]="planChangeListdataitemsPerPage"
+              [totalRecords]="planChangeListdatatotalRecords"
+            ></p-paginator>
+          </ng-template>
+        </p-table>
+      </div>
+      <div class="modal-footer">
+        <div class="addUpdateBtn">
+          <button
+            [disabled]="!enableChangePlanGroup"
+            (click)="addRemark()"
+            class="btn btn-primary"
+            style="object-fit: cover; padding: 5px 8px"
+            data-dismiss="modal"
+          >
+            <i class="fa fa-check-circle"></i>
+            {{
+              custPlanForms.value.purchaseType == "Changeplan"
+                ? "Change"
+                : custPlanForms.value.purchaseType == "Addon"
+                ? "Add-on"
+                : "Renew"
+            }}
+          </button>
+          <button data-dismiss="modal" class="btn btn-danger btn-sm" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="selectPlanGroup" role="dialog">
+  <div class="modal-dialog" style="width: 60%">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="panel-title">Select Plan</h3>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div *ngIf="isPlanGroup" class="col-md-4 col-lg-4">
+            <h5 style="margin-top: 15px">Select Plan Group:</h5>
+            <!-- <p-dropdown
+              (onChange)="getPlanListByGroupIdSubisu()"
+              [(ngModel)]="planGroupSelectedSubisu"
+              [options]="customerChangePlan ? filterPlanGroupListCust : filterNormalPlanGroup"
+              filter="true"
+              filterBy="planGroupName"
+              optionLabel="planGroupName"
+              optionValue="planGroupId"
+              placeholder="Select a Plan Group"
+            ></p-dropdown> -->
+          </div>
+        </div>
+
+        <br />
+        <h5 style="margin-top: 15px">Select Plan List</h5>
+        <table class="table" style="margin-top: 10px; border: 1px solid #ddd">
+          <thead>
+            <tr>
+              <th style="text-align: center">Name</th>
+              <th style="text-align: center">Charge Name</th>
+              <th style="text-align: center">Offer Price</th>
+              <th style="text-align: center">New Offer Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of plansArray.controls; let index = index">
+              <td style="padding-left: 8px">
+                <input
+                  [formControl]="getControl(row, 'name')"
+                  class="form-control"
+                  placeholder="Enter planName"
+                  readonly
+                />
+              </td>
+              <td>
+                <input
+                  [formControl]="getControl(row, 'chargeName')"
+                  class="form-control"
+                  placeholder="Enter Charge Name"
+                  readonly
+                />
+              </td>
+              <td>
+                <input
+                  [formControl]="getControl(row, 'offerPrice')"
+                  class="form-control"
+                  placeholder="Enter offerPrice"
+                  readonly
+                />
+              </td>
+              <td>
+                <input
+                  [formControl]="getControl(row, 'newAmount')"
+                  class="form-control"
+                  (change)="subisuPrice($event, row.value.planId)"
+                  placeholder="Enter New Amount"
+                  type="number"
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <div class="addUpdateBtn">
+          <button
+            (click)="modalClosePlanChangeSubisu()"
+            class="btn btn-primary"
+            style="object-fit: cover; padding: 5px 8px"
+          >
+            <i class="fa fa-check-circle"></i>
+            Save
+          </button>
+          <button
+            (click)="modalClosePlanChangeSubisu()"
+            class="btn btn-danger btn-sm"
+            type="button"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="selectParentCustomerForChild" role="dialog">
+  <div class="modal-dialog" style="width: 80%">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="panel-title">Select Customer</h3>
+      </div>
+      <div class="modal-body">
+        <h5>Search Parent Customer</h5>
+        <div class="row">
+          <div class="col-lg-3 col-md-3 m-b-10">
+            <p-dropdown
+              (onChange)="selParentSearchOption($event)"
+              [(ngModel)]="searchParentCustOption"
+              [options]="searchOptionSelect"
+              [filter]="true"
+              filterBy="label"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select a Search Option"
+            ></p-dropdown>
+          </div>
+          <div
+            *ngIf="
+              parentFieldEnable &&
+              searchParentCustOption != 'status' &&
+              searchParentCustOption !== 'serviceareaName' &&
+              searchParentCustOption !== 'plan'
+            "
+            class="col-lg-3 col-md-3 m-b-10"
+          >
+            <input
+              [(ngModel)]="searchParentCustValue"
+              class="form-control"
+              id="username"
+              placeholder="Enter Search Detail"
+              type="text"
+              (keydown.enter)="searchParentCustomer()"
+            />
+          </div>
+          <div class="col-lg-3 col-md-3 m-b-10" *ngIf="searchParentCustOption === 'status'">
+            <p-dropdown
+              [options]="commondropdownService.CustomerStatusValue"
+              optionValue="value"
+              optionLabel="text"
+              [filter]="true"
+              filterBy="text"
+              placeholder="Select a Status"
+              [(ngModel)]="searchParentCustValue"
+            >
+            </p-dropdown>
+          </div>
+
+          <div class="col-lg-3 col-md-3 m-b-10" *ngIf="searchParentCustOption == 'serviceareaName'">
+            <p-dropdown
+              [options]="commondropdownService.serviceAreaList"
+              optionValue="id"
+              optionLabel="name"
+              [filter]="true"
+              filterBy="name"
+              placeholder="Select a Servicearea"
+              [(ngModel)]="searchParentCustValue"
+            >
+            </p-dropdown>
+          </div>
+          <div class="col-lg-3 col-md-3 m-b-10" *ngIf="searchParentCustOption == 'plan'">
+            <p-dropdown
+              [options]="commondropdownService.postpaidplanData"
+              optionValue="id"
+              optionLabel="name"
+              [filter]="true"
+              filterBy="name"
+              placeholder="Select a Plan"
+              [(ngModel)]="searchParentCustValue"
+            >
+            </p-dropdown>
+          </div>
+          <div *ngIf="parentFieldEnable" class="col-lg-6 col-md-6 col-sm-12">
+            <button
+              (click)="searchParentCustomer()"
+              class="btn btn-primary"
+              id="searchbtn"
+              type="button"
+            >
+              <i class="fa fa-search"></i>
+              Search
+            </button>
+            <button
+              (click)="clearSearchParentCustomer()"
+              class="btn btn-default"
+              id="searchbtn"
+              type="reset"
+            >
+              <i class="fa fa-refresh"></i>
+              Clear
+            </button>
+          </div>
+        </div>
+        <h5 style="margin-top: 15px">Select Parent Customer</h5>
+        <p-table
+          #dt
+          [(selection)]="selectedParentCust"
+          [value]="prepaidParentCustomerList"
+          responsiveLayout="scroll"
+        >
+          <!-- <ng-template pTemplate="caption">
+            <div class="flex align-items-center justify-content-between">
+              <span class="p-input-icon-left">
+                <input class="form-control" pInputText type="text"
+                  (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Search..." />
+              </span>
+            </div>
+          </ng-template> -->
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width: 5rem"></th>
+              <!-- <th style="width: 10%;">
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+              </th> -->
+              <th>Name</th>
+              <th>User Name</th>
+            </tr>
+          </ng-template>
+          <ng-template let-prepaidParentCustomerList let-rowIndex="rowIndex" pTemplate="body">
+            <tr>
+              <td>
+                <p-tableRadioButton [value]="prepaidParentCustomerList"></p-tableRadioButton>
+              </td>
+              <!-- <td style="width: 10%;">
+                <p-tableCheckbox [value]="product" *ngIf="product.outwardId == null"></p-tableCheckbox>
+              </td> -->
+              <td>{{ prepaidParentCustomerList.name }}</td>
+              <td>{{ prepaidParentCustomerList.username }}</td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="summary">
+            <p-paginator
+              (onPageChange)="paginate($event)"
+              [first]="newFirst"
+              [rows]="parentCustomerListdataitemsPerPage"
+              [totalRecords]="parentCustomerListdatatotalRecords"
+            >
+            </p-paginator>
+          </ng-template>
+        </p-table>
+      </div>
+      <div class="modal-footer">
+        <div class="addUpdateBtn">
+          <button
+            (click)="saveSelCustomer()"
+            [disabled]="this.selectedParentCust.length == 0"
+            class="btn btn-primary"
+            style="object-fit: cover; padding: 5px 8px"
+          >
+            <i class="fa fa-check-circle"></i>
+            Save
+          </button>
+          <button (click)="modalCloseParentCustomer()" class="btn btn-danger btn-sm" type="button">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<app-plan-connection-no
+  *ngIf="showPlanConnectionNo"
+  [planForConnection]="planForConnection"
+  (closeDialog)="closeDialog()"
+></app-plan-connection-no>
+
+<app-staff-select-model
+  *ngIf="showSelectStaffModel"
+  (selectedStaffChange)="selectedStaffChange($event)"
+  (closeSelectStaff)="closeSelectStaff()"
+></app-staff-select-model>

@@ -1,0 +1,100 @@
+<p-dialog
+  header="Select Staff"
+  [(visible)]="displayDTVHistory"
+  [style]="{ width: '70%' }"
+  [modal]="true"
+  [responsive]="true"
+  [draggable]="false"
+  [closable]="true"
+  (onHide)="modalCloseStaff()"
+>
+  <div class="modal-body">
+    <h5>Search Staff</h5>
+    <div class="row">
+      <div class="col-md-3">
+        <input
+          id="searchStaffName"
+          type="text"
+          name="username"
+          class="form-control"
+          placeholder="Global Search Filter"
+          [(ngModel)]="searchDeatil"
+          (keydown.enter)="searchStaffByName()"
+        />
+      </div>
+      <div class="col-lg-6 col-md-6 col-sm-12">
+        <button
+          (click)="searchStaffByName()"
+          class="btn btn-primary"
+          id="searchbtn"
+          type="submit"
+          [disabled]="!searchDeatil"
+        >
+          <i class="fa fa-search"></i>
+          Search
+        </button>
+        <button (click)="clearSearchForm()" class="btn btn-default" id="searchbtn" type="reset">
+          <i class="fa fa-refresh"></i>
+          Clear
+        </button>
+      </div>
+    </div>
+    <h5 style="margin-top: 15px">Select Staff</h5>
+    <p-table
+      #dt
+      [(selection)]="selectedStaff"
+      [value]="staffData"
+      responsiveLayout="scroll"
+      [rows]="5"
+      [rowsPerPageOptions]="[5, 10, 25, 50]"
+      [paginator]="false"
+      [(first)]="newFirst"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 5rem"></th>
+          <th>Name</th>
+          <th>User Name</th>
+          <th>Partner Name</th>
+        </tr>
+      </ng-template>
+      <ng-template let-staffData let-rowIndex="rowIndex" pTemplate="body">
+        <tr>
+          <td>
+            <p-tableRadioButton [value]="staffData"></p-tableRadioButton>
+          </td>
+          <td>
+            {{ staffData.firstname }}
+          </td>
+          <td>{{ staffData.username }}</td>
+          <td>{{ staffData.partnerName }}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="summary">
+        <p-paginator
+          (onPageChange)="paginateStaff($event)"
+          [first]="newFirst"
+          [rows]="parentStaffListdataitemsPerPageForStaff"
+          [totalRecords]="parentstaffListdatatotalRecords"
+          [rows]="5"
+          [rowsPerPageOptions]="[5, 10, 25, 50]"
+          [dropdownAppendTo]="'body'"
+        ></p-paginator>
+      </ng-template>
+    </p-table>
+  </div>
+  <div class="modal-footer">
+    <div class="addUpdateBtn">
+      <button
+        (click)="saveSelstaff()"
+        class="btn btn-primary"
+        style="object-fit: cover; padding: 5px 8px"
+        [disabled]="this.selectedStaff.length == 0"
+      >
+        <i class="fa fa-check-circle"></i>
+        Save
+      </button>
+      <button (click)="modalCloseStaff()" class="btn btn-danger btn-sm" type="button">Close</button>
+    </div>
+  </div>
+</p-dialog>

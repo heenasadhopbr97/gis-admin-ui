@@ -1,0 +1,124 @@
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="{{ dialogId }}"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="myModalLabel"
+>
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="myModalLabel" style="color: #fff !important">
+          Customer Inventory Details
+        </h4>
+      </div>
+      <div class="modal-body">
+        <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+          <legend>Basic Details</legend>
+          <div class="boxWhite">
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 dataGroup">
+                <label class="datalbl">Service Name :</label>
+                <span>{{ inventoryDetailData.serviceName }}</span>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 dataGroup">
+                <label class="datalbl">Warranty :</label>
+                <span>{{ inventoryDetailData.warranty }}</span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 dataGroup">
+                <label class="datalbl">Current Mac Address :</label>
+                <span *ngIf="this.oldMAC != ''">{{ this.oldMAC }}</span>
+                <span *ngIf="this.oldMAC == null">-</span>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 dataGroup">
+                <label class="datalbl">New Mac Address :</label>
+                <span *ngIf="this.newMAC != ''">{{ this.newMAC }}</span>
+                <span *ngIf="this.newMAC == ''">-</span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 dataGroup">
+                <label class="datalbl">Current Serial Number :</label>
+                <span>{{ this.oldSerial }}</span>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 dataGroup">
+                <label class="datalbl">New Serial Number :</label>
+                <span *ngIf="this.newSerial != ''">{{ this.newSerial }}</span>
+                <span *ngIf="this.newSerial == ''">-</span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 dataGroup">
+                <label class="datalbl">Item Assembly Name :</label>
+                <span *ngIf="inventoryDetailData.itemAssemblyName">{{
+                  inventoryDetailData.itemAssemblyName
+                }}</span>
+                <span *ngIf="!inventoryDetailData.itemAssemblyName">-</span>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 dataGroup">
+                <label class="datalbl">External Item Number :</label>
+                <span *ngIf="inventoryDetailData.externalItemNumber">{{
+                  inventoryDetailData.externalItemNumber
+                }}</span>
+                <span *ngIf="!inventoryDetailData.externalItemNumber">-</span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 dataGroup">
+                <label class="datalbl">Assigned Date Time :</label>
+                <span *ngIf="inventoryDetailData.assignedDateTime">{{
+                  inventoryDetailData.assignedDateTime | date : "dd-MM-yyyy hh:mm:ss"
+                }}</span>
+                <span *ngIf="!inventoryDetailData.assignedDateTime">-</span>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 dataGroup">
+                <label class="datalbl">Expiry Date Time :</label>
+                <span *ngIf="inventoryDetailData.expiryDateTime">{{
+                  inventoryDetailData.expDate | date : "dd-MM-yyyy hh:mm:ss"
+                }}</span>
+                <span *ngIf="!inventoryDetailData.expiryDateTime">-</span>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 dataGroup">
+                <label class="datalbl">Bill To :</label>
+                <span *ngIf="inventoryDetailData.billTo">{{
+                  inventoryDetailData.billTo 
+                }}</span>
+                <span *ngIf="!inventoryDetailData.billTo">-</span>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 dataGroup">
+                <label class="datalbl">Discount :</label>
+                <span *ngIf="!inventoryDetailData.discount">{{
+                  inventoryDetailData.discount
+                }}</span>
+                <span *ngIf="inventoryDetailData.discount">-</span>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 dataGroup">
+                <label class="datalbl">Invoice To Org :</label>
+                <span *ngIf="!inventoryDetailData.isInvoiceToOrg">{{
+                  inventoryDetailData.isInvoiceToOrg
+                }}</span>
+                <span *ngIf="inventoryDetailData.isInvoiceToOrg">-</span>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 dataGroup">
+                <label class="datalbl">Required Approval :</label>
+                <span *ngIf="!inventoryDetailData.isRequiredApproval">{{
+                  inventoryDetailData.isRequiredApproval
+                }}</span>
+                <span *ngIf="inventoryDetailData.isRequiredApproval">-</span>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

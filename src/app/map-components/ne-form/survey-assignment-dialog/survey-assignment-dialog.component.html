@@ -1,0 +1,198 @@
+<p-dialog header="Assign Survey Areas" [(visible)]="visible" [style]="{ width: '60vw' }" [modal]="true"
+  [draggable]="false" (onShow)="onShow()" (onHide)="closeDialog()">
+
+  <!-- Loading indicator -->
+  <div *ngIf="isLoading" class="p-d-flex p-jc-center p-ai-center p-p-4">
+    <p-progressSpinner></p-progressSpinner>
+  </div>
+
+  <!-- Search Field -->
+  <div class="p-2" *ngIf="!isLoading">
+    <div class="grid p-fluid">
+      <div class="col-12 md:col-4">
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input pInputText type="text" (input)="filterSurveys($event)" placeholder="Search survey..."
+            [disabled]="isLoading" />
+        </span>
+      </div>
+      <div class="col-12 md:col-4">
+        <p-dropdown [options]="statusOptions" [(ngModel)]="selectedStatus"
+          (onChange)="filterSurveys(null, selectedStatus, selectedStage)" placeholder="Filter by Status"
+          [showClear]="true" [disabled]="isLoading">
+        </p-dropdown>
+      </div>
+      <div class="col-12 md:col-4">
+        <p-dropdown [options]="stageOptions" [(ngModel)]="selectedStage"
+          (onChange)="filterSurveys(null, selectedStatus, selectedStage)" placeholder="Filter by Stage"
+          [showClear]="true" [disabled]="isLoading">
+        </p-dropdown>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Table -->
+  <p-table *ngIf="!isLoading && surveyList.length > 0"
+    [value]="filteredSurveys" [(selection)]="selectedSurveys"
+    dataKey="surveyId" [paginator]="true" [rows]="rowsPerPage" [totalRecords]="totalRecords" [first]="first"
+    (onPage)="onPageChange($event)" [tableStyle]="{ 'min-width': '100%' }" (onRowUnselect)="onSurveyUnselect($event)"
+    (onRowSelect)="onSurveySelect($event)" [loading]="isLoading">
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 3rem">
+          <!-- <p-tableHeaderCheckbox></p-tableHeaderCheckbox> -->
+        </th>
+        <th>Survey Name</th>
+        <th>Survey Status</th>
+        <th>Survey Stage</th>
+        <!-- <th>Assigned Staff</th>  -->
+        <th *ngIf="apiService.getRoleName() == 'Admin'">Assign to User</th>
+        <th *ngIf="apiService.getRoleName() != 'Admin'">Action</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-survey let-i="rowIndex">
+      <tr>
+        <!-- checkbox td -->
+        <td *ngIf="apiService.getRoleName() === 'Admin'">
+          <p-tableCheckbox [value]="survey"
+            [disabled]="survey?.surveyStatusName !== 'Initiated' && survey?.surveyStatusName !== 'Review'">
+          </p-tableCheckbox>
+        </td>
+        <td *ngIf="apiService.getRoleName() !== 'Admin'">
+          <p-tableCheckbox [value]="survey" [disabled]="survey?.surveyStatusName === 'Done'">
+          </p-tableCheckbox>
+        </td>
+        <!-- survey name td -->
+        <td class="truncate" [pTooltip]="survey.surveyName" tooltipPosition="top">
+          {{ survey?.surveyName }}
+        </td>
+        <!-- survey status td -->
+        <td>
+          <span class="badge" [ngClass]="getBadgeClass(survey?.surveyStatusName)">
+            {{ survey?.surveyStatusName }}
+          </span>
+        </td>
+        <td>
+          {{ survey?.surveyStageName }}
+        </td>
+        <!-- <td>{{ survey}}</td> -->
+        <!-- <td>{{ survey.staffName }}</td> -->
+        <!-- survey Assign to User td -->
+        <td *ngIf="apiService.getRoleName() == 'Admin' && survey.surveyStatusName != 'Review'">
+          <p-dropdown [options]="userOptions" appendTo="body" [virtualScroll]="true" [itemSize]="40"
+            [virtualScrollItemSize]="40" optionLabel="name" optionValue="id" [(ngModel)]="survey.selectedUserId"
+            placeholder="Select User" [showClear]="true" [disabled]="!isSurveySelected(survey) || isLoading"
+            [tooltip]="!isSurveySelected(survey) ? 'Please select the survey first' : null" tooltipPosition="top"
+            (onChange)="onUserSelectionChange(survey)">
+          </p-dropdown>
+        </td>
+        <!-- Survey Status not completed -->
+        <!-- <td *ngIf="apiService.getRoleName() != 'Admin' && survey.surveyStatusName != 'Completed'">
+          <button pButton icon="pi pi-play" class="p-button-text p-button-success p-button-sm ml-5"
+            (click)="onSurveyInProgress(survey)" [disabled]="isLoading || !isSurveySelected(survey)">
+          </button>
+        </td> -->
+        <!-- Survey Status completed td -->
+        <!-- <td *ngIf="apiService.getRoleName() != 'Admin' && survey.surveyStatusName == 'Completed'">
+          <button pButton icon="pi pi-check"
+            class="p-button-text p-button-rounded p-button-success-completed p-button-sm ml-5"
+            (click)="onSurveyInProgress(survey)" [disabled]="survey.surveyStatusName == 'Done'">
+          </button>
+        </td> -->
+
+        <!-- new code -->
+        <td *ngIf="apiService.getRoleName() != 'Admin' && survey.surveyStatusName != 'Completed'">
+          <button pButton icon="pi pi-play" class="p-button-text p-button-success p-button-sm ml-5"
+            (click)="onSurveyInProgress(survey)" [disabled]="isLoading || !isSurveySelected(survey)">
+          </button>
+        </td>
+
+        <!-- For Admin Users when status is Review -->
+        <td *ngIf="apiService.getRoleName() === 'Admin' && survey.surveyStatusName === 'Review'">
+          <button pButton icon="pi pi-play" class="p-button-text p-button-success p-button-sm ml-5"
+            (click)="onAdminReviewAction(survey)" [disabled]="isLoading">
+          </button>
+        </td>
+
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="paginatorleft">
+      <span class="p-paginator-text">
+        Showing {{first + 1}} to {{first + rowsPerPage > totalRecords ? totalRecords : first + rowsPerPage}} of
+        {{totalRecords}} surveys
+      </span>
+    </ng-template>
+
+  </p-table>
+
+
+  <!-- Empty states -->
+  <div *ngIf="!isLoading && ((searchText || selectedStatus || selectedStage) && filteredSurveys.length === 0)"
+    class="p-d-flex p-jc-center p-ai-center p-p-4">
+    <p>No surveys match your filters</p>
+  </div>
+  <div *ngIf="!isLoading && !searchText && !selectedStatus && !selectedStage && surveyList.length === 0"
+    class="p-d-flex p-jc-center p-ai-center p-p-4">
+    <p>No surveys available for assignment</p>
+  </div>
+
+  <!-- Footer buttons -->
+  <div class="p-d-flex p-jc-end p-gap-2 p-mt-4" *ngIf="apiService.getRoleName() == 'Admin'">
+    <button pButton type="button" label="Cancel" severity="secondary" (click)="closeDialog()"
+      [disabled]="isLoading"></button>
+    <button pButton type="button" label="Save" (click)="assignSurveys()" [disabled]="!canSave() || isLoading"></button>
+  </div>
+</p-dialog>
+
+<p-toast />
+<p-confirmDialog [style]="{ width: '40vw' }" [baseZIndex]="10000" [closable]="false" [dismissableMask]="false"
+  [blockScroll]="true" header="Confirmation">
+</p-confirmDialog>
+
+
+<p-dialog 
+  header="Reason for Rejection" 
+  [(visible)]="isRejectDialogVisible" 
+  [modal]="true" 
+  [style]="{ width: '30vw' }"
+  [closable]="false"
+>
+  <div class="p-fluid">
+    <label for="reason">Please enter the reason: <span class="required-star">*</span></label>
+    <div class="col-12">
+      <textarea 
+        id="reason" 
+        pInputTextarea 
+        [(ngModel)]="rejectionReason" 
+        rows="4"
+        autoResize="true"
+        placeholder="Type your reason here..."
+      ></textarea>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button 
+      pButton 
+      type="button" 
+      label="Cancel" 
+      icon="pi pi-times" 
+      (click)="isRejectDialogVisible = false"
+      class="p-button-text">
+    </button>
+    <button 
+      pButton 
+      type="button" 
+      label="Submit" 
+      icon="pi pi-check" 
+      (click)="submitRejection()">
+    </button>
+  </ng-template>
+</p-dialog>
+
+
+<!-- <p-button (click)="confirm1($event)" label="Save" [outlined]="true" /> -->
+<!-- <p-button (click)="confirm2($event)" label="Delete" severity="danger" [outlined]="true" /> -->

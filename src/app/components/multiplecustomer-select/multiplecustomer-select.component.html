@@ -1,0 +1,139 @@
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="{{ dialogId }}"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="myModalLabel"
+>
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="myModalLabel" style="color: #fff !important">
+          Select Customer
+        </h4>
+      </div>
+
+      <div class="modal-body">
+        <h5>Search Customer</h5>
+        <div class="row">
+          <div class="col-lg-3 col-md-3 m-b-10">
+            <p-dropdown
+              [options]="searchOptionSelect"
+              optionValue="value"
+              optionLabel="label"
+              [filter]="true"
+              filterBy="label"
+              placeholder="Select a Search Option"
+              [(ngModel)]="searchCustOption"
+              (onChange)="selSearchOption($event)"
+            ></p-dropdown>
+          </div>
+          <div
+            class="col-lg-3 col-md-3 m-b-10"
+            *ngIf="FieldEnable && searchCustOption != 'serviceareaName'"
+          >
+            <input
+              id="username"
+              type="text"
+              class="form-control"
+              [(ngModel)]="searchCustValue"
+              placeholder="Enter Search Detail"
+            />
+          </div>
+          <div
+            class="col-lg-3 col-md-3 m-b-10"
+            *ngIf="FieldEnable && searchCustOption == 'serviceareaName'"
+          >
+            <p-dropdown
+              [options]="commondropdownService.serviceAreaList"
+              optionValue="name"
+              optionLabel="name"
+              [filter]="true"
+              filterBy="name"
+              placeholder="Select a Servicearea"
+              [(ngModel)]="searchCustValue"
+            ></p-dropdown>
+          </div>
+          <div class="col-lg-6 col-md-6 col-sm-12" *ngIf="FieldEnable">
+            <button type="button" class="btn btn-primary" id="searchbtn" (click)="searchCustomer()">
+              <i class="fa fa-search"></i>
+              Search
+            </button>
+            <button
+              type="reset"
+              class="btn btn-default"
+              id="searchbtn"
+              (click)="clearSearchCustomer()"
+            >
+              <i class="fa fa-refresh"></i>
+              Clear
+            </button>
+          </div>
+        </div>
+        <h5 style="margin-top: 15px">Select Customer</h5>
+        <p-table
+          #dt
+          [value]="AllCustomerList"
+          [(selection)]="selectedCust"
+          dataKey="id"
+          styleClass="p-datatable-customers"
+          [rowHover]="true"
+          [filterDelay]="0"
+        >
+          <ng-template pTemplate="header">
+            <tr style="width: 100%">
+              <th style="width: 15%">
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+              </th>
+              <th style="width: 43%">Name</th>
+              <th style="width: 42%">User Name</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-custValue>
+            <tr class="p-selectable-row">
+              <td>
+                <p-tableCheckbox [value]="custValue"></p-tableCheckbox>
+              </td>
+              <td>
+                {{ custValue.name }}
+                {{ custValue.lastname }}
+              </td>
+              <td>{{ custValue.username }}</td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="8">No customers found.</td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="summary">
+            <p-paginator
+              [rows]="CustomerListdataitemsPerPage"
+              [first]="newFirst"
+              [totalRecords]="CustomerListdatatotalRecords"
+              (onPageChange)="paginate($event)"
+            ></p-paginator>
+          </ng-template>
+        </p-table>
+      </div>
+      <div class="modal-footer">
+        <div class="addUpdateBtn">
+          <button
+            style="object-fit: cover; padding: 5px 8px"
+            class="btn btn-primary"
+            (click)="saveSelCustomer()"
+            [disabled]="this.selectedCust.length == 0"
+          >
+            <i class="fa fa-check-circle"></i>
+            Save
+          </button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,83 @@
+@import "@ng-select/ng-select/themes/default.theme.css";
+
+.form-control.ng-select {
+  border: none;
+  padding: 0;
+}
+
+.ml-15 {
+  padding-top: 15px;
+}
+.error {
+  color: red;
+}
+
+.form-group {
+  padding-top: 5px;
+}
+
+.position {
+  position: absolute;
+}
+
+input.ng-invalid.ng-touched,
+ng-select.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched {
+  border: 1px solid red;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.borderuploadphoto {
+  width: 150px;
+  height: 150px;
+  margin: 18px auto 10px;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+  border: 1px solid #cecdcd !important;
+  background-position: center !important;
+  background-color: whitesmoke !important;
+}
+
+.upload_btn-profileimage {
+  border: none;
+  background-color: #000000bf;
+  font-size: 17px;
+  color: white;
+  border-radius: 15px;
+}
+
+.upload_btn-profileimage:hover {
+  color: #b2d0f0;
+}
+
+.underDevelopBadge {
+  padding: 6px 10px !important;
+}
+
+::ng-deep .custom-tooltip {
+  max-width: 50%;
+  white-space: pre-wrap; /* Preserves line breaks and spacing */
+  word-break: break-word;
+  font-family: monospace; /* Makes JSON easier to read */
+  background-color: #f9f9f9; /* Light background for contrast */
+  color: #333;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 6px rgba(0,0,0,0.1);
+  font-size: 13px;
+}

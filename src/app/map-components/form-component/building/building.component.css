@@ -1,0 +1,15 @@
+
+.required-star {
+  color: red;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+input.ng-invalid.ng-touched {
+  border-color: #f44336;
+}

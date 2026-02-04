@@ -1,0 +1,198 @@
+<div class="row">
+  <div class="col-md-12">
+    <!-- User Data -->
+    <div class="panel top">
+      <div class="panel-heading">
+        <h3 class="panel-title">Role Management</h3>
+        <div class="right">
+          <button
+            type="button"
+            class="btn-toggle-collapse"
+            data-bs-toggle="collapse"
+            data-bs-target="#searchRole"
+            aria-expanded="false"
+            aria-controls="searchRole"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <div id="searchRole" class="panel-collapse collapse show">
+        <div class="panel-body" *ngIf="isRoleList">
+          <div class="searchForm">
+            <form class="form-auth-small" [formGroup]="searchRoleForm">
+              <!-- <div class="col-md-2" style="padding-right: 0%; text-align: right">
+                                <label style="padding: 5px">Role Name:</label>
+                            </div> -->
+              <div class="col-md-4" style="padding-left: 0%">
+                <input
+                  id="searchRoleName"
+                  type="text"
+                  name="roleName"
+                  class="form-control"
+                  placeholder="Enter Role"
+                  formControlName="name"
+                  (keydown.enter)="searchRoleByName()"
+                  [ngClass]="{
+                    'is-invalid': searchSubmitted && searchRoleForm.controls['name'].errors
+                  }"
+                />
+              </div>
+              <div class="col-md-4 marginTopSearchBtn" style="padding-left: 0%">
+                <button
+                  id="search"
+                  type="submit"
+                  class="btn btn-primary"
+                  (click)="searchRoleByName()"
+                >
+                  <i class="fa fa-search"></i>
+                  Search
+                </button>
+                &nbsp;
+                <button id="clear" type="reset" class="btn btn-default" (click)="clearSearchForm()">
+                  <i class="fa fa-refresh"></i>
+                  Clear
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="panel-body no-padding panel-udata">
+          <!-- *ngIf="!isRoleCreateOrEdit" -->
+          <div class="col-md-6 pcol" *ngIf="createAccess">
+            <div class="dbox">
+              <a (click)="openRoleCreateMenu()" class="curson_pointer">
+                <img src="../../../assets/img/i01.png" style="width: 32px" />
+                <h5>Create Role</h5>
+                <!-- <p>Create Role</p> -->
+              </a>
+            </div>
+          </div>
+          <!-- *ngIf="!isRoleList" -->
+          <div class="col-md-6 pcol">
+            <div class="dbox">
+              <a (click)="openRoleListMenu()" class="curson_pointer">
+                <img src="../../../assets/img/i01.png" style="width: 32px" />
+                <h5>Role List</h5>
+                <!-- <p>Role List</p> -->
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END User Data -->
+  </div>
+</div>
+
+<div class="row">
+  <div *ngIf="isRoleList" class="col-md-12">
+    <!-- Data Table -->
+    <div class="panel">
+      <div class="panel-heading">
+        <h3 class="panel-title">Role</h3>
+        <div class="right">
+          <button
+            type="button"
+            class="btn-toggle-collapse"
+            data-bs-toggle="collapse"
+            data-bs-target="#listrole"
+            aria-expanded="false"
+            aria-controls="listrole"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <div id="listrole" class="panel-collapse collapse show">
+        <div class="panel-body table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Status</th>
+                <th *ngIf="editAccess || deleteAccess">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="
+                  let role of roleList
+                    | paginate
+                      : {
+                          id: 'listing_roledata',
+                          itemsPerPage: itemsPerPage,
+                          currentPage: currentPage,
+                          totalItems: totalRecords
+                        };
+                  index as i
+                "
+              >
+                <td>{{ role.rolename }}</td>
+                <td>
+                  <span *ngIf="role.status == 'Active'" class="badge badge-success"> Active </span>
+                  <span *ngIf="role.status == 'Inactive'" class="badge badge-danger">
+                    Inactive
+                  </span>
+                </td>
+                <td class="btnAction" *ngIf="editAccess || deleteAccess">
+                  <a
+                    id="edit"
+                    type="button"
+                    (click)="editRoleById(role.id, i)"
+                    class="curson_pointer"
+                    *ngIf="editAccess"
+                  >
+                    <img src="assets/img/ioc01.jpg" />
+                  </a>
+                  <a
+                    id="delete"
+                    (click)="deleteConfirm(role)"
+                    class="curson_pointer"
+                    *ngIf="deleteAccess"
+                  >
+                    <img src="assets/img/ioc02.jpg" />
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <br />
+
+          <div class="pagination_Dropdown">
+            <pagination-controls
+              id="listing_roledata"
+              [maxSize]="10"
+              [directionLinks]="true"
+              previousLabel=""
+              nextLabel=""
+              (pageChange)="pageChanged($event)"
+            ></pagination-controls>
+
+            <div id="itemPerPageDropdown">
+              <p-dropdown
+                [options]="pageLimitOptions"
+                [(ngModel)]="currentPageSize"
+                optionLabel="value"
+                optionValue="value"
+                (onChange)="TotalItemPerPage($event)"
+              ></p-dropdown>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END Data Table -->
+  </div>
+</div>
+
+<!-- [roleData]="{ id: 'some-id', aclMenus: 'some-acl-menus' }" -->
+<app-create-role
+  *ngIf="isRoleCreateOrEdit"
+  [roleData]="selectedRoleData"
+  (roleSaveorUpdated)="roleSaveorUpdated()"
+>
+</app-create-role>

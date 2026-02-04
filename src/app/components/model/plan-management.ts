@@ -1,0 +1,37 @@
+export interface PlanManagement {
+    name: string;
+    allowOverUsage: string;
+    category: string;
+    chargeList: [{ actualprice: number }];
+    code: string;
+    desc: string;
+    displayName: string;
+    downloadQOS: string;
+    downloadTs: string;
+    endDate: string;
+    maxChild: number;
+    maxconcurrentsession: number;
+    offerprice: number;
+    param1: string;
+    param2: string;
+    param3: string;
+    planGroup: string;
+    planStatus: string;
+    plantype: string;
+    qospolicyid: string;
+    quota: number;
+    quotaUnit: string;
+    quotatype: string;
+    quotaunittime: string;
+    saccode: string;
+    serviceId: number;
+    sliceUnit: string;
+    taxId: number;
+    actualprice: string;
+    chargecategory: string;
+    chargetype: string;
+    price: string;
+    taxid: string;
+    radiusprofileIds: string;
+    MAXALLOWEDCHILD: number;
+}

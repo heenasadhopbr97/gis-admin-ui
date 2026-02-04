@@ -1,0 +1,2094 @@
+<div class="row">
+  <div class="panel" *ngIf="!ifcustCaf">
+    <div class="panel-heading">
+      <button
+        *ngIf="custData.status !== 'newactivation' && custData.status"
+        class="curson_pointer approve-btn"
+        style="
+          border: none;
+          background: transparent;
+          padding: 0;
+          margin-right: 3px;
+        "
+        title="Service Termination"
+        type="button"
+        [disabled]="!serviceStopBulkFlag"
+        (click)="openPaushSearviceMedel('', 'Delete')"
+      >
+        <img
+          class="icon"
+          style="max-width: 32px"
+          src="assets/img/05_Service-Termination.png"
+        />
+      </button>
+      <button
+        *ngIf="custData.status !== 'newactivation' && custData.status"
+        class="curson_pointer approve-btn"
+        style="
+          border: none;
+          background: transparent;
+          padding: 0;
+          margin-right: 3px;
+        "
+        title="Service Hold Resume"
+        type="button"
+        [disabled]="!serviceStopBulkFlag"
+        (click)="
+          isServiceResumeValid()
+            ? openPaushSearviceMedel('', 'Start')
+            : openPaushSearviceMedel('', 'Pause')
+        "
+      >
+        <img
+          class="icon"
+          style="max-width: 32px"
+          src="assets/img/03_Pause-&-Resume.png"
+        />
+      </button>
+      <button
+        *ngIf="custData.status !== 'newactivation' && custData.status"
+        class="curson_pointer approve-btn"
+        style="
+          border: none;
+          background: transparent;
+          padding: 0;
+          margin-right: 3px;
+        "
+        title="Service Stop"
+        type="button"
+        [disabled]="!serviceStopBulkFlag"
+        (click)="openPaushSearviceMedel('', 'Stop')"
+      >
+        <img
+          class="icon"
+          style="max-width: 32px"
+          src="assets/img/04_Service-Stop.png"
+        />
+      </button>
+    </div>
+  </div>
+  <div class="col-md-12 col-sm-12">
+    <div class="panel">
+      <div class="panel-heading">
+        <div class="displayflex">
+          <button
+            (click)="backButton.emit(custData.id)"
+            class="btn btn-secondary backbtn"
+            data-placement="bottom"
+            data-bs-toggle="tooltip"
+            style="margin-left: 0px"
+            title="Go to Customer Details"
+            type="button"
+          >
+            <i
+              class="fa fa-arrow-circle-left"
+              style="color: darkblue !important; font-size: 28px"
+            ></i>
+          </button>
+          <h3 class="panel-title">
+            {{ custData.title }}
+            {{ custData.custname }} Service Details
+          </h3>
+        </div>
+        <div class="right">
+          <button
+            class="btn refreshbtn"
+            type="reset"
+            (click)="getActivePlanDetails()"
+          >
+            <i class="fa fa-refresh"></i>
+          </button>
+          <button
+            aria-controls="serviceDetailsCust"
+            aria-expanded="false"
+            class="btn-toggle-collapse"
+            data-bs-target="#serviceDetailsCust"
+            data-bs-toggle="collapse"
+            type="button"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="panel-collapse collapse show" id="serviceDetailsCust">
+          <button
+            *ngIf="addServiceAccess"
+            type="submit"
+            class="btn btn-primary statusbtn"
+            (click)="openAddServiceModal()"
+            class="yellowBtn"
+            [disabled]="commondropdownService.isPlanOnDemand && !isLeadMaster"
+          >
+            Add Service
+          </button>
+
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th
+                    width="2%"
+                    *ngIf="
+                      custData.status !== 'newactivation' &&
+                      custData.status !== 'ActivationPending' &&
+                      custData.status
+                    "
+                  ></th>
+                  <th>Service Name</th>
+                  <th>Serial No</th>
+                  <th>Invoice Type</th>
+                  <th>Current Plan</th>
+                  <th>Expiry Date</th>
+                  <th>Service Hold Date</th>
+                  <th>Service Resume Date</th>
+                  <th>Status</th>
+                  <th>Hold by</th>
+                  <th>Resume By</th>
+                  <th>Remarks</th>
+                  <th>Nick Name</th>
+                  <th
+                    *ngIf="
+                      custData.status !== 'newactivation' && custData.status
+                    "
+                  >
+                    Action
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let plan of custCurrentPlanList; index as i">
+                  <td
+                    *ngIf="
+                      custData.status !== 'newactivation' &&
+                      custData.status !== 'ActivationPending' &&
+                      custData.status
+                    "
+                  >
+                    <div class="centerCheckbox">
+                      <p-checkbox
+                        *ngIf="
+                          plan.custPlanStatus.toLowerCase() != 'terminate' &&
+                          plan.custPlanStatus.toLowerCase() != 'disable' &&
+                          plan.invoiceType != 'Group' &&
+                          chekcPlanGroup(plan, custCurrentPlanList)
+                        "
+                        (onChange)="seviceStopBulk(plan, $event)"
+                        class="p-field-checkbox"
+                        [binary]="true"
+                      ></p-checkbox>
+                    </div>
+                  </td>
+                  <td>{{ plan.service }}</td>
+                  <td>
+                    <span
+                      class="curson_pointer"
+                      style="color: darkblue"
+                      (click)="openPlanConnectionModal(plan)"
+                    >
+                      {{
+                        getSerialNumber(plan) !== ""
+                          ? getSerialNumber(plan)
+                          : "NA"
+                      }}
+                    </span>
+                  </td>
+                  <td>
+                    {{ plan.invoiceType !== null ? plan.invoiceType : "-" }}
+                  </td>
+                  <td>{{ plan.planName }}</td>
+                  <td>
+                    <div *ngIf="custData?.custtype === 'Prepaid'">
+                      {{
+                        plan.serviceEndDate
+                          ? (plan.serviceEndDate | date : "dd/MM/yyyy hh:mm a")
+                          : "-"
+                      }}
+                    </div>
+                    <div *ngIf="custData?.custtype !== 'Prepaid'">
+                      <span> N/A </span>
+                    </div>
+                  </td>
+                  <td>
+                    {{
+                      plan.serviceEndDate
+                        ? (plan.serviceEndDate | date : "dd/MM/yyyy hh:mm a")
+                        : "-"
+                    }}
+                  </td>
+                  <td>
+                    {{
+                      plan.serviceResumeDate
+                        ? (plan.serviceResumeDate | date : "dd/MM/yyyy hh:mm a")
+                        : "-"
+                    }}
+                  </td>
+                  <td>
+                    <span
+                      *ngIf="
+                        checkStatus(
+                          plan.custPlanStatus,
+                          plan.custServMappingStatus
+                        )
+                      "
+                    >
+                      <span
+                        [ngClass]="
+                          badgeTypeForStatus == 'green'
+                            ? 'badge badge-success'
+                            : badgeTypeForStatus == 'grey'
+                            ? 'badge badge-primary'
+                            : 'badge badge-danger'
+                        "
+                        >{{ plan.custServMappingStatus }}</span
+                      >
+                    </span>
+                  </td>
+                  <td>{{ plan.serviceHoldBy }}</td>
+                  <td>{{ plan.serviceResumeDate }}</td>
+                  <td>
+                    {{
+                      plan.custPlanStatus.toLowerCase() === "Hold"
+                        ? plan.serviceHoldRemarks
+                        : plan.serviceResumeRemarks
+                    }}
+                  </td>
+                  <td>
+                    <input
+                      (focusout)="
+                        saveEditNickName(plan.custPlanMapppingId, plan.nickname)
+                      "
+                      name="nickname"
+                      id="nickname"
+                      [value]="plan.nickname"
+                      class="form-control"
+                      placeholder="Enter Nick Name"
+                      [(ngModel)]="plan.nickname"
+                    />
+                  </td>
+                  <td
+                    class="btnAction"
+                    *ngIf="
+                      custData.status.toLowerCase() !== 'newactivation' &&
+                      custData.status
+                    "
+                  >
+                    <button
+                      id="delete-button"
+                      type="button"
+                      class="approve-btn"
+                      style="
+                        border: none;
+                        background: transparent;
+                        padding: 0;
+                        margin-right: 3px;
+                      "
+                      (click)="openPaushSearviceMedel(plan, 'Delete')"
+                      title="Service Termination"
+                      [disabled]="
+                        !(
+                          plan.nextStaff == null &&
+                          plan.nextTeamHierarchyMappingId == null
+                        ) ||
+                        plan.custServMappingStatus.toLowerCase() ==
+                          'rejected' ||
+                        plan.custServMappingStatus.toLowerCase() ===
+                          'terminate' ||
+                        this.custData.status.toLowerCase() === 'newactivation'
+                      "
+                    >
+                      <img src="assets/img/05_Service-Termination.png" />
+                    </button>
+                    <span
+                      *ngIf="
+                        plan.custServMappingStatus.toLowerCase() !=
+                        'newactivation'
+                      "
+                    >
+                      <button
+                        class="approve-btn"
+                        style="
+                          border: none;
+                          background: transparent;
+                          padding: 0;
+                          margin-right: 3px;
+                        "
+                        type="button"
+                        title="Pick"
+                        (click)="pickModalOpen(plan)"
+                        [disabled]="
+                          (plan.nextStaff != null &&
+                            plan.nextTeamHierarchyMappingId == null) ||
+                          (plan.nextStaff == null &&
+                            plan.nextTeamHierarchyMappingId == null) ||
+                          plan.custPlanStatus.toLowerCase() === 'stop' ||
+                          plan.custServMappingStatus.toLowerCase() ==
+                            'rejected' ||
+                          plan.custServMappingStatus.toLowerCase() === 'stop' ||
+                          (plan.nextStaff != null &&
+                            plan.nextTeamHierarchyMappingId != null) ||
+                          this.custData.status.toLowerCase() === 'newnctivation'
+                        "
+                      >
+                        <img src="assets/img/17_Pick-ticket-to-resolve_Y.png" />
+                      </button>
+                      <button
+                        type="button"
+                        class="approve-btn"
+                        style="
+                          border: none;
+                          background: transparent;
+                          padding: 0;
+                          margin-right: 3px;
+                        "
+                        title="Approve"
+                        (click)="
+                          approvePlanOpen(
+                            plan.planId,
+                            '',
+                            plan['customerServiceMappingId'],
+                            ''
+                          )
+                        "
+                        [disabled]="
+                          plan.nextStaff != staffUserId ||
+                          plan.custServMappingStatus.toLowerCase() ==
+                            'rejected' ||
+                          this.custData.status.toLowerCase() === 'newactivation'
+                        "
+                      >
+                        <img src="assets/img/assign.jpg" />
+                      </button>
+                      <button
+                        type="button"
+                        class="approve-btn"
+                        style="
+                          border: none;
+                          background: transparent;
+                          padding: 0;
+                          margin-right: 3px;
+                        "
+                        title="Reject"
+                        (click)="plan.custPlanStatus.toLowerCase() === 'stop'"
+                        [disabled]="
+                          plan.nextStaff != staffUserId ||
+                          plan.custServMappingStatus.toLowerCase() ==
+                            'rejected' ||
+                          this.custData.status.toLowerCase() === 'newactivation'
+                        "
+                      >
+                        <img src="assets/img/reject.jpg" />
+                      </button>
+                      <button
+                        type="button"
+                        class="approve-btn"
+                        style="
+                          border: none;
+                          background: transparent;
+                          padding: 0;
+                          margin-right: 3px;
+                        "
+                        title="Reassign"
+                        (click)="StaffReasignList(plan)"
+                        [disabled]="
+                          plan.nextStaff != staffUserId ||
+                          plan.custPlanStatus.toLowerCase() === 'stop' ||
+                          plan.custServMappingStatus.toLowerCase() === 'stop' ||
+                          plan.custServMappingStatus.toLowerCase() ==
+                            'rejected' ||
+                          this.custData.status.toLowerCase() === 'newactivation'
+                        "
+                      >
+                        <img
+                          width="32"
+                          height="32"
+                          alt="Assign"
+                          src="assets/img/icons-02.png"
+                        />
+                        <!-- </a> -->
+                      </button>
+                    </span>
+                    <span
+                      *ngIf="
+                        plan.custServMappingStatus.toLowerCase() ==
+                        'newactivation'
+                      "
+                    >
+                      <button
+                        class="approve-btn"
+                        style="
+                          border: none;
+                          background: transparent;
+                          padding: 0;
+                          margin-right: 3px;
+                        "
+                        type="button"
+                        title="Pick"
+                        (click)="pickModalOpen(plan)"
+                        [disabled]="
+                          (plan.nextStaff != null &&
+                            plan.nextTeamHierarchyMappingId == null) ||
+                          (plan.nextStaff == null &&
+                            plan.nextTeamHierarchyMappingId == null) ||
+                          plan.custPlanStatus.toLowerCase() === 'stop' ||
+                          plan.custServMappingStatus.toLowerCase() ==
+                            'rejected' ||
+                          plan.custServMappingStatus.toLowerCase() === 'stop' ||
+                          this.custData.status.toLowerCase() ===
+                            'newactivation' ||
+                          (plan.nextStaff != null &&
+                            plan.nextTeamHierarchyMappingId != null)
+                        "
+                      >
+                        <img src="assets/img/17_Pick-ticket-to-resolve_Y.png" />
+                      </button>
+                      <button
+                        type="button"
+                        class="approve-btn"
+                        style="
+                          border: none;
+                          background: transparent;
+                          padding: 0;
+                          margin-right: 3px;
+                        "
+                        title="Approve"
+                        (click)="
+                          approvePlanOpen(
+                            plan.planId,
+                            '',
+                            plan['customerServiceMappingId'],
+                            plan.custServMappingStatus
+                          )
+                        "
+                        [disabled]="
+                          plan.nextStaff != staffUserId ||
+                          plan.custServMappingStatus.toLowerCase() ==
+                            'rejected' ||
+                          this.custData.status.toLowerCase() === 'newactivation'
+                        "
+                      >
+                        <img src="assets/img/assign.jpg" />
+                      </button>
+                      <button
+                        type="button"
+                        class="approve-btn"
+                        style="
+                          border: none;
+                          background: transparent;
+                          padding: 0;
+                          margin-right: 3px;
+                        "
+                        title="Reject"
+                        (click)="
+                          rejectPlanOpen(
+                            plan.planId,
+                            '',
+                            plan['customerServiceMappingId'],
+                            plan.custServMappingStatus || ''
+                          )
+                        "
+                        [disabled]="
+                          plan.nextStaff != staffUserId ||
+                          plan.custServMappingStatus.toLowerCase() ==
+                            'rejected' ||
+                          custData.status.toLowerCase() === 'newactivation'
+                        "
+                      >
+                        <img src="assets/img/reject.jpg" />
+                      </button>
+
+                      <button
+                        type="button"
+                        class="approve-btn"
+                        style="
+                          border: none;
+                          background: transparent;
+                          padding: 0;
+                          margin-right: 3px;
+                        "
+                        title="Reassign"
+                        (click)="StaffReasignList(plan)"
+                        [disabled]="
+                          plan.nextStaff != staffUserId ||
+                          plan.custServMappingStatus.toLowerCase() ==
+                            'rejected' ||
+                          plan.custServMappingStatus.toLowerCase() === 'stop' ||
+                          this.custData.status.toLowerCase() === 'newactivation'
+                        "
+                      >
+                        <img
+                          width="32"
+                          height="32"
+                          alt="Assign"
+                          src="assets/img/icons-02.png"
+                        />
+                        <!-- </a> -->
+                      </button>
+                    </span>
+                    <!-- <a
+                        style="
+                          border: none;
+                          background: transparent;
+                          padding: 0;
+                          margin-right: 3px;
+                          cursor: pointer;
+                        "
+                        data-bs-toggle="tooltip"
+                        data-placement="top"
+                        id="assign-button"
+                        title="Reassign"
+                        (click)="StaffReasignList(plan)"
+                        > -->
+
+                    <a
+                      *ngIf="
+                        plan.custServMappingStatus.toLowerCase() ===
+                        'newactivation'
+                      "
+                      class="detailOnAnchorClick"
+                      title="Workflow Status Details"
+                      (click)="
+                        openAddWorkFlow(
+                          'custauditWorkflowModalService',
+                          plan['customerServiceMappingId']
+                        )
+                      "
+                    >
+                      <img
+                        width="32"
+                        height="32"
+                        src="assets/img/05_inventory-to-customer_Y.png"
+                      />
+                    </a>
+                    <a
+                      *ngIf="
+                        plan.custServMappingStatus.toLowerCase() !==
+                        'newactivation'
+                      "
+                      class="detailOnAnchorClick"
+                      title="Workflow Status Details"
+                      (click)="
+                        openEditWorkFlow(
+                          'custauditWorkflowModalService',
+                          plan['customerServiceMappingId']
+                        )
+                      "
+                    >
+                      <img
+                        width="32"
+                        height="32"
+                        src="assets/img/05_inventory-to-customer_Y.png"
+                      />
+                    </a>
+                    <a
+                      class="detailOnAnchorClick"
+                      title="Audit Details"
+                      (click)="openAudit(plan['customerServiceMappingId'])"
+                    >
+                      <img
+                        width="32"
+                        height="32"
+                        src="assets/img/05_inventory-to-customer_Y.png"
+                      />
+                    </a>
+                    <button
+                      class="approve-btn"
+                      style="
+                        border: none;
+                        background: transparent;
+                        padding: 0;
+                        margin-right: 3px;
+                      "
+                      [disabled]="
+                        plan.custServMappingStatus.toLowerCase() == 'ACTIVE'
+                      "
+                      title="Re-activate"
+                      *ngIf="
+                        plan.custServMappingStatus.toLowerCase() ==
+                        'activationpending'
+                      "
+                      (click)="reActivate(plan)"
+                    >
+                      <img
+                        width="32"
+                        height="32"
+                        src="assets/img/refresh.png"
+                      />
+                    </button>
+                    <!-- <button
+                  type="button"
+                  class="approve-btn"
+                  *ngIf="
+                    plan.custPlanStatus.toLowerCase() === 'active' &&
+                    plan.custPlanStatus.toLowerCase() != 'disable'
+                  "
+                  title="Service Hold Resume"
+                  (click)="openPaushSearviceMedel(plan, 'Pause')"
+                  [disabled]="plan.invoiceType == 'Group'"
+                >
+                  <img src="assets/img/03_Pause-&-Resume.png" />
+                </button> -->
+                    <!-- <button
+                  type="button"
+                  class="approve-btn"
+                  title="Service Hold Resume"
+                  *ngIf="
+                    plan.custPlanStatus.toLowerCase() != 'disable' &&
+                    plan.custPlanStatus.toLowerCase() === 'hold'
+                  "
+                  (click)="openPaushSearviceMedel(plan, 'Start')"
+                  [disabled]="plan.invoiceType == 'Group'"
+                >
+                  <img src="assets/img/03_Pause-&-Resume.png" />
+                </button> -->
+                    <!-- <button
+                  class="curson_pointer approve-btn"
+                  style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                  title="Service Stop"
+                  type="button"
+                  (click)="openPaushSearviceMedel(plan, 'Stop')"
+                  [disabled]="
+                    plan.custServMappingStatus.toLowerCase() === 'terminate' ||
+                    plan.custPlanStatus.toLowerCase() === 'stop' ||
+                    plan.custPlanStatus.toLowerCase() == 'disable'
+                  "
+                >
+                  <img src="assets/img/04_Service-Stop.png" />
+                </button> -->
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <!-- <div class="pagination_Dropdown">
+          <pagination-controls
+            id="custCurrentPlanListData"
+            maxSize="10"
+            directionLinks="true"
+            previousLabel=""
+            nextLabel=""
+            (pageChange)="pageChangedcustomerCurrentPlanListData($event)"
+          >
+          </pagination-controls>
+          <div id="itemPerPageDropdown">
+            <p-dropdown
+              [options]="pageLimitOptions"
+              optionLabel="value"
+              optionValue="value"
+              (onChange)="TotalCurrentPlanItemPerPage($event)"
+            ></p-dropdown>
+          </div>
+        </div> -->
+          </div>
+          <div class="table-responsive" *ngIf="custCurrentPlanList.length == 0">
+            Details are not available.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<app-workflow-audit-details-modal
+  *ngIf="ifModelIsShow"
+  [auditcustid]="auditcustid"
+  dialogId="custauditWorkflowModal"
+  (closeParentCustt)="closeParentCustt()"
+></app-workflow-audit-details-modal>
+
+<div class="modal fade" id="addServiceModal" role="dialog">
+  <div class="modal-dialog" style="width: 75%">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="panel-title">Create Service</h3>
+      </div>
+      <div class="modal-body">
+        <fieldset>
+          <legend>Plan Details</legend>
+          <div class="boxWhite">
+            <form [formGroup]="serviceForm">
+              <div class="row m-b-10">
+                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 top">
+                  <label>Plan Category</label>
+                  <p-dropdown
+                    [options]="planDetailsCategory"
+                    optionValue="value"
+                    optionLabel="label"
+                    [filter]="true"
+                    filterBy="label"
+                    formControlName="planCategory"
+                    placeholder="Select a Plan Group"
+                    [disabled]="true"
+                  >
+                  </p-dropdown>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 top">
+                  <label>Bill To</label>
+                  <p-dropdown
+                    [options]="commondropdownService.billToData"
+                    placeholder="Select Bill To"
+                    optionValue="value"
+                    optionLabel="text"
+                    [filter]="true"
+                    filterBy="text"
+                    formControlName="billTo"
+                    [disabled]="true"
+                  >
+                  </p-dropdown>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                  <label>Billable To</label>
+                  <br />
+                  <p-dropdown
+                    [disabled]="true"
+                    [options]="billableCusList"
+                    [showClear]="true"
+                    [filter]="true"
+                    filterBy="name"
+                    formControlName="billableCustomerId"
+                    optionLabel="name"
+                    optionValue="id"
+                    placeholder="Select a Billable"
+                    styleClass="disableDropdown"
+                  ></p-dropdown>
+                  <button
+                    type="button"
+                    (click)="modalOpenParentCustomer()"
+                    class="btn btn-primary"
+                    style="
+                      border-radius: 5px;
+                      padding: 5px 10px;
+                      line-height: 1.5;
+                      margin-left: 10px;
+                    "
+                  >
+                    <i class="fa fa-plus-square"></i>
+                  </button>
+                  <button
+                    class="btn btn-danger"
+                    style="
+                      border-radius: 5px;
+                      padding: 5px 10px;
+                      line-height: 1.5;
+                      margin-left: 10px;
+                    "
+                    (click)="removeSelParentCust()"
+                  >
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </div>
+                <!-- <div
+                  class="col-lg-3 col-md-3 col-sm-6 col-xs-12 top"
+                  *ngIf="serviceForm.controls.plangroupid.enabled && isPlanCategoryGroup"
+                >
+                  <label>Plan Group</label>
+                  <p-dropdown
+                    [options]="planGroup"
+                    optionValue="planGroupId"
+                    optionLabel="planGroupName"
+                    filter="true"
+                    filterBy="planGroupName"
+                    placeholder="Select a Plan Group"
+                    formControlName="plangroupid"
+                  ></p-dropdown>
+                </div> -->
+                <!-- <div
+                  class="col-lg-3 col-md-3 col-sm-6 col-xs-12 top"
+                  *ngIf="
+                    serviceForm.controls.discount.enabled && serviceForm.value.billTo !== 'ORGANIZATION && isPlanCategoryGroup'
+                  "
+                >
+                  <label>Discount (%)</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    name="discount"
+                    id="discount"
+                    placeholder="Enter a Discount "
+                    formControlName="discount"
+                    readonly
+                  />
+                </div> -->
+                <div
+                  class="col-lg-3 col-md-3 col-sm-6 col-xs-12 top"
+                  *ngIf="serviceForm.controls[isInvoiceToOrg].enabled"
+                >
+                  <label>Invoice To Org:</label>
+                  <p-dropdown
+                    [options]="isInvoiceData"
+                    placeholder="Select Invoice to org or not"
+                    optionValue="value"
+                    optionLabel="label"
+                    formControlName="isInvoiceToOrg"
+                    [disabled]="true"
+                  >
+                  </p-dropdown>
+                </div>
+                <!-- <div
+                  *ngIf="serviceForm.value.billTo !== 'ORGANIZATION' && isPlanCategoryGroup"
+                  class="col-lg-2 col-md-2 col-sm-6 col-xs-12"
+                >
+                  <div class="form-group form-check inputcheckboxCenter">
+                    <input formControlName="istrialplan" type="checkbox" class="inputcheckbox" />
+                    <label
+                      class="form-check-label"
+                      for="acceptTerms"
+                      style="margin-left: 1rem; margin-bottom: 0"
+                      >Trial Plan
+                    </label>
+                  </div>
+                </div> -->
+              </div>
+
+              <div
+                class="row"
+                [formGroup]="planGroupForm"
+                *ngIf="
+                  !isPlanCategoryGroup && servicePlanFormArray.value.length == 0
+                "
+                style="margin-top: 2.5rem"
+              >
+                <div class="col-lg-10 col-md-10 col-sm-12 col-xs-12">
+                  <div class="row">
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                      <p-dropdown
+                        [options]="serviceAreaBYserviceList"
+                        optionValue="name"
+                        optionLabel="name"
+                        [filter]="true"
+                        filterBy="name"
+                        placeholder="Select a Service *"
+                        (onChange)="serviceBasePlanDATA($event)"
+                        formControlName="service"
+                      ></p-dropdown>
+                      <div
+                        class="errorWrap text-danger"
+                        *ngIf="
+                          plansubmitted && planGroupForm.controls['service'].errors
+                        "
+                      >
+                        <div class="error text-danger">
+                          Service is required.
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                      <p-dropdown
+                        [options]="plantypaSelectData"
+                        optionValue="id"
+                        optionLabel="name"
+                        [filter]="true"
+                        filterBy="name"
+                        placeholder="Select a Plan *"
+                        formControlName="planId"
+                        (onChange)="getPlanValidity($event)"
+                        [ngClass]="{
+                          'is-invalid':
+                            plansubmitted &&
+                            planGroupForm.controls['planId'].errors
+                        }"
+                      ></p-dropdown>
+                      <div
+                        class="errorWrap text-danger"
+                        *ngIf="
+                          plansubmitted && planGroupForm.controls['planId'].errors
+                        "
+                      >
+                        <div class="error text-danger">Plan is required.</div>
+                      </div>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                      <div style="display: flex">
+                        <div style="width: 40%">
+                          <input
+                            id="validity"
+                            type="number"
+                            min="1"
+                            class="form-control"
+                            placeholder="Enter Validity"
+                            formControlName="validity"
+                            readonly
+                          />
+                        </div>
+                        <div style="width: 60%; height: 34px">
+                          <select
+                            class="form-control"
+                            style="width: 100%"
+                            formControlName="validityUnit"
+                            [disabled]="true"
+                          >
+                            <option value="">Select Unit</option>
+                            <option
+                              *ngFor="
+                                let label of commondropdownService.validityUnitData
+                              "
+                              value="{{ label.label }}"
+                            >
+                              {{ label.label }}
+                            </option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      *ngIf="
+                        serviceForm.value.parentCustomerId != null &&
+                        serviceForm.value.parentCustomerId != ''
+                      "
+                      class="col-lg-3 col-md-3 col-sm-6 col-xs-12"
+                    >
+                      <p-dropdown
+                        [ngClass]="{
+                          'is-invalid':
+                            plansubmitted &&
+                            planGroupForm.controls['invoiceType'].errors
+                        }"
+                        [options]="invoiceTypes"
+                        formControlName="invoiceType"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Select a Invoice Type"
+                      ></p-dropdown>
+                      <div
+                        *ngIf="
+                          plansubmitted &&
+                          planGroupForm.controls['invoiceType'].errors
+                        "
+                        class="errorWrap text-danger"
+                      >
+                        <div class="error text-danger">
+                          Invoice Type is required.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                      <div style="display: flex">
+                        <input
+                          id="offerprice"
+                          type="number"
+                          class="form-control"
+                          placeholder="Old Offerprice"
+                          formControlName="offerprice"
+                          readonly
+                        />
+                      </div>
+                    </div>
+                    <div
+                      *ngIf="serviceForm.value.billTo !== 'ORGANIZATION'"
+                      class="col-lg-3 col-md-3 col-sm-6 col-xs-12"
+                    >
+                      <p-dropdown
+                        [options]="chargeType"
+                        [filter]="true"
+                        filterBy="label"
+                        formControlName="discountType"
+                        optionLabel="label"
+                        optionValue="label"
+                        placeholder="Select a Discount Type"
+                        [(ngModel)]="discountType"
+                      ></p-dropdown>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                      <input
+                        type="number"
+                        class="form-control"
+                        name="discount"
+                        id="discount"
+                        placeholder="Discount %"
+                        formControlName="discount"
+                        [ngClass]="{
+                          'is-invalid':
+                            plansubmitted &&
+                            planGroupForm.controls['discount'].errors
+                        }"
+                      />
+                      <div
+                        class="errorWrap text-danger"
+                        *ngIf="planGroupForm.controls['discount'].errors"
+                      >
+                        <div
+                          class="error text-danger"
+                          *ngIf="planGroupForm.controls['discount'].errors?.['max']"
+                        >
+                          Maximum 99 Percentage allowed.
+                        </div>
+                      </div>
+                      <div
+                        class="errorWrap text-danger"
+                        *ngIf="
+                          plansubmitted &&
+                          planGroupForm.controls['discount'].errors
+                        "
+                      >
+                        <div class="error text-danger">
+                          Discount is required.
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      *ngIf="
+                        serviceForm.value.billTo !== 'ORGANIZATION' &&
+                        planGroupForm.value.discountType === 'Recurring'
+                      "
+                      class="col-lg-3 col-md-3 col-sm-6 col-xs-12"
+                    >
+                      <p-calendar
+                        [hideOnDateTimeSelect]="true"
+                        [showButtonBar]="true"
+                        [showIcon]="true"
+                        [style]="{ width: '100%' }"
+                        dateFormat="dd/mm/yy"
+                        [minDate]="dateTime"
+                        formControlName="discountExpiryDate"
+                        placeholder="Enter Discount Expiry Date"
+                      ></p-calendar>
+                    </div>
+                    <div
+                      *ngIf="serviceForm.value.billTo !== 'ORGANIZATION'"
+                      class="col-lg-3 col-md-3 col-sm-6 col-xs-12"
+                    >
+                      <div class="form-group form-check inputcheckboxCenter">
+                        <input
+                          formControlName="istrialplan"
+                          type="checkbox"
+                          class="inputcheckbox"
+                        />
+                        <label
+                          class="form-check-label"
+                          for="acceptTerms"
+                          style="margin-left: 1rem; margin-bottom: 0"
+                          >Trial Plan
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="col-lg-2 col-md-2 col-sm-12 col-xs-12"
+                  style="text-align: center"
+                >
+                  <button
+                    style="object-fit: cover; padding: 5px 8px"
+                    class="btn btn-primary"
+                    (click)="onAddPlanServiceField()"
+                  >
+                    <i class="fa fa-plus-square" aria-hidden="true"></i>
+                    Add
+                  </button>
+                </div>
+              </div>
+              <table
+                class="table coa-table"
+                style="margin-top: 3rem"
+                *ngIf="!isPlanCategoryGroup"
+              >
+                <thead>
+                  <tr>
+                    <th>Service*</th>
+                    <th>Plan*</th>
+                    <th>Validity*</th>
+                    <th>offerPrice*</th>
+                    <th *ngIf="serviceForm.value.billTo !== 'ORGANIZATION'">
+                      Discount Type
+                    </th>
+                    <th *ngIf="serviceForm.value.billTo !== 'ORGANIZATION'">
+                      Discount (%)*
+                    </th>
+                    <th *ngIf="serviceForm.value.billTo !== 'ORGANIZATION'">
+                      Discount Expiry Date
+                    </th>
+                    <th
+                      *ngIf="
+                        serviceForm.value.parentCustomerId != null &&
+                        serviceForm.value.parentCustomerId != ''
+                      "
+                    >
+                      Invoice Type
+                    </th>
+                    <th *ngIf="serviceForm.value.billTo !== 'ORGANIZATION'">
+                      Trial plan
+                    </th>
+
+                    <th>Delete</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="
+                      let row of servicePlanFormArray.controls
+                        | paginate
+                          : {
+                              id: 'servicePlanFromArrayData',
+                              itemsPerPage: servicePlanItemPerPage,
+                              currentPage: currentPageServicePlan,
+                              totalItems: servicePlantotalRecords
+                            };
+                      let index = index
+                    "
+                  >
+                    <td style="padding-left: 8px">
+                      <!-- {{row.value.service}} -->
+                      <select
+                        class="form-control"
+                        style="width: 100%"
+                        name="service"
+                        id="service"
+                        [formControl]="getControl(row, 'service')"
+
+                        [disabled]="true"
+                      >
+                        <option value="">Select Service</option>
+                        <option
+                          *ngFor="
+                            let item of commondropdownService.planserviceData
+                          "
+                          value="{{ item.name }}"
+                        >
+                          {{ item.name }}
+                        </option>
+                      </select>
+                    </td>
+                    <td>
+                      <!-- {{row.value.planId}} -->
+                      <select
+                        class="form-control"
+                        style="width: 100%"
+                        name="planId"
+                        id="planId"
+                        [formControl]="getControl(row, 'planId')"
+                        [disabled]="true"
+                      >
+                        <option value="">Select Plan</option>
+                        <option
+                          *ngFor="
+                            let item of commondropdownService.postpaidplanData
+                          "
+                          value="{{ item.id }}"
+                        >
+                          {{ item.name }}
+                        </option>
+                      </select>
+                    </td>
+                    <td>
+                      <div style="display: flex">
+                        <div style="width: 40%">
+                          <input
+                            id="validity"
+                            type="number"
+                            min="1"
+                            class="form-control"
+                            placeholder="Enter Validity"
+                            [formControl]="getControl(row, 'validity')"
+                            readonly
+                          />
+                        </div>
+                        <div style="width: 60%; height: 34px">
+                          <span>
+                            <select
+                              class="form-control"
+                              style="width: 100%"
+                              [formControl]="getControl(row, 'validityUnit')"
+                              [disabled]="true"
+                            >
+                              <option value="">Select Unit</option>
+                              <option
+                                *ngFor="
+                                  let label of commondropdownService.validityUnitData
+                                "
+                                value="{{ label.label }}"
+                              >
+                                {{ label.label }}
+                              </option>
+                            </select>
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        class="form-control"
+                        name="offerPrice"
+                        id="offerPrice"
+                        placeholder="Enter a OfferPrice *"
+                        [formControl]="getControl(row, 'offerprice')"
+                        readonly
+                      />
+                    </td>
+                    <td *ngIf="serviceForm.value.billTo !== 'ORGANIZATION'">
+                      <p-dropdown
+                        [options]="chargeType"
+                        [filter]="true"
+                        filterBy="label"
+                        [formControl]="getControl(row, 'discountType')"
+                        optionLabel="label"
+                        optionValue="label"
+                        placeholder="Select a Discount Type"
+                      ></p-dropdown>
+                    </td>
+                    <td *ngIf="serviceForm.value.billTo !== 'ORGANIZATION'">
+                      <input
+                        type="number"
+                        class="form-control"
+                        name="discount"
+                        id="discount"
+                        placeholder="Enter a Discount *"
+                        [formControl]="getControl(row, 'discount')"
+                        readonly
+                      />
+                    </td>
+                    <td
+                      *ngIf="
+                        serviceForm.value.billTo !== 'ORGANIZATION' &&
+                        row.value.discountType === 'Recurring'
+                      "
+                    >
+                      <p-calendar
+                        [hideOnDateTimeSelect]="true"
+                        [showButtonBar]="true"
+                        [showIcon]="true"
+                        [style]="{ width: '100%' }"
+                        dateFormat="dd/mm/yy"
+                        [minDate]="dateTime"
+                        [formControl]="getControl(row, 'discountExpiryDate')"
+                        placeholder="Enter Discount Expiry Date"
+                      ></p-calendar>
+                    </td>
+                    <td
+                      *ngIf="
+                        serviceForm.value.parentCustomerId != null &&
+                        serviceForm.value.parentCustomerId != ''
+                      "
+                    >
+                      <select
+                        [formControl]="getControl(row, 'invoiceType')"
+                        class="form-control"
+                        [disabled]=""
+                        id="invoiceType"
+                        name="invoiceType"
+                        style="width: 100%"
+                      >
+                        <option value="">Select Service</option>
+                        <option
+                          *ngFor="let item of invoiceTypes"
+                          value="{{ item.value }}"
+                        >
+                          {{ item.label }}
+                        </option>
+                      </select>
+                    </td>
+                    <td *ngIf="serviceForm.value.billTo !== 'ORGANIZATION'">
+                      <input
+                        [formControl]="getControl(row, 'istrialplan')"
+                        type="checkbox"
+                        class="inputcheckbox"
+                      />
+                    </td>
+                    <td>
+                      <a
+                        id="deleteAtt"
+                        href="javascript:void(0)"
+                        (click)="deleteConfirmonChargeField(index)"
+                      >
+                        <img src="assets/img/ioc02.jpg" />
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="row" *ngIf="!isPlanCategoryGroup">
+                <div class="col-md-12">
+                  <pagination-controls
+                    id="servicePlanFromArrayData"
+                    [maxSize]="5"
+                    [directionLinks]="true"
+                    previousLabel=""
+                    nextLabel=""
+                    (pageChange)="pageChangedPlanService($event)"
+                  >
+                  </pagination-controls>
+                </div>
+              </div>
+            </form>
+          </div>
+        </fieldset>
+      </div>
+      <div
+        class="modal-footer"
+        style="display: flex; justify-content: flex-end"
+      >
+        <div class="addUpdateBtn">
+          <button
+            type="button"
+            class="btn btn-primary btn-sm"
+            (click)="addPlanService()"
+          >
+            Save
+          </button>
+        </div>
+        <div class="addUpdateBtn" style="margin-left: 1.5rem">
+          <button
+            type="button"
+            class="btn btn-danger btn-sm"
+            #closebutton
+            data-dismiss="modal"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  aria-labelledby="myModalLabel"
+  class="modal fade"
+  id="StopServiceModal"
+  role="dialog"
+  tabindex="-1"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button
+          aria-label="Close"
+          class="close"
+          data-dismiss="modal"
+          type="button"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4
+          class="modal-title"
+          id="myModalLabel"
+          style="color: #fff !important"
+        >
+          {{ ifselecResonType }} Reason
+        </h4>
+      </div>
+      <div class="modal-body">
+        <div
+          class="row"
+          *ngIf="
+            ifselecResonType == 'Pause' ||
+            ifselecResonType == 'Delete' ||
+            ifselecResonType == 'Stop'
+          "
+        >
+          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <label>Deactivate Reason</label>
+            <p-dropdown
+              [options]="deactiveDataList"
+              optionValue="value"
+              optionLabel="text"
+              [filter]="true"
+              filterBy="text"
+              placeholder="Select a Reason *"
+              [(ngModel)]="selectDeactivateReason"
+            ></p-dropdown>
+          </div>
+        </div>
+        <div class="row">
+          <div
+            class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
+            style="margin-top: 20px"
+          >
+            <label>Remark*</label>
+            <textarea
+              class="form-control"
+              name="remark"
+              [(ngModel)]="serviceStropRemarks"
+            ></textarea>
+            <!-- <div
+              *ngIf="assignDiscounsubmitted && assignAppRejectDiscountForm.controls.remark.errors"
+              class="errorWrap text-danger"
+            >
+              <div
+                *ngIf="
+                  assignDiscounsubmitted &&
+                  assignAppRejectDiscountForm.controls.remark.errors.required
+                "
+                class="error text-danger"
+              >
+                Remark is required.
+              </div>
+            </div> -->
+            <br />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          *ngIf="ifselecResonType == 'Pause'"
+          (click)="pauseService()"
+          [disabled]="
+            selectDeactivateReason == '' || serviceStropRemarks === ''
+          "
+          class="btn btn-primary"
+          id="submit"
+          type="submit"
+        >
+          <i class="fa fa-check-circle"></i>
+          Save
+        </button>
+        <button
+          *ngIf="ifselecResonType == 'Start'"
+          (click)="playService()"
+          [disabled]="serviceStropRemarks == ''"
+          class="btn btn-primary"
+          id="submit"
+          type="submit"
+        >
+          <i class="fa fa-check-circle"></i>
+          Save
+        </button>
+        <button
+          *ngIf="ifselecResonType == 'Stop'"
+          (click)="serviceStop()"
+          [disabled]="serviceStropRemarks == ''"
+          class="btn btn-primary"
+          id="submit"
+          type="submit"
+        >
+          <i class="fa fa-check-circle"></i>
+          Save
+        </button>
+        <button
+          *ngIf="ifselecResonType == 'Delete'"
+          (click)="deleteServicePlanData()"
+          [disabled]="selectDeactivateReason == '' && serviceStropRemarks == ''"
+          class="btn btn-primary"
+          id="submit"
+          type="submit"
+        >
+          Delete
+        </button>
+
+        <button class="btn btn-default" data-dismiss="modal" type="button">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p-dialog
+  header="Select Customer"
+  [(visible)]="displaySelectParentCustomer"
+  [style]="{ width: '60%' }"
+  [modal]="true"
+>
+  <ng-template pTemplate="content">
+    <h5>Search Parent Customer</h5>
+    <div class="row">
+      <div class="col-lg-3 col-md-3 m-b-10">
+        <p-dropdown
+          [(ngModel)]="searchParentCustOption"
+          [options]="searchOptionSelect"
+          [filter]="true"
+          [filterBy]="'label'"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select a Search Option"
+          (onChange)="selParentSearchOption($event)"
+        ></p-dropdown>
+      </div>
+      <div
+        *ngIf="
+          parentFieldEnable &&
+          searchParentCustOption !== 'status' &&
+          searchParentCustOption !== 'serviceareaName' &&
+          searchParentCustOption !== 'plan'
+        "
+        class="col-lg-3 col-md-3 m-b-10"
+      >
+        <input
+          [(ngModel)]="searchParentCustValue"
+          class="form-control"
+          id="username"
+          placeholder="Enter Search Detail"
+          type="text"
+          (keydown.enter)="searchParentCustomer()"
+        />
+      </div>
+      <div
+        class="col-lg-3 col-md-3 m-b-10"
+        *ngIf="searchParentCustOption === 'status'"
+      >
+        <p-dropdown
+          [(ngModel)]="searchParentCustValue"
+          [options]="commondropdownService.CustomerStatusValue"
+          [filter]="true"
+          [filterBy]="'text'"
+          optionValue="value"
+          optionLabel="text"
+          placeholder="Select a Status"
+        ></p-dropdown>
+      </div>
+      <div
+        class="col-lg-3 col-md-3 m-b-10"
+        *ngIf="searchParentCustOption === 'serviceareaName'"
+      >
+        <p-dropdown
+          [(ngModel)]="searchParentCustValue"
+          [options]="commondropdownService.serviceAreaList"
+          [filter]="true"
+          [filterBy]="'name'"
+          optionValue="id"
+          optionLabel="name"
+          placeholder="Select a Servicearea"
+        ></p-dropdown>
+      </div>
+      <div
+        class="col-lg-3 col-md-3 m-b-10"
+        *ngIf="searchParentCustOption === 'plan'"
+      >
+        <p-dropdown
+          [(ngModel)]="searchParentCustValue"
+          [options]="commondropdownService.postpaidplanData"
+          [filter]="true"
+          [filterBy]="'name'"
+          optionValue="id"
+          optionLabel="name"
+          placeholder="Select a Plan"
+        ></p-dropdown>
+      </div>
+      <div *ngIf="parentFieldEnable" class="col-lg-6 col-md-6 col-sm-12">
+        <button
+          (click)="searchParentCustomer()"
+          class="btn btn-primary"
+          type="button"
+        >
+          <i class="fa fa-search"></i>
+          Search
+        </button>
+        <button
+          (click)="clearSearchParentCustomer()"
+          class="btn btn-default"
+          type="button"
+        >
+          <i class="fa fa-refresh"></i>
+          Clear
+        </button>
+      </div>
+    </div>
+    <h5 style="margin-top: 15px">Select Parent Customer</h5>
+    <div style="overflow-x: auto">
+      <p-table
+        #dt
+        [value]="prepaidParentCustomerList"
+        [selection]="selectedParentCust"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 5rem"></th>
+            <th>Name</th>
+            <th>User Name</th>
+          </tr>
+        </ng-template>
+        <ng-template
+          pTemplate="body"
+          let-prepaidParentCustomerList
+          let-rowIndex="rowIndex"
+        >
+          <tr>
+            <td>
+              <p-tableRadioButton
+                [value]="prepaidParentCustomerList"
+              ></p-tableRadioButton>
+            </td>
+            <td>{{ prepaidParentCustomerList.name }}</td>
+            <td>{{ prepaidParentCustomerList.username }}</td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="summary">
+          <p-paginator
+            [rows]="parentCustomerListdataitemsPerPage"
+            [totalRecords]="parentCustomerListdatatotalRecords"
+            (onPageChange)="paginate($event)"
+            [first]="newFirst"
+          ></p-paginator>
+        </ng-template>
+      </p-table>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <div class="addUpdateBtn">
+      <button
+        (click)="saveSelCustomer()"
+        [disabled]="selectedParentCust.length === 0"
+        class="btn btn-primary"
+        style="object-fit: cover; padding: 5px 8px"
+      >
+        <i class="fa fa-check-circle"></i>
+        Save
+      </button>
+      <button
+        (click)="modalCloseParentCustomer()"
+        class="btn btn-danger btn-sm"
+        type="button"
+      >
+        Close
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<div
+  aria-labelledby="myModalLabel"
+  class="modal fade"
+  id="assignApporvePlanModal"
+  role="dialog"
+  tabindex="-1"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button
+          aria-label="Close"
+          class="close"
+          data-dismiss="modal"
+          type="button"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4
+          class="modal-title"
+          id="myModalLabel"
+          style="color: #fff !important"
+        >
+          Approve Plan
+        </h4>
+      </div>
+      <div class="modal-body" style="margin: 10px">
+        <form [formGroup]="assignPlanForm">
+          <div class="row">
+            <div class="row">
+              <div
+                *ngIf="approved"
+                class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
+              >
+                <div class="card">
+                  <h5>Select Staff</h5>
+                  <p-table
+                    [(selection)]="selectStaff"
+                    [value]="approvePlanData"
+                    responsiveLayout="scroll"
+                  >
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <th style="width: 3rem"></th>
+                        <th>Name</th>
+                        <th>Username</th>
+                      </tr>
+                    </ng-template>
+                    <ng-template let-product pTemplate="body">
+                      <tr>
+                        <td>
+                          <p-tableRadioButton
+                            [value]="product.id"
+                          ></p-tableRadioButton>
+                        </td>
+                        <td>{{ product.fullName }}</td>
+                        <td>
+                          {{ product.username }}
+                        </td>
+                      </tr>
+                    </ng-template>
+                  </p-table>
+                </div>
+              </div>
+              <div
+                *ngIf="!approved"
+                class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
+              >
+                <label>Remark*</label>
+                <textarea
+                  [ngClass]="{
+                    'is-invalid':
+                      assignPlansubmitted &&
+                      assignPlanForm.controls['remark'].errors
+                  }"
+                  class="form-control"
+                  formControlName="remark"
+                  name="remark"
+                ></textarea>
+                <div
+                  *ngIf="
+                    assignPlansubmitted && assignPlanForm.controls[remark].errors
+                  "
+                  class="errorWrap text-danger"
+                >
+                  <div
+                    *ngIf="
+                      assignPlansubmitted &&
+                      assignPlanForm.controls[remark].errors?.['required']
+                    "
+                    class="error text-danger"
+                  >
+                    Remark is required.
+                  </div>
+                </div>
+              </div>
+              <br />
+            </div>
+          </div>
+          <!-- <input type="file" formControlName="fileName" name="fileName"> -->
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button
+          (click)="assignPlan()"
+          *ngIf="!approved"
+          class="btn btn-primary"
+          id="submit"
+          type="submit"
+        >
+          <i class="fa fa-check-circle"></i>
+          Approve
+        </button>
+        <button
+          (click)="assignToStaff(true)"
+          *ngIf="approved"
+          class="btn btn-primary"
+          id="submitButtonForApprove"
+          type="submit"
+        >
+          <i class="fa fa-check-circle"></i>
+          Assign
+        </button>
+        <button class="btn btn-default" data-dismiss="modal" type="button">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  aria-labelledby="myModalLabel"
+  class="modal fade"
+  id="rejectPlanModal"
+  role="dialog"
+  tabindex="-1"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button
+          aria-label="Close"
+          class="close"
+          data-dismiss="modal"
+          type="button"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4
+          class="modal-title"
+          id="myModalLabel"
+          style="color: #fff !important"
+        >
+          Reject Plan
+        </h4>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="rejectPlanForm">
+          <div class="row">
+            <div *ngIf="reject" class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+              <div class="card">
+                <h5>Select Staff</h5>
+                <p-table
+                  [(selection)]="selectStaffReject"
+                  [value]="rejectPlanData"
+                  responsiveLayout="scroll"
+                >
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <th style="width: 3rem"></th>
+                      <th>Name</th>
+                      <th>Username</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template let-product pTemplate="body">
+                    <tr>
+                      <td>
+                        <p-tableRadioButton
+                          [value]="product.id"
+                        ></p-tableRadioButton>
+                      </td>
+                      <td>{{ product.fullName }}</td>
+                      <td>
+                        {{ product.username }}
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
+            </div>
+            <div
+              *ngIf="!reject"
+              class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
+            >
+              <label>Remark*</label>
+              <textarea
+                [ngClass]="{
+                  'is-invalid':
+                    rejectPlanSubmitted && rejectPlanForm.controls['remark'].errors
+                }"
+                class="form-control"
+                formControlName="remark"
+                name="remark"
+              ></textarea>
+              <div
+                *ngIf="
+                  rejectPlanSubmitted && rejectPlanForm.controls['remark'].errors
+                "
+                class="errorWrap text-danger"
+              >
+                <div
+                  *ngIf="
+                    rejectPlanSubmitted &&
+                    rejectPlanForm.controls['remark'].errors?.['required']
+                  "
+                  class="error text-danger"
+                >
+                  Remark is required.
+                </div>
+              </div>
+            </div>
+            <br />
+          </div>
+          <!-- <input type="file" formControlName="fileName" name="fileName"> -->
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button
+          (click)="rejectPlan()"
+          *ngIf="!reject"
+          class="btn btn-primary"
+          id="submit"
+          type="submit"
+        >
+          <i class="fa fa-times-circle"></i>
+          Reject
+        </button>
+        <button
+          (click)="assignToStaff(false)"
+          *ngIf="reject && !selectStaffReject"
+          class="btn btn-primary"
+          disabled
+          id="submit"
+          type="submit"
+        >
+          <i class="fa fa-times-circle"></i>
+          Assign
+        </button>
+        <button
+          (click)="assignToStaff(false)"
+          *ngIf="reject && selectStaffReject"
+          class="btn btn-primary"
+          id="submit"
+          type="submit"
+        >
+          <i class="fa fa-times-circle"></i>
+          Assign
+        </button>
+        <button class="btn btn-default" data-dismiss="modal" type="button">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div
+  class="modal fade"
+  id="reAssignPLANModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="myModalLabel"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4
+          class="modal-title"
+          id="myModalLabel"
+          style="color: #fff !important"
+        >
+          Approve Plan
+        </h4>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="assignPlanForm">
+          <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+              <div class="card">
+                <h5>Select Staff</h5>
+                <p-table
+                  [value]="approvableStaff"
+                  [(selection)]="selectStaff"
+                  responsiveLayout="scroll"
+                >
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <th style="width: 3rem"></th>
+                      <th>Name</th>
+                      <th>Username</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-product>
+                    <tr>
+                      <td>
+                        <p-tableRadioButton
+                          [value]="product.id"
+                        ></p-tableRadioButton>
+                      </td>
+                      <td>{{ product.fullName }}</td>
+                      <td>
+                        {{ product.username }}
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+              <label>Remark*</label>
+              <textarea
+                class="form-control"
+                name="remark"
+                formControlName="remark"
+                [ngClass]="{
+                  'is-invalid':
+                    assignPlansubmitted && assignPlanForm.controls['remark'].errors
+                }"
+              ></textarea>
+              <div
+                class="errorWrap text-danger"
+                *ngIf="
+                  assignPlansubmitted && assignPlanForm.controls['remark'].errors
+                "
+              >
+                <div
+                  class="error text-danger"
+                  *ngIf="
+                    assignPlansubmitted &&
+                    assignPlanForm.controls['remark'].errors?.['required']
+                  "
+                >
+                  Remark is required.
+                </div>
+              </div>
+              <br />
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="submit"
+          class="btn btn-primary"
+          id="submit"
+          (click)="reassignWorkflow()"
+        >
+          <i class="fa fa-check-circle"></i>
+          Assign
+        </button>
+
+        <button type="button" class="btn btn-default" data-dismiss="modal">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="auditDetails" role="dialog">
+  <div class="modal-dialog" style="width: 75%">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="panel-title">Audit Details</h3>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-12 col-md-12" style="margin-top: 3rem">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Action Date</th>
+                  <th>Action</th>
+                  <th>Staff name</th>
+                  <th>Action Reason</th>
+                  <th>Remark</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="
+                    let data of auditData
+                      | paginate
+                        : {
+                            id: 'auditModal',
+                            itemsPerPage: auditItemPerPage,
+                            currentPage: currentPageAuditList,
+                            totalItems: audittotalRecords
+                          };
+                    index as i
+                  "
+                >
+                  <td>
+                    {{ data.serviceStopTime | date : "yyyy-MM-dd hh:mm a" }}
+                  </td>
+                  <td>{{ data.action }}</td>
+                  <td>{{ data.staffName }}</td>
+                  <td>{{ data.reasonCategory }}</td>
+                  <td>{{ data.remarks }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <pagination-controls
+              (pageChange)="pageChangedauditList($event)"
+              [directionLinks]="true"
+              id="auditModal"
+              [maxSize]="10"
+              nextLabel=""
+              previousLabel=""
+            ></pagination-controls>
+          </div>
+        </div>
+      </div>
+      <div
+        class="modal-footer"
+        style="display: flex; justify-content: flex-end"
+      >
+        <div class="addUpdateBtn" style="margin-left: 1.5rem">
+          <button
+            #closebutton
+            (click)="auditCloseModal()"
+            class="btn btn-danger btn-sm"
+            data-dismiss="modal"
+            type="button"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<app-plan-connection-no
+  *ngIf="showPlanConnectionNo"
+  [planForConnection]="planForConnection"
+  (closeDialog)="closeDialog()"
+></app-plan-connection-no>

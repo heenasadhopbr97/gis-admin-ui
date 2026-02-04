@@ -1,0 +1,31 @@
+<div class="form-container">
+  <div class="form-header">
+    <h3>Add Network Element</h3>
+    <button class="close-btn" (click)="onClose()">&times;</button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="form-field" *ngIf="!showCableOption && !selectedFeatureDetails && !showRectangleOption">
+      <label for="layerSelect" style="font-size:14px">Select Layer:</label>
+      <select id="layerSelect" formControlName="layerSelect" (change)="onLayerChange()" class="form-select">
+        <option value="">-- Select a layer --</option>
+        <option value="fdp">FDP (Fiber Distribution Point)</option>
+        <option value="fat">FAT (Fiber Access Terminal)</option>
+        <option value="customerPoint">Customer Point</option>
+        <option value="building">Building</option>
+        <option value="fdc">FDC (Fiber Distribution Cabinet)</option>
+        <option value="splitter">Splitter</option>
+        <option value="pop">POP (Point of Presence)</option>
+        <option value="joint">Joint Closure</option>
+        <option value="pole">Pole</option>
+        <option value="manHole">Man Hole</option>
+        <option value="handHole">Hand Hole</option>
+      </select>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Submit</button>
+      <button type="button" class="btn btn-secondary" (click)="onClose()">Cancel</button>
+    </div>
+  </form>
+</div>

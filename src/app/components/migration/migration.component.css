@@ -1,0 +1,25 @@
+.custom {
+  display: flex;
+  justify-content: center;
+}
+
+.custommm {
+  display: flex;
+  justify-content: center;
+  margin-left: -6px;
+}
+
+.customm {
+  display: flex;
+  justify-content: center;
+  margin-right: 50px;
+  /* margin-right: 204px; */
+}
+
+.button-size {
+  font-size: 15px;
+  padding: 6px 41px;
+}
+:host ::ng-deep .p-dialog .p-dialog-header {
+  background: darkblue !important ;
+}

@@ -1,0 +1,122 @@
+<div class="row">
+  <div class="col-md-12 col-sm-12">
+    <div class="panel">
+      <div class="panel-heading">
+        <div class="displayflex">
+          <button
+            (click)="customerDetailOpen()"
+            class="btn btn-secondary backbtn"
+            data-placement="bottom"
+            data-bs-toggle="tooltip"
+            title="Go to Customer Details"
+            type="button"
+          >
+            <i
+              class="fa fa-arrow-circle-left"
+              style="color: darkblue !important; font-size: 28px"
+            ></i>
+          </button>
+          <h3 class="panel-title">
+            {{ custData.title }}
+            {{ custData.firstname }} {{ custData.lastname }} Dunnning Details
+          </h3>
+        </div>
+        <div class="right">
+          <button
+            aria-controls="custStatus"
+            aria-expanded="false"
+            class="btn-toggle-collapse"
+            data-bs-target="#custStatus"
+            data-bs-toggle="collapse"
+            type="button"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+      <div class="panel-collapse collapse show" id="custStatus">
+        <div class="panel-body table-responsive">
+          <div style="font-size: 2rem; margin-top: 20px">
+            Status :
+            <label style="width: 150px" class="switch">
+              <input
+                [disabled]="!dunningStatusAccess"
+                class="switch-input"
+                (click)="getDunningDisableEnable(custData.id, custData.isDunningEnable)"
+                [(ngModel)]="isDunningDisabled"
+                type="checkbox"
+                ng-model="view"
+                ng-true-value="Active"
+                ng-false-value="Inactive"
+                ng-checked="view == 'Active"
+              />
+              <div class="switch-button">
+                <span class="switch-button-left">Active</span>
+                <span class="switch-button-right">Inactive</span>
+              </div>
+            </label>
+          </div>
+          <div style="margin: 20px">
+            <h3>Dunning Audit</h3>
+            <div class="table-responsive">
+              <div class="row">
+                <div class="col-lg-12 col-md-12">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Dunning Date</th>
+                        <th>Event</th>
+                        <th>Operation</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        *ngFor="
+                          let dunning of DunningData
+                            | paginate
+                              : {
+                                  id: 'searchDunningPageData',
+                                  itemsPerPage: DunningitemsPerPage1,
+                                  currentPage: currentPageDunningSlab1,
+                                  totalItems: DunningtotalRecords1
+                                };
+                          index as i
+                        "
+                      >
+                        <td style="width: 5%">
+                          {{ dunning.dunningMessageDate | date: "dd/MM/yyyy" }}
+                        </td>
+                        <td style="width: 5%">{{ dunning.eventName }}</td>
+                        <td style="width: 5%">{{ dunning.action }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <br />
+                  <br />
+                  <div class="pagination_Dropdown">
+                    <pagination-controls
+                      (pageChange)="pageChangedMasterDunnningList($event)"
+                      [directionLinks]="true"
+                      id="searchDunningPageData"
+                      [maxSize]="10"
+                      nextLabel=""
+                      previousLabel=""
+                    ></pagination-controls>
+                    <div id="itemPerPageDropdown">
+                      <p-dropdown
+                        (onChange)="TotalItemPerPageDunningHistory($event)"
+                        [options]="pageLimitOptions"
+                        optionLabel="value"
+                        optionValue="value"
+                      ></p-dropdown>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

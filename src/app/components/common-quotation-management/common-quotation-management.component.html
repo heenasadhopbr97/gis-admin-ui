@@ -1,0 +1,1007 @@
+<div class="row" *ngIf="generateQuotationAccess">
+  <div class="col-md-12 col-sm-12">
+    <div class="panel">
+      <div class="panel-heading">
+        <div class="displayflex">
+          <button
+            type="button"
+            class="btn btn-secondary backbtn"
+            data-bs-toggle="tooltip"
+            data-placement="bottom"
+            title="Go to View Lead List"
+            (click)="backdetalisView()"
+          >
+            <i
+              class="fa fa-arrow-circle-left"
+              style="color: darkblue !important; font-size: 28px"
+            ></i>
+          </button>
+          <h3 class="panel-title">Quatation Management</h3>
+        </div>
+        <div class="right">
+          <button
+            type="button"
+            class="btn-toggle-collapse"
+            data-bs-toggle="collapse"
+            data-bs-target="#genrateLeadID"
+            aria-expanded="false"
+            aria-controls="genrateLeadID"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+      <div id="genrateLeadID" class="panel-collapse collapse show">
+        <div class="panel-body">
+          <form [formGroup]="quotatationFormGroup">
+            <div class="row">
+              <div class="col-lg-3 col-md-3 col-sm-3">
+                <label>Circuit *</label>
+                <p-multiSelect
+                  [options]="this.serviceList"
+                  optionValue="id"
+                  optionLabel="leaseCircuitName"
+                  [filter]="true"
+                  filterBy="leaseCircuitName"
+                  placeholder="Select a Circuit"
+                  formControlName="leadServiceMappingIdList"
+                ></p-multiSelect>
+                <div></div>
+                <div
+                  class="errorWrap text-danger"
+                  *ngIf="submitted && quotatationFormGroup.controls['leadServiceMappingIdList'].errors"
+                >
+                  <div
+                    class="error text-danger"
+                    *ngIf="
+                      submitted &&
+                      quotatationFormGroup.controls['leadServiceMappingIdList'].errors['required']
+                    "
+                  >
+                    Circuit is required.
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-3 col-sm-3">
+                <label>Quotation validity *</label>
+                <div style="display: flex">
+                  <div style="width: 60%">
+                    <input
+                      [ngClass]="{
+                        'is-invalid': submitted && quotatationFormGroup.controls['validity'].errors
+                      }"
+                      class="form-control"
+                      formControlName="validity"
+                      id="validity"
+                      min="1"
+                      placeholder="Enter validity"
+                      type="number"
+                    />
+                    <div
+                      *ngIf="submitted && quotatationFormGroup.controls['validity'].errors"
+                      class="errorWrap text-danger"
+                    >
+                      <div
+                        *ngIf="submitted && quotatationFormGroup.controls['validity'].errors?.['required']"
+                        class="error text-danger"
+                      >
+                        Validity is required.
+                      </div>
+                      <div
+                        *ngIf="submitted && quotatationFormGroup.controls['validity'].errors?.['pattern']"
+                        class="error text-danger"
+                      >
+                        Only Numeric value are allowed.
+                      </div>
+                    </div>
+                  </div>
+                  <div style="width: 40%; height: 34px">
+                    <p-dropdown
+                      [ngClass]="{
+                        'is-invalid': submitted && quotatationFormGroup.controls['validityUnit'].errors
+                      }"
+                      [options]="validityUnit"
+                      [filter]="true"
+                      filterBy="label"
+                      formControlName="validityUnit"
+                      optionLabel="label"
+                      optionValue="label"
+                      placeholder="Select Unit"
+                    ></p-dropdown>
+
+                    <div></div>
+                    <div
+                      *ngIf="submitted && quotatationFormGroup.controls['validityUnit'].errors"
+                      class="errorWrap text-danger"
+                    >
+                      <div
+                        *ngIf="
+                          submitted && quotatationFormGroup.controls['validityUnit'].errors['required']
+                        "
+                        class="error text-danger"
+                      >
+                        Unit is required.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-3 col-sm-3">
+                <label>Installation Lead time </label>
+                <div style="display: flex">
+                  <div style="width: 60%">
+                    <input
+                      [ngClass]="{
+                        'is-invalid':
+                          submitted && quotatationFormGroup.controls['installationValidity'].errors
+                      }"
+                      class="form-control"
+                      formControlName="installationValidity"
+                      id="installationValidity"
+                      min="1"
+                      placeholder="Enter Installation Time"
+                      type="number"
+                    />
+                    <div
+                      *ngIf="submitted && quotatationFormGroup.controls['installationValidity'].errors"
+                      class="errorWrap text-danger"
+                    >
+                      <div
+                        *ngIf="
+                          submitted &&
+                          quotatationFormGroup.controls['installationValidity'].errors['required']
+                        "
+                        class="error text-danger"
+                      >
+                        Installation Validity is required.
+                      </div>
+                      <div
+                        *ngIf="
+                          submitted &&
+                          quotatationFormGroup.controls['installationValidity'].errors['pattern']
+                        "
+                        class="error text-danger"
+                      >
+                        Only Numeric value are allowed.
+                      </div>
+                    </div>
+                  </div>
+                  <div style="width: 40%; height: 34px">
+                    <p-dropdown
+                      [ngClass]="{
+                        'is-invalid':
+                          submitted && quotatationFormGroup.controls['installationUnit'].errors
+                      }"
+                      [options]="validityUnit"
+                      [filter]="true"
+                      filterBy="label"
+                      formControlName="installationUnit"
+                      optionLabel="label"
+                      optionValue="label"
+                      placeholder="Select Unit"
+                    ></p-dropdown>
+
+                    <div></div>
+                    <div
+                      *ngIf="submitted && quotatationFormGroup.controls['installationUnit'].errors"
+                      class="errorWrap text-danger"
+                    >
+                      <div
+                        *ngIf="
+                          submitted &&
+                          quotatationFormGroup.controls['installationUnit'].errors?.['required']
+                        "
+                        class="error text-danger"
+                      >
+                        Unit is required.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+          <div
+            style="
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              margin: 5.5rem 0 2.5rem;
+            "
+          >
+            <button
+              style="object-fit: cover; padding: 5px 8px; margin-right: 10px"
+              class="btn btn-primary"
+              (click)="generateQuoation()"
+            >
+              <i class="fa fa-check-circle"></i>
+              Generate Quotation
+            </button>
+            <button
+              style="object-fit: cover; padding: 5px 8px"
+              class="btn btn-primary"
+              (click)="cancelSearchQuotation()"
+            >
+              <i class="fa fa-check-circle"></i>
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="panel">
+      <div class="panel-heading">
+        <h3 class="panel-title">Quotation List</h3>
+        <div class="right">
+          <button
+            type="button"
+            class="btn-toggle-collapse"
+            data-bs-toggle="collapse"
+            data-bs-target="#allDataID"
+            aria-expanded="false"
+            aria-controls="allDataID"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+      <div id="allDataID" class="panel-collapse collapse show">
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-lg-12 col-md-12" *ngIf="quotationList?.length > 0">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Quotation Name</th>
+                    <th>Organization Name</th>
+                    <th>PO Number</th>
+                    <th>Services</th>
+                    <th>Created On</th>
+                    <th style="width: 7%">Version</th>
+                    <th>Status</th>
+                    <th style="width: 18%">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="
+                      let data of quotationList
+                        | paginate
+                          : {
+                              id: 'dataListDataID',
+                              itemsPerPage: dataitemsPerPage,
+                              currentPage: currentPageQuotationSlab,
+                              totalItems: datatotalRecords
+                            };
+                      index as i
+                    "
+                  >
+                    <td
+                      *ngIf="showQuotationAccess"
+                      (click)="viewPDF(data.quotationDetailId)"
+                      style="color: darkblue; cursor: pointer"
+                    >
+                      {{ data.quotationName }}
+                    </td>
+                    <td>{{ data.orgName }}</td>
+                    <td *ngIf="data?.quotationPODoc == null">-</td>
+                    <td
+                      *ngIf="data?.quotationPODoc != null"
+                      (click)="downloadPO(data.quotationDetailId, data?.quotationPODoc?.id)"
+                      style="color: darkblue; cursor: pointer"
+                    >
+                      {{ data?.quotationPODoc?.poNumber }}
+                    </td>
+                    <td>
+                      <span
+                        class="HoverEffect"
+                        data-bs-target="#serviceModal"
+                        data-bs-toggle="modal"
+                        data-backdrop="static"
+                        data-keyboard="false"
+                        title="Go To service List"
+                        (click)="particularServiceData(data.quotationName, data.services)"
+                      >
+                        Click here
+                      </span>
+                    </td>
+                    <td>{{ data.createdOn }}</td>
+                    <td>{{ data.versionId }}</td>
+                    <td>
+                      <div *ngIf="data.status == 'ACTIVE' || data.status == 'Active'">
+                        <span class="badge badge-success">Active</span>
+                      </div>
+                      <div *ngIf="data.status == 'Rejected' || data.status == 'Rejected'">
+                        <span class="badge badge-danger">Rejected</span>
+                      </div>
+                      <div *ngIf="data.status == 'NewActivation'">
+                        <span class="badge badge-success">New Activation</span>
+                      </div>
+                    </td>
+                    <td class="btnAction">
+                      <!-- *ngIf="downloadPdfAccess" -->
+                      <a
+                        id="edit-button"
+                        href="javascript:void(0)"
+                        type="button"
+                        title="Download PDF"
+                        (click)="downloadPDF(data.quotationDetailId)"
+                      >
+                        <img style="width: 25px; height: 25px" src="assets/img/pdf.png" />
+                      </a>
+                      <!-- -->
+                      <button
+                        class="approve-btn"
+                        style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                        type="button"
+                        title="Pick"
+                        (click)="pickModalOpen(data)"
+                        [disabled]="
+                          (data.nextApproveStaffId != null && data.status !== 'NewActivation') ||
+                          (data.nextApproveStaffId == null && data.status === 'Rejected')
+                        "
+                      >
+                        <img src="assets/img/17_Pick-ticket-to-resolve_Y.png" />
+                      </button>
+
+                      <button
+                        style="
+                          border: none;
+                          background: transparent;
+                          padding: 0;
+                          margin-right: 3px;
+                          cursor: pointer;
+                        "
+                        aria-label="Approve Lead Workflow"
+                        id="approveLead"
+                        (click)="approveOrRejectLeadQuotationPopup(data, 'Approve')"
+                        data-bs-toggle="tooltip"
+                        data-placement="top"
+                        title="Approve Workflow"
+                        [disabled]="
+                          this.staffid != data.nextApproveStaffId ||
+                          data.status === 'Rejected' ||
+                          data.status === 'Active'
+                        "
+                      >
+                        <img src="assets/img/assign.jpg" />
+                      </button>
+
+                      <button
+                        style="
+                          border: none;
+                          background: transparent;
+                          padding: 0;
+                          margin-right: 3px;
+                          cursor: pointer;
+                        "
+                        aria-label="Reject Lead Workflow"
+                        id="rejectLead"
+                        (click)="approveOrRejectLeadQuotationPopup(data, 'Reject')"
+                        data-bs-toggle="tooltip"
+                        data-placement="top"
+                        title="Reject Workflow"
+                        [disabled]="
+                          this.staffid != data.nextApproveStaffId ||
+                          data.status === 'Rejected' ||
+                          data.status === 'Active'
+                        "
+                      >
+                        <img src="assets/img/reject.jpg" />
+                      </button>
+                      <button
+                        style="
+                          border: none;
+                          background: transparent;
+                          padding: 0;
+                          margin-right: 3px;
+                          cursor: pointer;
+                        "
+                        (click)="quotationAssignWorkflow(data.quotationDetailId)"
+                        data-bs-toggle="tooltip"
+                        data-placement="top"
+                        title="Assign Workflow"
+                        id="edit-button"
+                        *ngIf="
+                          !data.nextApproveStaffId &&
+                          !data.nextTeamMappingId &&
+                          data.status === 'NewActivation'
+                        "
+                      >
+                        <img width="32" height="32" src="assets/img/diagram.png" />
+                      </button>
+
+                      <button
+                        *ngIf="sendMailAccess"
+                        title="Send To Email"
+                        (click)="openSendToCustomerModal(data)"
+                        class="approve-btn"
+                        style="
+                          border: none;
+                          background: darkblue;
+                          padding: 2.7px 6px 1.7px;
+                          margin: 3px 3px 0 0;
+                        "
+                        type="button"
+                        [disabled]="data.finalApproved !== true"
+                      >
+                        <i class="fa fa-envelope" style="color: white; font-size: 14px"></i>
+                      </button>
+
+                      <!--  -->
+                      <button
+                        *ngIf="data?.quotationPODoc == null && assignPOAccess"
+                        style="
+                          border: none;
+                          background: transparent;
+                          padding: 0;
+                          margin-right: 3px;
+                          cursor: pointer;
+                        "
+                        (click)="openPOModal(data.quotationDetailId)"
+                        data-bs-toggle="tooltip"
+                        data-placement="top"
+                        title="Assign PO"
+                        id="edit-button"
+                        [disabled]="data.finalApproved !== true"
+                      >
+                        <img width="32" height="32" src="assets/img/19_Promise-to-Pay_Y.png" />
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div class="row">
+                <div class="col-md-12" style="display: flex">
+                  <pagination-controls
+                    id="dataListDataID"
+                    [maxSize]="10"
+                    [directionLinks]="true"
+                    previousLabel=""
+                    nextLabel=""
+                    (pageChange)="pageChangeddataList($event)"
+                  ></pagination-controls>
+                  <div id="itemPerPageDropdown">
+                    <p-dropdown
+                      [options]="pageLimitOptions"
+                      optionLabel="value"
+                      optionValue="value"
+                      (onChange)="TotalItemPerPage($event)"
+                    ></p-dropdown>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-12 col-md-12" *ngIf="quotationList?.length == 0">
+              Details are not available.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  aria-labelledby="myModalLabel"
+  class="modal fade"
+  id="showCircuitDetailsID"
+  role="dialog"
+  tabindex="-1"
+>
+  <div class="modal-dialog" role="document" style="width: 60%">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="myModalLabel" style="color: #fff !important">
+          {{ serviceCircuitData.quotationName }} Details
+        </h4>
+      </div>
+      <div class="modal-body">
+        <fieldset style="margin: 1.5rem 0">
+          <legend>Quotation Details</legend>
+          <div class="boxWhite">
+            <div class="row">
+              <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                <label class="datalbl">Lead Name :</label>
+                <span> {{ leadDetailData.firstname }} {{ leadDetailData.lastname }}</span>
+              </div>
+              <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                <label class="datalbl">Quotation Name :</label>
+                <span>{{ serviceCircuitData.quotationName }}</span>
+              </div>
+              <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                <label class="datalbl"> Organization Name :</label>
+                <span>{{ serviceCircuitData.orgName }}</span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                <label class="datalbl">services :</label>
+                <span
+                  class="HoverEffect"
+                  data-bs-target="#serviceModal"
+                  data-bs-toggle="modal"
+                  data-backdrop="static"
+                  data-keyboard="false"
+                  title="Go To service List"
+                  (click)="
+                    particularServiceData(
+                      serviceCircuitData.quotationName,
+                      serviceCircuitData.services
+                    )
+                  "
+                >
+                  Click here
+                </span>
+              </div>
+
+              <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                <label class="datalbl">Created On :</label>
+                <span>{{ serviceCircuitData.createdOn }}</span>
+              </div>
+
+              <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                <label class="datalbl">Version :</label>
+                <span>{{ serviceCircuitData.versionId }}</span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                <label class="datalbl">Template Id :</label>
+                <span>{{ serviceCircuitData.template_id }}</span>
+              </div>
+              <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                <label class="datalbl">Status :</label>
+                <span>{{ serviceCircuitData.status }}</span>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+        <!-- <div style="margin-top: 1.5rem">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Offer Price</th>
+                <th>Tax Amount</th>
+                <th>Created At</th>
+                <th>Modified At</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="
+                  let data of serviceCircuitData
+                    | paginate
+                      : {
+                          id: 'dataListDataID',
+                          itemsPerPage: CircuititemsPerPage,
+                          currentPage: currentPageQuotationCircuit,
+                          totalItems: CircuittotalRecords
+                        };
+                  index as i
+                "
+              >
+                <td>{{ data.offerPrice }}</td>
+                <td>{{ data.taxAmount }}</td>
+                <td>{{ data.createdAt }}</td>
+                <td>{{ data.modifiedAt }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="row">
+            <div class="col-md-12" style="display: flex">
+              <pagination-controls
+                id="dataListDataID"
+                maxSize="10"
+                directionLinks="true"
+                previousLabel=""
+                nextLabel=""
+                (pageChange)="pageChangedCircuitList($event)"
+              ></pagination-controls>
+            </div>
+          </div>
+        </div> -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- service area list -->
+<div class="modal fade" id="serviceModal" role="dialog">
+  <div class="modal-dialog" style="width: 35%">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h3 class="panel-title" style="color: white">{{ serviceQuotationName }} Services</h3>
+      </div>
+      <div class="modal-body">
+        <div class="panel-body table-responsive" id="networkDeviceTabel">
+          <table class="table">
+            <tbody>
+              <tr>
+                <td><label class="networkLabel">Service :</label></td>
+                <td>
+                  <span style="word-break: break-all" *ngFor="let serviceName of serviceNameList">
+                    <span>
+                      {{ serviceName }},
+                      <br />
+                    </span>
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Send To customer Email -->
+<div class="modal fade" id="sendToCustomerModal" role="dialog">
+  <div class="modal-dialog" style="width: 35%">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" (click)="closeSendToCustomerModal()">&times;</button>
+        <h3 class="panel-title" style="color: white">
+          Send {{ selQuotationData?.quotationName }} to Customer
+        </h3>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="sendToCustomerForm">
+          <div class="form-group">
+            <div class="row">
+              <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12">
+                <label>Send Email : *</label>
+              </div>
+              <div class="col-lg-9 col-md-9 col-sm-8 col-xs-12">
+                <p-chips
+                  separator=","
+                  class="chipsInttxt"
+                  formControlName="custMailAddresses"
+                ></p-chips>
+                <div
+                  class="errorWrap text-danger"
+                  *ngIf="
+                    sendTocustomerSubmitted && sendToCustomerForm.controls['custMailAddresses'].errors
+                  "
+                >
+                  <div class="error text-danger">Send Email is required.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="row">
+              <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12">
+                <label>Subject : *</label>
+              </div>
+              <div class="col-lg-9 col-md-9 col-sm-8 col-xs-12">
+                <input type="text" class="form-control" formControlName="subject" />
+                <div
+                  class="errorWrap text-danger"
+                  *ngIf="sendTocustomerSubmitted && sendToCustomerForm.controls['subject'].errors"
+                >
+                  <div class="error text-danger">Subject is required.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="row">
+              <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12">
+                <label>Message : *</label>
+              </div>
+              <div class="col-lg-9 col-md-9 col-sm-8 col-xs-12">
+                <textarea class="form-control" formControlName="body" rows="7"></textarea>
+                <div
+                  class="errorWrap text-danger"
+                  *ngIf="sendTocustomerSubmitted && sendToCustomerForm.controls['body'].errors"
+                >
+                  <div class="error text-danger">Message is required.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- <div class="form-group">
+            <div class="row">
+              <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12">
+                <label>Upload Quotation : *</label>
+              </div>
+              <div class="col-lg-9 col-md-9 col-sm-8 col-xs-12">
+                <input
+                  type="file"
+                  formControlName="file"
+                  (change)="onFileChange($event)"
+                  placeholder="Upload Quotation"
+                  class="form-control"
+                />
+                <div
+                  class="errorWrap text-danger"
+                  *ngIf="sendTocustomerSubmitted && sendToCustomerForm.controls.file.errors"
+                >
+                  <div
+                    class="error text-danger"
+                    *ngIf="
+                      sendTocustomerSubmitted && sendToCustomerForm.controls.file.errors.required
+                    "
+                  >
+                    Quotation Document is required.
+                  </div>
+                  <div
+                    class="error text-danger"
+                    *ngIf="
+                      sendTocustomerSubmitted && sendToCustomerForm.controls.file.errors.invalidExt
+                    "
+                  >
+                    Only PDF file allowed.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div> -->
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" (click)="sendToCustomer()">Send</button>
+        <button type="button" class="btn btn-primary" (click)="closeSendToCustomerModal()">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PO Modal -->
+<div class="modal fade" id="poModal" role="dialog">
+  <div class="modal-dialog" style="width: 35%">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" (click)="closePOModal()">&times;</button>
+        <h3 class="panel-title" style="color: white">Assign PO</h3>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="poForm">
+          <div class="form-group">
+            <div class="row">
+              <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12">
+                <label>PO Number : *</label>
+              </div>
+              <div class="col-lg-9 col-md-9 col-sm-8 col-xs-12">
+                <input type="text" class="form-control" formControlName="poNumber" />
+                <div
+                  class="errorWrap text-danger"
+                  *ngIf="poSubmitted && poForm.controls['poNumber'].errors"
+                >
+                  <div class="error text-danger">PO Number is required.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="row">
+              <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12">
+                <label>Upload Document : *</label>
+              </div>
+              <div class="col-lg-9 col-md-9 col-sm-8 col-xs-12">
+                <input
+                  type="file"
+                  formControlName="file"
+                  (change)="onFileChange($event)"
+                  placeholder="Upload Quotation"
+                  class="form-control"
+                />
+                <div
+                  class="errorWrap text-danger"
+                  *ngIf="poSubmitted && poForm.controls['file'].errors"
+                >
+                  <div
+                    class="error text-danger"
+                    *ngIf="poSubmitted && poForm.controls['file'].errors?.['required']"
+                  >
+                    Document is required.
+                  </div>
+                  <div
+                    class="error text-danger"
+                    *ngIf="poSubmitted && poForm.controls['file'].errors?.['invalidExt']"
+                  >
+                    Only PDF file allowed.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" (click)="assignPo()">Assign</button>
+        <button type="button" class="btn btn-primary" (click)="closePOModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="approveOrRejectLeadQuotationPopup" role="dialog">
+  <div class="modal-dialog nearSearchModalLocation">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="panel-title">{{ this.leadApproveRejectQuationDto.flag }} Remarks</h3>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="leadApproveRejectQuationForm">
+          <div class="row">
+            <div
+              *ngIf="approved && leadApproveRejectQuationDto.approveRequest"
+              class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
+            >
+              <div class="card">
+                <h5>Select Staff</h5>
+                <p-table
+                  [value]="approveLeadList"
+                  [(selection)]="selectStaff"
+                  responsiveLayout="scroll"
+                >
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <th style="width: 3rem"></th>
+                      <th>Name</th>
+                      <th>Username</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-product>
+                    <tr>
+                      <td>
+                        <p-tableRadioButton [value]="product.id"></p-tableRadioButton>
+                      </td>
+                      <td>{{ product.fullName }}</td>
+                      <td>
+                        {{ product.username }}
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
+              <br />
+            </div>
+            <div
+              *ngIf="approved && !leadApproveRejectQuationDto.approveRequest"
+              class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
+            >
+              <div class="card">
+                <h5>Select Staff</h5>
+                <p-table
+                  [value]="approveLeadList"
+                  [(selection)]="selectStaffReject"
+                  responsiveLayout="scroll"
+                >
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <th style="width: 3rem"></th>
+                      <th>Name</th>
+                      <th>Username</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-product>
+                    <tr>
+                      <td>
+                        <p-tableRadioButton [value]="product.id"></p-tableRadioButton>
+                      </td>
+                      <td>{{ product.fullName }}</td>
+                      <td>
+                        {{ product.username }}
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
+              <br />
+            </div>
+            <div *ngIf="!approved" class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+              <label style="font-weight: bold">Remarks</label>
+              <textarea
+                type="text"
+                class="form-control"
+                placeholder="Enter the remark"
+                formControlName="remark"
+                [ngClass]="{
+                  'is-invalid':
+                    leadApproveRejectQuationFormsubmitted &&
+                    this.leadApproveRejectQuationForm.controls['remark'].errors
+                }"
+              >
+              </textarea>
+              <div
+                class="error text-danger"
+                *ngIf="
+                  leadApproveRejectQuationFormsubmitted &&
+                  this.leadApproveRejectQuationForm.controls['remark'].errors
+                "
+              >
+                Remarks is required.
+              </div>
+              <br />
+            </div>
+            <div
+              *ngIf="leadApproveRejectQuationDto.flag == 'Reject'"
+              class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
+            >
+              <div class="form-group">
+                <label>Rejected Reason List*</label>
+                <p-dropdown
+                  [options]="this.rejectedReasons"
+                  formControlName="rejectedReasonMasterId"
+                  optionLabel="name"
+                  optionValue="id"
+                  [filter]="true"
+                  filterBy="name"
+                  placeholder="Select Rejected Reason "
+                >
+                </p-dropdown>
+              </div>
+            </div>
+            <div *ngIf="!approved" class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+              <div class="addUpdateBtn">
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  id="submit"
+                  (click)="approveOrRejectLeadQuotation(leadObj)"
+                  [disabled]="this.showQtyError"
+                >
+                  <i class="fa fa-check-circle"></i>
+                  {{ labelFlag }}
+                </button>
+                <br />
+              </div>
+            </div>
+
+            <div *ngIf="approved" class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+              <div class="addUpdateBtn">
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  id="submit"
+                  (click)="assignToStaff(labelFlag)"
+                >
+                  <i class="fa fa-check-circle"></i>
+                  Assign
+                </button>
+                <br />
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: flex-end">
+        <div class="addUpdateBtn">
+          <button
+            class="btn btn-danger btn-sm"
+            data-dismiss="modal"
+            (click)="closeApproveOrRejectLeadQuotationPopup()"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- approveOrRejectLeadQuotationPopup popup end -->

@@ -1,0 +1,598 @@
+<div class="row">
+  <div class="col-md-12 col-sm-12">
+    <div class="panel">
+      <div class="panel-heading">
+        <h3 *ngIf="!iscustomerEdit" class="panel-title">
+          {{ editMode ? "Update" : "Create" }} Radius Client
+        </h3>
+        <div class="right">
+          <button
+            id="create"
+            aria-controls="createPreCust"
+            aria-expanded="false"
+            class="btn-toggle-collapse"
+            data-bs-target="#createPreCust"
+            data-bs-toggle="collapse"
+            type="button"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-collapse collapse show" id="createPreCust">
+        <div class="panel-body">
+          <form class="form-auth-small" [formGroup]="clientForm">
+            <div class="row">
+              <div class="col-md-12">
+                <fieldset style="margin-top: 1.5rem">
+                  <legend>Basic Details</legend>
+                  <div class="boxWhite">
+                    <div class="row">
+                      <div
+                        class="col-lg-4 col-md-4 col-sm-4 col-xs-12 mb-15"
+                        *ngIf="loggedInUser == 'superadmin'"
+                      >
+                        <label>Mvno Name</label>
+                        <p-dropdown
+                          #dd
+                          [options]="mvnoData"
+                          placeholder="Select mvno"
+                          optionLabel="name"
+                          optionValue="mvnoId"
+                          [filter]="true"
+                          filterBy="name"
+                          (onChange)="getDetailsByMVNO($event.value)"
+                          formControlName="mvnoName"
+                          [ngClass]="{
+                            'is-invalid': submitted && clientForm.controls['mvnoName'].errors
+                          }"
+                        ></p-dropdown>
+                        <div
+                          class="errorWrap text-danger"
+                          *ngIf="submitted && clientForm.controls['mvnoName'].errors"
+                        >
+                          <div
+                            class="error text-danger"
+                            *ngIf="submitted && clientForm.controls['mvnoName'].errors?.['required']"
+                          >
+                            Please select MVNO name.
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 mb-15">
+                        <label>Client Name</label>
+                        <input
+                          type="text"
+                          name="clientname"
+                          class="form-control"
+                          placeholder="Enter Client Name"
+                          formControlName="clientname"
+                          [ngClass]="{
+                            'is-invalid': submitted && clientForm.controls['clientname'].errors
+                          }"
+                        />
+                        <div
+                          class="errorWrap text-danger"
+                          *ngIf="submitted && clientForm.controls['clientname'].errors"
+                        >
+                          <div
+                            class="error text-danger"
+                            *ngIf="submitted && clientForm.controls['clientname'].errors?.['required']"
+                          >
+                            Please Enter Name.
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 mb-15">
+                        <label>Client IP Address</label>
+                        <input
+                          type="text"
+                          name="clientIpAddress"
+                          class="form-control"
+                          placeholder="Enter Client IP Address"
+                          formControlName="clientIpAddress"
+                          [ngClass]="{
+                            'is-invalid': submitted && clientForm.controls['clientIpAddress'].errors
+                          }"
+                        />
+                        <div
+                          class="errorWrap text-danger"
+                          *ngIf="submitted && clientForm.controls['clientIpAddress'].errors"
+                        >
+                          <div
+                            class="error text-danger"
+                            *ngIf="submitted && clientForm.controls['clientIpAddress'].errors?.['required']"
+                          >
+                            Please enter IP address.
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 mb-15">
+                        <label>Vendor</label>
+                        <input
+                          type="text"
+                          name="vendor"
+                          class="form-control"
+                          placeholder="Enter Vendor"
+                          formControlName="vendor"
+                          [ngClass]="{
+                            'is-invalid': submitted && clientForm.controls['vendor'].errors
+                          }"
+                        />
+                        <div
+                          class="errorWrap text-danger"
+                          *ngIf="submitted && clientForm.controls['vendor'].errors"
+                        >
+                          <div
+                            class="error text-danger"
+                            *ngIf="submitted && clientForm.controls['vendor'].errors?.['required']"
+                          >
+                            Please enter IP address.
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 mb-15">
+                        <label>IP Type</label>
+                        <p-dropdown
+                          [options]="ipType"
+                          placeholder="Select IP Type"
+                          optionLabel="label"
+                          optionValue="label"
+                          [filter]="true"
+                          filterBy="label"
+                          formControlName="ipType"
+                          [ngClass]="{
+                            'is-invalid': submitted && clientForm.controls['ipType'].errors
+                          }"
+                        ></p-dropdown>
+                        <div
+                          class="errorWrap text-danger"
+                          *ngIf="submitted && clientForm.controls['ipType'].errors"
+                        >
+                          <div
+                            class="error text-danger"
+                            *ngIf="submitted && clientForm.controls['ipType'].errors?.['required']"
+                          >
+                            Please select IP type.
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 mb-15">
+                        <label>Shared Key</label>
+                        <input
+                          type="text"
+                          name="sharedKey"
+                          class="form-control"
+                          placeholder="Enter Shared Key"
+                          formControlName="sharedKey"
+                          [ngClass]="{
+                            'is-invalid': submitted && clientForm.controls['sharedKey'].errors
+                          }"
+                        />
+                        <div
+                          class="errorWrap text-danger"
+                          *ngIf="submitted && clientForm.controls['sharedKey'].errors"
+                        >
+                          <div
+                            class="error text-danger"
+                            *ngIf="submitted && clientForm.controls['sharedKey'].errors?.['required']"
+                          >
+                            Please enter shared key.
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 mb-15">
+                        <label>TimeOut</label>
+                        <input
+                          type="text"
+                          name="timeOut"
+                          class="form-control"
+                          placeholder="Enter TimeOut"
+                          formControlName="timeOut"
+                          [ngClass]="{
+                            'is-invalid': submitted && clientForm.controls['timeOut'].errors
+                          }"
+                        />
+                        <div
+                          class="errorWrap text-danger"
+                          *ngIf="submitted && clientForm.controls['timeOut'].errors"
+                        >
+                          <div
+                            class="error text-danger"
+                            *ngIf="submitted && clientForm.controls['timeOut'].errors?.['required']"
+                          >
+                            Please enter TimeOut.
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 mb-15">
+                        <label>Client Group</label>
+                        <p-dropdown
+                          [options]="filteredGroupList"
+                          placeholder="Select Client Group Id"
+                          optionLabel="name"
+                          optionValue="clientGroupId"
+                          formControlName="clientGroupId"
+                          [filter]="true"
+                          filterBy="name"
+                          (onChange)="onDropdownChange($event)"
+                          [ngClass]="{
+                            'is-invalid': submitted && clientForm.controls['clientGroupId'].errors
+                          }"
+                        ></p-dropdown>
+                        <div
+                          class="errorWrap text-danger"
+                          *ngIf="submitted && clientForm.controls['clientGroupId'].errors"
+                        >
+                          <div
+                            class="error text-danger"
+                            *ngIf="submitted && clientForm.controls['clientGroupId'].errors?.['required']"
+                          >
+                            Please select client group.
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <label>SNMP </label>
+                        <p-dropdown
+                          appendTo="body"
+                          [options]="snmpList"
+                          placeholder="Select SNMP"
+                          optionLabel="label"
+                          optionValue="value"
+                          [filter]="true"
+                          filterBy="label"
+                          formControlName="snmpEnable"
+                          (onChange)="onSNMPChange($event)"
+                        ></p-dropdown>
+                      </div>
+                      <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <label>Session Purge Interval (minute)</label>
+                        <input
+                          type="number"
+                          name="sessionPurgeInterval"
+                          class="form-control"
+                          min="0"
+                          placeholder="Enter Session Purge Interval"
+                          formControlName="sessionPurgeInterval"
+                          (keypress)="validateInput($event)"
+                        />
+                      </div>
+                      <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                        <label>Account On Attribute </label>
+                         <p-dropdown
+                          appendTo="body"
+                          [options]="dictionaryAttributeData.dictionaryAttributeList"
+                          placeholder="Select Attribute"
+                          optionLabel="name"
+                          optionValue="name"
+                          [filter]="true"
+                          filterBy="name"
+                          formControlName="acctOnAttribute"
+                        ></p-dropdown>
+                      </div>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <fieldset style="margin-top: 1.5rem">
+                  <legend>IPPool Details</legend>
+                  <div class="boxWhite">
+                    <div class="row mb-3">
+                      <div class="col-md-12">
+                        <label>Pool Name</label>
+                        <div class="row">
+                          <div class="col-md-10">
+                            <p-dropdown
+                              [options]="filterIPPoollist"
+                              [filter]="true"
+                              filterBy="poolName"
+                              formControlName="ipPoolId"
+                              optionLabel="poolName"
+                              optionValue="poolId"
+                              placeholder="Select a Poolname *"
+                              [ngClass]="{
+                                'is-invalid': submitted && clientForm.controls['ipPoolId'].errors
+                              }"
+                              appendTo="body"
+                              class="w-100"
+                            ></p-dropdown>
+                          </div>
+                          <div class="col-md-2 d-flex justify-content-start">
+                            <button
+                              id="add"
+                              (click)="onAddIPPoolName()"
+                              class="btn btn-primary"
+                              style="
+                                border-radius: 5px;
+                                padding: 5px 10px;
+                                line-height: 1.5;
+                                white-space: nowrap;
+                              "
+                            >
+                              <i class="fa fa-plus-square"></i> Add
+                            </button>
+                          </div>
+                        </div>
+                        <br />
+                        <table class="table coa-table mt-3">
+                          <thead>
+                            <tr>
+                              <th style="padding-inline: 40px">Pool Name</th>
+                              <th>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let row of ipPoolAttribute.controls; let index = index">
+                              <td style="padding-inline: 40px">{{ row.value.poolName }}</td>
+                              <td>
+                                <a
+                                  id="deleteAtt"
+                                  class="curson_pointer"
+                                  (click)="deleteIPPoolName(index)"
+                                >
+                                  <img src="assets/img/ioc02.jpg" />
+                                </a>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    <!-- Other Fields Row -->
+                    <div class="row">
+                      <div class="col-md-4" *ngIf="isPoolNameAdded || updatedMode">
+                        <label>Response Attribute</label>
+                        <p-dropdown
+                          appendTo="body"
+                          [options]="dictionaryAttributeData.dictionaryAttributeList"
+                          placeholder="Select Response Attribute"
+                          optionLabel="name"
+                          optionValue="name"
+                          [filter]="true"
+                          filterBy="name"
+                          formControlName="radiusAttribute"
+                        ></p-dropdown>
+                      </div>
+
+                      <div class="col-md-4" *ngIf="isPoolNameAdded || updatedMode">
+                        <label>Accept on IP Not Found</label>
+                        <p-dropdown
+                          [options]="ipFound"
+                          optionValue="value"
+                          optionLabel="label"
+                          [filter]="true"
+                          filterBy="label"
+                          placeholder="Select IP not found"
+                          formControlName="acceptOnIpNotFound"
+                        ></p-dropdown>
+                      </div>
+
+                      <div class="col-md-4" *ngIf="isPoolNameAdded || updatedMode">
+                        <label>Idle Timeout (minute)</label>
+                        <input
+                          (input)="preventNegative($event)"
+                          type="number"
+                          name="idletimeout"
+                          class="form-control"
+                          placeholder="Enter Idle Timeout"
+                          formControlName="idleTimeout"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <fieldset style="margin-top: 1.5rem">
+                  <legend>Client Group Details</legend>
+                  <div class="boxWhite">
+                    <div id="Createradius" style="margin-top: 10px">
+                      <table class="table map-table">
+                        <thead>
+                          <tr>
+                            <th style="text-align: center; width: 41%">Check Item</th>
+                            <th style="text-align: center; width: 41%">Priority</th>
+                            <th style="text-align: center; width: 41%">Client Group</th>
+                            <th style="text-align: right; width: 18%; padding: 8px">
+                              <button
+                                id="addAtt"
+                                style="object-fit: cover; padding: 5px 8px"
+                                class="btn btn-primary"
+                                (click)="onAddClientGroupAttribute()"
+                              >
+                                <i class="fa fa-plus-square" aria-hidden="true"></i>
+                                Add
+                              </button>
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let row of clientGroupAttribute.controls; let index = index">
+                            <td style="padding-left: 8px">
+                              <input
+                                id="checkitem"
+                                class="form-control"
+                                placeholder="Enter Check Item"
+                                [formControl]="getControl(row, 'checkItem')"
+                              />
+                            </td>
+                            <td style="padding-left: 8px">
+                              <input
+                                type="text"
+                                (keypress)="keypressId($event)"
+                                id="checkitem"
+                                class="form-control"
+                                placeholder="Enter Priority"
+                                [formControl]="getControl(row, 'priority')"
+                              />
+                            </td>
+                            <td>
+                              <p-dropdown
+                                appendTo="body"
+                                [options]="filteredGroupsList"
+                                placeholder="Select Client Group Id"
+                                optionLabel="name"
+                                optionValue="clientGroupId"
+                                [filter]="true"
+                                filterBy="name"
+                                [formControl]="getControl(row, 'clientGroupId')"
+                              ></p-dropdown>
+                            </td>
+                            <td style="text-align: right">
+                              <a
+                                id="deleteAtt"
+                                class="curson_pointer"
+                                (click)="deleteClientGroupMappingAttribute(index)"
+                              >
+                                <img src="assets/img/ioc02.jpg" />
+                              </a>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+            </div>
+
+            <div class="row" *ngIf="this.clientForm.value.snmpEnable === true">
+              <div class="col-md-12">
+                <fieldset style="margin-top: 1.5rem">
+                  <legend>SNMP Profile Details</legend>
+                  <div class="boxWhite">
+                    <div>
+                      <div class="row">
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                          <div>
+                            <label style="display: block">Destination IP </label>
+                            <input
+                              type="text"
+                              name="name"
+                              class="form-control"
+                              placeholder="Enter Destination IP"
+                              formControlName="destinationIp"
+                            />
+                          </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                          <div>
+                            <label style="display: block">Destination Port </label>
+                            <input
+                              type="text"
+                              name="name"
+                              class="form-control"
+                              placeholder="Enter Destination Port"
+                              formControlName="destinationPort"
+                            />
+                          </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                          <div>
+                            <label style="display: block">Community String </label>
+                            <input
+                              type="text"
+                              name="name"
+                              class="form-control"
+                              placeholder="Enter Community String"
+                              formControlName="communityString"
+                            />
+                          </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                          <label>Version</label>
+                          <p-dropdown
+                            [options]="versionListData"
+                            placeholder="Select Version"
+                            optionLabel="label"
+                            optionValue="value"
+                            formControlName="snmpVersion"
+                          ></p-dropdown>
+                        </div>
+                      </div>
+                      <br />
+                      <div class="row">
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                          <div>
+                            <label style="display: block">Base OID </label>
+                            <input
+                              type="text"
+                              name="name"
+                              class="form-control"
+                              placeholder="Enter Base OID"
+                              formControlName="baseOid"
+                            />
+                          </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                          <div>
+                            <label style="display: block">New OID </label>
+                            <input
+                              type="text"
+                              name="name"
+                              class="form-control"
+                              placeholder="Enter New OID"
+                              formControlName="newOid"
+                            />
+                          </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                          <div>
+                            <label style="display: block">Base Value </label>
+                            <input
+                              type="text"
+                              name="name"
+                              class="form-control"
+                              placeholder="Enter Base Value"
+                              formControlName="baseValue"
+                            />
+                          </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                          <label>New Value</label>
+                          <p-dropdown
+                            appendTo="body"
+                            [options]="dictionaryAttributeData.dictionaryAttributeList"
+                            placeholder="Select New Value"
+                            optionLabel="name"
+                            optionValue="name"
+                            [filter]="true"
+                            filterBy="name"
+                            formControlName="newValue"
+                          ></p-dropdown>
+                        </div>
+                      </div>
+                      <br />
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+            </div>
+
+            <div class="addUpdateBtn" style="margin-top: 3.5rem">
+              <button
+                type="submit"
+                class="btn btn-primary"
+                title="Submit Radius Client Details"
+                data-bs-toggle="tooltip"
+                (click)="addClient()"
+              >
+                <i class="fa fa-check-circle"></i>
+                {{ editMode ? "Update Client" : "Add Client" }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

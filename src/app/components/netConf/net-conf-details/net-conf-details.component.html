@@ -1,0 +1,1133 @@
+<div class="row">
+  <div class="col-md-12 col-sm-12">
+    <div class="panel">
+      <div class="panel-heading">
+        <div class="displayflex">
+          <button
+            type="button"
+            class="btn btn-secondary backbtn"
+            data-bs-toggle="tooltip"
+            data-placement="bottom"
+            title="Go to Customer List"
+            (click)="listCustomer()"
+          >
+            <i
+              class="fa fa-arrow-circle-left"
+              style="color: darkblue !important; font-size: 28px"
+            ></i>
+          </button>
+          <h3 class="panel-title">
+            {{ customerLedgerDetailData.title }}
+            {{ customerLedgerDetailData.custname }} Details
+          </h3>
+        </div>
+        <div class="right">
+          <button
+            type="button"
+            class="btn-toggle-collapse"
+            data-bs-toggle="collapse"
+            data-bs-target="#preNetcustDetails"
+            aria-expanded="false"
+            aria-controls="preNetcustDetails"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <div id="preNetcustDetails" class="panel-collapse collapse show">
+        <div class="panel-body table-responsive">
+          <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+            <legend>Basic Details</legend>
+            <div class="boxWhite">
+              <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                  <label class="datalbl">Name :</label>
+                  <span>
+                    {{ customerLedgerDetailData.title }}
+                    {{ customerLedgerDetailData.firstname }}
+                    {{ customerLedgerDetailData.lastname }}
+                  </span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                  <label class="datalbl">Contact Person :</label>
+                  <span>{{ customerLedgerDetailData.contactperson }}</span>
+                </div>
+
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                  <label class="datalbl">CAF No. :</label>
+                  <span>{{ customerLedgerDetailData.cafno }}</span>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                  <label class="datalbl">Act No. :</label>
+                  <span>{{ customerLedgerDetailData.acctno }}</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                  <label class="datalbl">Username :</label>
+                  <span>{{ customerLedgerDetailData.username }}</span>
+                </div>
+
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                  <label class="datalbl">Status :</label>
+                  <span>{{ customerLedgerDetailData.status }}</span>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">Customer Type :</label>
+                  <span>{{ customerLedgerDetailData.custtype }}</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">Calendar Type :</label>
+                  <span>{{ customerLedgerDetailData.calendarType }}</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">Expiry Date:</label>
+                  <span>{{ customerLedgerDetailData.expirydate }}</span>
+                </div>
+                <div
+                  class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup"
+                  *ngIf="customerLedgerDetailData?.parentCustomerName"
+                >
+                  <label class="datalbl">Parent Customer :</label>
+                  <span>{{ customerLedgerDetailData.parentCustomerName }}</span>
+                </div>
+                <div
+                  class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0"
+                  *ngIf="customerLedgerDetailData?.invoiceType"
+                >
+                  <label class="datalbl">Invoice Type :</label>
+                  <span>{{ customerLedgerDetailData.invoiceType }}</span>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+            <legend>KYC Details</legend>
+            <div class="boxWhite">
+              <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                  <label class="datalbl">GST :</label>
+                  <span *ngIf="customerLedgerDetailData?.gst">
+                    {{ customerLedgerDetailData.gst }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData?.gst">-</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                  <label class="datalbl">PAn No. :</label>
+                  <span *ngIf="customerLedgerDetailData?.pan">
+                    {{ customerLedgerDetailData.pan }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData?.pan">-</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                  <label class="datalbl">Aadhar No.:</label>
+                  <span *ngIf="customerLedgerDetailData?.aadhar">
+                    {{ customerLedgerDetailData.aadhar }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData?.aadhar">-</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                  <label class="datalbl">Passport No.:</label>
+                  <span *ngIf="customerLedgerDetailData?.passportNo">
+                    {{ customerLedgerDetailData.passportNo }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData?.passportNo">-</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                  <label class="datalbl">VAT</label>
+                  <span *ngIf="customerLedgerDetailData?.tinNo">
+                    {{ customerLedgerDetailData.tinNo }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData?.tinNo">-</span>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+            <legend>Contact Details</legend>
+            <div class="boxWhite">
+              <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">Mobile :</label>
+                  <span>
+                    <span *ngIf="customerLedgerDetailData?.countryCode">
+                      ( {{ customerLedgerDetailData.countryCode }} )&nbsp;
+                    </span>
+                    {{ customerLedgerDetailData.mobile }}
+                  </span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">Tel Phone :</label>
+                  <span *ngIf="customerLedgerDetailData?.phone">
+                    {{ customerLedgerDetailData.phone }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData.phone">-</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">Email :</label>
+                  <span>{{ customerLedgerDetailData.email }}</span>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+            <legend>Subscriber Location Details</legend>
+            <div class="boxWhite">
+              <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">Service Area:</label>
+                  <span *ngIf="customerLedgerDetailData?.servicearea">
+                    {{ serviceAreaDATA }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData.servicearea">-</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">Latitude:</label>
+                  <span *ngIf="customerLedgerDetailData?.latitude">
+                    {{ customerLedgerDetailData.latitude }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData.latitude">-</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">Longitude:</label>
+                  <span *ngIf="customerLedgerDetailData?.longitude">
+                    {{ customerLedgerDetailData.longitude }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData.longitude">-</span>
+                </div>
+                <!-- <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                                <label class="datalbl">Service Type : </label>
+                                <span>{{customerLedgerDetailData.servicetype}}</span>
+                            </div> -->
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+            <legend>Business Partner Details</legend>
+            <div class="boxWhite">
+              <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                  <label class="datalbl">Partner:</label>
+                  <span>{{ partnerDATA }}</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+                  <label class="datalbl">Sales Mark :</label>
+                  <span *ngIf="customerLedgerDetailData?.salesremark">
+                    {{ customerLedgerDetailData.salesremark }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData.salesremark">-</span>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+            <legend>Plan Details</legend>
+            <div class="boxWhite">
+              <div class="row" *ngIf="ifPlanGroup">
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">PlanGroup:</label>
+                  <span *ngIf="customerLedgerDetailData?.plangroupid">
+                    {{ planGroupName }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData.plangroupid">-</span>
+                </div>
+              </div>
+              <div class="row table-responsive" *ngIf="ifIndividualPlan">
+                <div class="col-lg-12 col-md-12">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Service</th>
+                        <th>Plan</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        *ngFor="
+                          let plan of customerLedgerDetailData.planMappingList
+                            | paginate
+                              : {
+                                  id: 'custPlanpageData',
+                                  itemsPerPage: custPlanDeatilItemPerPage,
+                                  currentPage: currentPagecustPlanDeatilListas,
+                                  totalItems: custPlanDeatiltotalRecords
+                                };
+                          index as i
+                        "
+                      >
+                        <td>{{ plan.service }}</td>
+                        <td>
+                          <span *ngFor="let list of dataPlan; index as j">
+                            <span *ngIf="i === j">{{ list }}</span>
+                          </span>
+                        </td>
+                        <!-- <td> {{ plan.planId }}</td> -->
+                      </tr>
+                    </tbody>
+                  </table>
+                  <pagination-controls
+                    id="custPlanpageData"
+                    [maxSize]="10"
+                    [directionLinks]="true"
+                    previousLabel=""
+                    nextLabel=""
+                    (pageChange)="currentPagecustPlanDeatilList($event)"
+                  ></pagination-controls>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+            <legend>Additional Service Details</legend>
+            <div class="boxWhite">
+              <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">Voice Service Type:</label>
+                  <span *ngIf="customerLedgerDetailData?.voicesrvtype">
+                    {{ customerLedgerDetailData.voicesrvtype }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData.voicesrvtype">-</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">DID No :</label>
+                  <span *ngIf="customerLedgerDetailData?.didno">
+                    {{ customerLedgerDetailData.didno }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData.didno">-</span>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+            <legend>Radius Service Details</legend>
+            <div class="boxWhite">
+              <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">NAS Port:</label>
+                  <span *ngIf="customerLedgerDetailData?.nasPort">
+                    {{ customerLedgerDetailData.nasPort }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData.nasPort">-</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">Framed IP :</label>
+                  <span *ngIf="customerLedgerDetailData?.framedIp">
+                    {{ customerLedgerDetailData.framedIp }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData.framedIp">-</span>
+                </div>
+
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">Gateway IP:</label>
+                  <span *ngIf="customerLedgerDetailData?.gatewayip">
+                    {{ customerLedgerDetailData.gatewayip }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData?.gatewayip">-</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">Skipnet Conf :</label>
+                  <span *ngIf="customerLedgerDetailData?.skipnetconf">
+                    {{ customerLedgerDetailData.skipnetconf }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData?.skipnetconf">-</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">Rdim Port:</label>
+                  <span *ngIf="customerLedgerDetailData?.rdimport">
+                    {{ customerLedgerDetailData.rdimport }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData?.rdimport">-</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">Bngrouter Interface :</label>
+                  <span *ngIf="customerLedgerDetailData?.bngrouterinterface">
+                    {{ customerLedgerDetailData.bngrouterinterface }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData?.bngrouterinterface">-</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">QOS :</label>
+                  <span *ngIf="customerLedgerDetailData?.qos">
+                    {{ customerLedgerDetailData.qos }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData?.qos">-</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">Vlan :</label>
+                  <span *ngIf="customerLedgerDetailData?.vlanid">
+                    {{ customerLedgerDetailData.vlanid }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData?.vlanid">-</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">WanIp :</label>
+                  <span *ngIf="customerLedgerDetailData?.wanip">
+                    {{ customerLedgerDetailData.wanip }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData?.wanip">-</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">LanIp :</label>
+                  <span *ngIf="customerLedgerDetailData?.lanip">
+                    {{ customerLedgerDetailData.lanip }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData?.lanip">-</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">ASN Number :</label>
+                  <span *ngIf="customerLedgerDetailData?.asnnumber">
+                    {{ customerLedgerDetailData.asnnumber }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData?.asnnumber">-</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">LL account Id :</label>
+                  <span *ngIf="customerLedgerDetailData?.llaccountid">
+                    {{ customerLedgerDetailData.llaccountid }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData?.llaccountid">-</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">IP Prefixes :</label>
+                  <span *ngIf="customerLedgerDetailData?.ipprefixes">
+                    {{ customerLedgerDetailData.ipprefixes }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData?.ipprefixes">-</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">Rdex Port :</label>
+                  <span *ngIf="customerLedgerDetailData?.rdexport">
+                    {{ customerLedgerDetailData.rdexport }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData?.rdexport">-</span>
+                </div>
+
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">RD Value :</label>
+                  <span *ngIf="customerLedgerDetailData?.rdvalue">
+                    {{ customerLedgerDetailData.rdvalue }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData?.rdvalue">-</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">VRF Name :</label>
+                  <span *ngIf="customerLedgerDetailData?.vrfname">
+                    {{ customerLedgerDetailData.vrfname }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData?.vrfname">-</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">Peer IP :</label>
+                  <span *ngIf="customerLedgerDetailData?.peerip">
+                    {{ customerLedgerDetailData.peerip }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData?.peerip">-</span>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup m-0">
+                  <label class="datalbl">LanIp :</label>
+                  <span *ngIf="customerLedgerDetailData?.lanip">
+                    {{ customerLedgerDetailData.lanip }}
+                  </span>
+                  <span *ngIf="!customerLedgerDetailData?.lanip">-</span>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+            <legend>Mac Mapping List</legend>
+            <div class="boxWhite">
+              <div class="row table-responsive">
+                <div class="col-lg-12 col-md-12">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>MACAddress</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        *ngFor="
+                          let macAdd of customerLedgerDetailData.macAddressMappingList
+                            | paginate
+                              : {
+                                  id: 'macAddresspageData',
+                                  itemsPerPage: custMacAddItemPerPage,
+                                  currentPage: currentPagecustMacAddList,
+                                  totalItems: custMacAddtotalRecords
+                                };
+                          index as i
+                        "
+                      >
+                        <td>{{ macAdd.macAddress }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <pagination-controls
+                    id="macAddresspageData"
+                    [maxSize]="10"
+                    [directionLinks]="true"
+                    previousLabel=""
+                    nextLabel=""
+                    (pageChange)="pageChangedcustMacAddDetailList($event)"
+                  ></pagination-controls>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset style="margin-top: 0rem; margin-bottom: 2rem">
+            <legend>Customer Quota Details</legend>
+            <div class="boxWhite">
+              <div class="row table-responsive">
+                <div class="col-lg-12 col-md-12">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Plan Name</th>
+                        <th>Quota Type</th>
+                        <th>Total Quota</th>
+                        <th>Used Quota</th>
+                        <th>Quota Unit</th>
+                        <th>Time Total Quota</th>
+                        <th>Time Quota Used</th>
+                        <th>Time Quota Unit</th>
+                        <!-- <th>Total Quota KB</th>
+                                            <th>Used Quota KB</th>
+                                            <th>Time Used Quota Sec</th>
+                                            <th>Time Total Quota Sec</th> -->
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        *ngFor="
+                          let quota of custQuotaList
+                            | paginate
+                              : {
+                                  id: 'custQuotapageData',
+                                  itemsPerPage: custQuotaListItemPerPage,
+                                  currentPage: currentPagecustQuotaList,
+                                  totalItems: custQuotaListtotalRecords
+                                };
+                          index as i
+                        "
+                      >
+                        <td>{{ quota.planName }}</td>
+                        <td>{{ quota.quotaType }}</td>
+                        <td>{{ quota.totalQuota }}</td>
+                        <td>{{ quota.usedQuota }}</td>
+                        <td>{{ quota.quotaUnit }}</td>
+                        <td>{{ quota.timeTotalQuota }}</td>
+                        <td>{{ quota.timeQuotaUsed }}</td>
+                        <td>{{ quota.timeQuotaUnit }}</td>
+                        <!-- <td>{{ quota.totalQuotaKB}}</td>
+                                            <td>{{ quota.usedQuotaKB}}</td>
+                                            <td>{{ quota.timeUsedQuotaSec}}</td>
+                                            <td>{{ quota.timeTotalQuotaSec}}</td> -->
+                      </tr>
+                    </tbody>
+                  </table>
+                  <pagination-controls
+                    id="custQuotapageData"
+                    [maxSize]="10"
+                    [directionLinks]="true"
+                    previousLabel=""
+                    nextLabel=""
+                    (pageChange)="pageChangedCustQuotaList($event)"
+                  ></pagination-controls>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- plan  -->
+<div class="row" *ngIf="customerPlanView">
+  <div class="col-md-12 col-sm-12">
+    <div class="panel">
+      <div class="panel-heading">
+        <div class="displayflex">
+          <button
+            type="button"
+            class="btn btn-secondary backbtn"
+            data-bs-toggle="tooltip"
+            data-placement="bottom"
+            title="Go to Customer Details"
+            (click)="customerDetailOpen(customerLedgerDetailData.id)"
+          >
+            <i
+              class="fa fa-arrow-circle-left"
+              style="color: darkblue !important; font-size: 28px"
+            ></i>
+          </button>
+          <h3 class="panel-title">
+            {{ customerLedgerDetailData.title }}
+            {{ customerLedgerDetailData.lastname }}
+            {{ customerLedgerDetailData.lastname }} Current Plan
+          </h3>
+        </div>
+        <div class="right">
+          <button
+            type="button"
+            class="btn-toggle-collapse"
+            data-bs-toggle="collapse"
+            data-bs-target="#currenPresCustPlan"
+            aria-expanded="false"
+            aria-controls="currenPresCustPlan"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <div id="currenPresCustPlan" class="panel-collapse collapse show">
+        <div class="panel-body table-responsive">
+          <div class="row">
+            <div class="col-lg-12 col-md-12">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Start Date</th>
+                    <th>Service Expiry Date</th>
+                    <th>Billing End Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="
+                      let plan of custCurrentPlanList
+                        | paginate
+                          : {
+                              id: 'custCurrentPlanListData',
+                              itemsPerPage: customerCurrentPlanListdataitemsPerPage,
+                              currentPage: currentPagecustomerCurrentPlanListdata,
+                              totalItems: customerCurrentPlanListdatatotalRecords
+                            };
+                      index as i
+                    "
+                  >
+                    <td>{{ plan.planName }}</td>
+                    <td>{{ plan.startDate | date: "medium" }}</td>
+                    <td>{{ plan.endDate | date: "medium" }}</td>
+                    <td>{{ plan.expiryDate | date: "medium" }}</td>
+                    <td>
+                      <span
+                        *ngIf="plan.custPlanStatus == 'ACTIVE' || plan.custPlanStatus == 'Active'"
+                      >
+                        <span class="badge badge-success">Active</span>
+                      </span>
+                      <span
+                        *ngIf="
+                          plan.custPlanStatus == 'INACTIVE' || plan.custPlanStatus == 'Inactive'
+                        "
+                      >
+                        <span class="badge badge-danger">Inactive</span>
+                      </span>
+                      <span *ngIf="plan.custPlanStatus == 'Stop' || plan.custPlanStatus == 'STOP'">
+                        <span class="badge badge-danger">Stop</span>
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="pagination_Dropdown">
+                <pagination-controls
+                  id="custCurrentPlanListData"
+                  [maxSize]="10"
+                  [directionLinks]="true"
+                  previousLabel=""
+                  nextLabel=""
+                  (pageChange)="currentPagecustomerCurrentPlanListdatas($event)"
+                ></pagination-controls>
+                <div id="itemPerPageDropdown">
+                  <p-dropdown
+                    [options]="pageLimitOptions"
+                    optionLabel="value"
+                    optionValue="value"
+                    (onChange)="TotalCurrentPlanItemPerPage($event)"
+                  ></p-dropdown>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-heading">
+        <div class="displayflex">
+          <button
+            type="button"
+            class="btn btn-secondary backbtn"
+            data-bs-toggle="tooltip"
+            data-placement="bottom"
+            title="Go to Customer Details"
+            (click)="customerDetailOpen(customerLedgerDetailData.id)"
+          >
+            <i
+              class="fa fa-arrow-circle-left"
+              style="color: darkblue !important; font-size: 28px"
+            ></i>
+          </button>
+          <h3 class="panel-title">
+            {{ customerLedgerDetailData.title }}
+            {{ customerLedgerDetailData.custname }} Future Plan
+          </h3>
+        </div>
+        <div class="right">
+          <button
+            type="button"
+            class="btn-toggle-collapse"
+            data-bs-toggle="collapse"
+            data-bs-target="#futurePlanCust"
+            aria-expanded="false"
+            aria-controls="futurePlanCust"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <div id="futurePlanCust" class="panel-collapse collapse show">
+        <div class="panel-body table-responsive">
+          <div class="row">
+            <div class="col-lg-12 col-md-12">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Start Date</th>
+                    <th>Expiry Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="
+                      let plan of custFuturePlanList
+                        | paginate
+                          : {
+                              id: 'custFuturePlanListData',
+                              itemsPerPage: customerFuturePlanListdataitemsPerPage,
+                              currentPage: currentPagecustomerFuturePlanListdata,
+                              totalItems: customerFuturePlanListdatatotalRecords
+                            };
+                      index as i
+                    "
+                  >
+                    <td>{{ plan.planName }}</td>
+                    <td>{{ plan.startDate | date: "medium" }}</td>
+                    <td>{{ plan.expiryDate | date: "medium" }}</td>
+                    <td>
+                      <span
+                        *ngIf="plan.custPlanStatus == 'ACTIVE' || plan.custPlanStatus == 'Active'"
+                      >
+                        <span class="badge badge-success">Active</span>
+                      </span>
+                      <span
+                        *ngIf="
+                          plan.custPlanStatus == 'INACTIVE' || plan.custPlanStatus == 'Inactive'
+                        "
+                      >
+                        <span class="badge badge-danger">Inactive</span>
+                      </span>
+                      <span *ngIf="plan.custPlanStatus == 'Stop' || plan.custPlanStatus == 'STOP'">
+                        <span class="badge badge-danger">Stop</span>
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="pagination_Dropdown">
+                <pagination-controls
+                  id="custFuturePlanListData"
+                  [maxSize]="10"
+                  [directionLinks]="true"
+                  previousLabel=""
+                  nextLabel=""
+                  (pageChange)="pageChangedcustFuturePlanListData($event)"
+                ></pagination-controls>
+                <div id="itemPerPageDropdown">
+                  <p-dropdown
+                    [options]="pageLimitOptions"
+                    optionLabel="value"
+                    optionValue="value"
+                    (onChange)="TotalFuturePlanItemPerPage($event)"
+                  ></p-dropdown>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-heading">
+        <div class="displayflex">
+          <button
+            type="button"
+            class="btn btn-secondary backbtn"
+            data-bs-toggle="tooltip"
+            data-placement="bottom"
+            title="Go to Customer Details"
+            (click)="customerDetailOpen(customerLedgerDetailData.id)"
+          >
+            <i
+              class="fa fa-arrow-circle-left"
+              style="color: darkblue !important; font-size: 28px"
+            ></i>
+          </button>
+          <h3 class="panel-title">
+            {{ customerLedgerDetailData.title }}
+            {{ customerLedgerDetailData.custname }} Expired Plan
+          </h3>
+        </div>
+        <div class="right">
+          <button
+            type="button"
+            class="btn-toggle-collapse"
+            data-bs-toggle="collapse"
+            data-bs-target="#ExpirePlanCust"
+            aria-expanded="false"
+            aria-controls="ExpirePlanCust"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <div id="ExpirePlanCust" class="panel-collapse collapse show">
+        <div class="panel-body table-responsive">
+          <div class="row">
+            <div class="col-lg-12 col-md-12">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Start Date</th>
+                    <th>Expiry Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="
+                      let plan of custExpiredPlanList
+                        | paginate
+                          : {
+                              id: 'custExpiryPlanListData',
+                              itemsPerPage: customerExpiryPlanListdataitemsPerPage,
+                              currentPage: currentPagecustomerExpiryPlanListdata,
+                              totalItems: customerExpiryPlanListdatatotalRecords
+                            };
+                      index as i
+                    "
+                  >
+                    <td>{{ plan.planName }}</td>
+                    <td>{{ plan.startDate | date: "medium" }}</td>
+                    <td>{{ plan.expiryDate | date: "medium" }}</td>
+                    <td>
+                      <span>
+                        <span
+                          *ngIf="plan.custPlanStatus == 'ACTIVE' || plan.custPlanStatus == 'Active'"
+                          class="badge badge-success"
+                          >{{ plan.custPlanStatus }}</span
+                        >
+                        <span
+                          *ngIf="
+                            plan.custPlanStatus !== 'ACTIVE' || plan.custPlanStatus !== 'Active'
+                          "
+                          class="badge badge-danger"
+                          >{{ plan.custPlanStatus }}</span
+                        >
+                      </span>
+                      <!-- <span
+                        *ngIf="plan.custPlanStatus == 'ACTIVE' || plan.custPlanStatus == 'Active'"
+                      >
+                        <span class="badge badge-success">Active</span>
+                      </span>
+                      <span
+                        *ngIf="
+                          plan.custPlanStatus == 'INACTIVE' || plan.custPlanStatus == 'Inactive'
+                        "
+                      >
+                        <span class="badge badge-danger">Inactive</span>
+                      </span>
+                      <span *ngIf="plan.custPlanStatus == 'Stop' || plan.custPlanStatus == 'STOP'">
+                        <span class="badge badge-danger">Stop</span>
+                      </span> -->
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="pagination_Dropdown">
+                <pagination-controls
+                  id="custExpiryPlanListData"
+                  [maxSize]="10"
+                  [directionLinks]="true"
+                  previousLabel=""
+                  nextLabel=""
+                  (pageChange)="pageChangedcustomerExpiryPlanListData($event)"
+                ></pagination-controls>
+                <div id="itemPerPageDropdown">
+                  <p-dropdown
+                    [options]="pageLimitOptions"
+                    optionLabel="value"
+                    optionValue="value"
+                    (onChange)="TotalExpiredPlanItemPerPage($event)"
+                  ></p-dropdown>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CDR -->
+<div class="row" *ngIf="ifCDR">
+  <div class="col-md-12 col-sm-12">
+    <div class="panel">
+      <div class="panel-heading">
+        <div class="displayflex">
+          <button
+            type="button"
+            class="btn btn-secondary backbtn"
+            data-bs-toggle="tooltip"
+            data-placement="bottom"
+            title="Go to Customer Details"
+            (click)="customerDetailOpen(customerLedgerDetailData.id)"
+          >
+            <i
+              class="fa fa-arrow-circle-left"
+              style="color: darkblue !important; font-size: 28px"
+            ></i>
+          </button>
+          <h3 class="panel-title">
+            Search {{ customerLedgerDetailData.title }} {{ customerLedgerDetailData.custname }} CDRs
+            Session
+          </h3>
+        </div>
+        <div class="right">
+          <button
+            type="button"
+            class="btn-toggle-collapse"
+            data-bs-toggle="collapse"
+            data-bs-target="#myCDRSearchPreCust"
+            aria-expanded="false"
+            aria-controls="myCDRSearchPreCust"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <div id="myCDRSearchPreCust" class="panel-collapse collapse show">
+        <div class="panel-body table-responsive">
+          <div class="searchForm">
+            <form class="form-auth-small" [formGroup]="searchAcctCdrForm">
+              <div class="row">
+                <div class="col-md-2" style="padding-left: 3%">
+                  <input
+                    type="text"
+                    name="framedIpAddress"
+                    class="form-control"
+                    placeholder="Enter Framed IP"
+                    formControlName="framedIpAddress"
+                  />
+                </div>
+                <div class="col-md-2" style="padding-left: 0%">
+                  <p-calendar
+                    dateFormat="dd/mm/yy"
+                    [showIcon]="true"
+                    [showButtonBar]="true"
+                    [hideOnDateTimeSelect]="true"
+                    placeholder="Enter From Date"
+                    formControlName="fromDate"
+                    [style]="{ width: '100%' }"
+                  ></p-calendar>
+                </div>
+                <div class="col-md-2" style="padding-left: 0%">
+                  <p-calendar
+                    dateFormat="dd/mm/yy"
+                    [showIcon]="true"
+                    [showButtonBar]="true"
+                    [hideOnDateTimeSelect]="true"
+                    placeholder="Enter To Date"
+                    formControlName="toDate"
+                    [style]="{ width: '100%' }"
+                  ></p-calendar>
+                </div>
+                <div class="col-md-2" style="padding-left: 0%">
+                  <select class="form-control" name="customerid" style="width: 100%" disabled>
+                    <option>
+                      {{ customerLedgerDetailData.title }}
+                      {{ customerLedgerDetailData.custname }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="searchbtn">
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  title="Search CDRs"
+                  (click)="searchGroupByNameCDR()"
+                >
+                  <i class="fa fa-search"></i>
+                  Search
+                </button>
+                &nbsp;
+                <button
+                  type="reset"
+                  class="btn btn-default"
+                  title="Clear"
+                  data-bs-toggle="tooltip"
+                  (click)="clearSearchCDRForm()"
+                >
+                  <i class="fa fa-refresh"></i>
+                  Clear
+                </button>
+                &nbsp;
+                <a
+                  *ngIf="exportExcelAccess"
+                  title="Export to Excel"
+                  class="curson_pointer"
+                  data-bs-toggle="tooltip"
+                  (click)="exportExcel(customerLedgerDetailData.username)"
+                >
+                  <img class="icon-ex" src="assets/img/icons-07.png" />
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-12 col-sm-12">
+    <div class="panel">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          {{ customerLedgerDetailData.title }}
+          {{ customerLedgerDetailData.custname }} CDRs Details
+        </h3>
+        <div class="right">
+          <button
+            type="button"
+            class="btn-toggle-collapse"
+            data-bs-toggle="collapse"
+            data-bs-target="#cdrDetailsPreCust"
+            aria-expanded="false"
+            aria-controls="cdrDetailsPreCust"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <div id="cdrDetailsPreCust" class="panel-collapse collapse show">
+        <div class="panel-body table-responsive">
+          <div class="row">
+            <div class="col-lg-12 col-md-12" *ngIf="groupDataCDR.length !== 0">
+              <table class="table" id="cdr-table">
+                <thead>
+                  <tr>
+                    <th>Username</th>
+                    <th>NAS IP</th>
+                    <th>Frame IP</th>
+                    <th>Upload(MB)</th>
+                    <th>Download(MB)</th>
+                    <th>Session Time</th>
+                    <th>Created Date</th>
+                    <th>Modified Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="
+                      let group of groupDataCDR
+                        | paginate
+                          : {
+                              id: 'listing_groupdataCDR',
+                              itemsPerPage: itemsPerPageCDR,
+                              currentPage: currentPageCDR,
+                              totalItems: totalCDRRecords
+                            };
+                      index as i
+                    "
+                  >
+                    <td>
+                      {{ group.userName }}
+                    </td>
+                    <td>{{ group.nasIpAddress }}</td>
+                    <td>{{ group.framedIpAddress }}</td>
+                    <td>
+                      {{ group.acctInputOctets / 1024 / 1024 | number: "1.2-2" }}
+                    </td>
+                    <td>
+                      {{ group.acctOutputOctets / 1024 / 1024 | number: "1.2-2" }}
+                    </td>
+                    <td>{{ group.acctSessionTime }}</td>
+                    <td>
+                      {{
+                        group.createDate !== null
+                          ? (group.createDate | date: "yyyy-MM-dd HH:mm:ss")
+                          : ""
+                      }}
+                    </td>
+                    <td>
+                      {{
+                        group.lastModificationDate !== null
+                          ? (group.lastModificationDate | date: "yyyy-MM-dd HH:mm:ss")
+                          : ""
+                      }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <br />
+              <div class="row">
+                <div class="col-md-12" style="display: flex">
+                  <pagination-controls
+                    id="listing_groupdataCDR"
+                    [maxSize]="10"
+                    [directionLinks]="true"
+                    previousLabel=""
+                    nextLabel=""
+                    (pageChange)="pageCDRChanged($event)"
+                  ></pagination-controls>
+
+                  <div id="itemPerPageDropdown">
+                    <p-dropdown
+                      [options]="pageLimitOptions"
+                      optionLabel="value"
+                      optionValue="value"
+                      (onChange)="TotalItemPerCDRPage($event)"
+                    ></p-dropdown>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-12 col-md-12" *ngIf="groupDataCDR.length === 0">
+              CDRs data not found
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

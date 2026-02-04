@@ -1,0 +1,329 @@
+<div class="row">
+  <div class="col-md-12">
+    <!-- User Data -->
+    <div class="panel top">
+      <div class="panel-heading">
+        <h3 class="panel-title">Field Template Mapping</h3>
+        <div class="right">
+          <button
+            type="button"
+            class="btn-toggle-collapse"
+            data-bs-toggle="collapse"
+            data-bs-target="#searchRole"
+            aria-expanded="false"
+            aria-controls="searchRole"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <div id="searchRole" class="panel-collapse collapse show">
+        <div class="panel-body" *ngIf="isRoleList">
+          <div class="searchForm">
+            <form class="form-auth-small" [formGroup]="searchRoleForm">
+              <!-- <div class="col-md-2" style="padding-right: 0%; text-align: right">
+                                <label style="padding: 5px">Role Name:</label>
+                            </div> -->
+              <div class="col-md-4" style="padding-left: 0%">
+                <input
+                  id="searchRoleName"
+                  type="text"
+                  name="roleName"
+                  class="form-control"
+                  placeholder="Enter Role"
+                  formControlName="name"
+                  (keydown.enter)="searchRoleByName()"
+                  [ngClass]="{
+                    'is-invalid': searchSubmitted && searchRoleForm.controls['name'].errors
+                  }"
+                />
+              </div>
+              <div class="col-md-4 marginTopSearchBtn" style="padding-left: 0%">
+                <button
+                  id="search"
+                  type="submit"
+                  class="btn btn-primary"
+                  (click)="searchRoleByName()"
+                >
+                  <i class="fa fa-search"></i>
+                  Search
+                </button>
+                &nbsp;
+                <button id="clear" type="reset" class="btn btn-default" (click)="clearSearchForm()">
+                  <i class="fa fa-refresh"></i>
+                  Clear
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="panel-body no-padding panel-udata">
+          <!-- *ngIf="!isRoleCreateOrEdit" -->
+          <div class="col-md-6 pcol" *ngIf="custSaveAccess">
+            <div class="dbox">
+              <a (click)="openCreateCustTemplate()" class="curson_pointer">
+                <img src="../../../assets/img/i01.png" style="width: 32px" />
+                <h5>Customer Template</h5>
+              </a>
+            </div>
+          </div>
+          <!-- *ngIf="!isRoleList" -->
+          <div class="col-md-6 pcol" *ngIf="leadTemplateAccess">
+            <div class="dbox">
+              <a (click)="openCreateLeadTemplate()" class="curson_pointer">
+                <img src="../../../assets/img/i01.png" style="width: 32px" />
+                <h5>Lead Template</h5>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END User Data -->
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12" *ngIf="isLeadTemplate">
+    <div class="panel">
+      <div class="panel-heading">
+        <h3 class="panel-title">Create Customer Template</h3>
+        <div class="right">
+          <!-- <button class="btn refreshbtn" type="reset" (click)="openCreateLeadTemplate()">
+            <i class="fa fa-refresh"></i>
+          </button> -->
+          <button
+            type="button"
+            class="btn-toggle-collapse"
+            data-bs-toggle="collapse"
+            data-bs-target="#createrole"
+            aria-expanded="false"
+            aria-controls="createrole"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- form Data -->
+      <div *ngIf="fieldList && custModuleList">
+        <div id="createrole" class="panel-collapse collapse show">
+          <div class="panel-body p-2" style="padding-bottom: 9rem">
+            <form #fieldtemplateForm="ngForm" (ngSubmit)="submit(fieldtemplateForm, 'customer')">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col" style="width: 20%">
+                      <h5>Select</h5>
+                    </th>
+                    <th scope="col" style="width: 30%">
+                      <h5>Fields</h5>
+                    </th>
+                    <th scope="col" style="width: 20%">
+                      <h5>Mandatory</h5>
+                    </th>
+                    <th scope="col" style="width: 30%">
+                      <h5>Module Name</h5>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of fieldList; let i = index">
+                    <td>
+                      <input
+                        type="checkbox"
+                        name="{{ i + 1 }}isAccess"
+                        [(ngModel)]="item.isBounded"
+                        style="width: 18px; height: 18px; margin-left: 20px"
+                        [disabled]="item.defaultMandatory"
+                      />
+                    </td>
+                    <!-- <th >{{item.fieldname}}</th> -->
+                    <th>
+                      <input
+                        type="text"
+                        style="border: none"
+                        name="{{ i + 1 }}fieldName"
+                        [(ngModel)]="item.name"
+                        readonly
+                      />
+                    </th>
+                    <td>
+                      <input
+                        type="checkbox"
+                        name="{{ i + 1 }}isMandatory"
+                        [(ngModel)]="item.isMandatory"
+                        style="width: 18px; height: 18px"
+                        [disabled]="item.defaultMandatory"
+                      />
+                    </td>
+                    <td>
+                      <p-dropdown
+                        *ngIf="item.fieldname !== 'addressList'"
+                        [ngClass]="{ 'is-invalid': item.isBounded && !item.module }"
+                        [options]="custModuleList"
+                        optionValue="text"
+                        optionLabel="text"
+                        [filter]="true"
+                        filterBy="text"
+                        placeholder="Select a Module Name"
+                        [(ngModel)]="item.module"
+                        name="{{ i + 1 }}module"
+                        [disabled]="item.defaultMandatory"
+                      ></p-dropdown>
+                      <p-dropdown
+                        *ngIf="item.fieldname === 'addressList'"
+                        [ngClass]="{ 'is-invalid': item.isBounded && !item.module }"
+                        [options]="custModuleAddressList"
+                        optionValue="text"
+                        optionLabel="text"
+                        [filter]="true"
+                        filterBy="text"
+                        placeholder="Select a Module Name"
+                        [(ngModel)]="item.module"
+                        name="{{ i + 1 }}module"
+                        [disabled]="item.defaultMandatory"
+                      ></p-dropdown>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="submitBtn" style="padding-top: 2.3rem">
+                <button class="btn btn-primary" [disabled]="custSaveAccess" type="submit">
+                  Save Template
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12" *ngIf="isPlanTemplate">
+    <div class="panel">
+      <div class="panel-heading">
+        <h3 class="panel-title">Create Lead Template</h3>
+        <div class="right">
+          <button class="btn refreshbtn" type="reset" (click)="openCreateLeadTemplate()">
+            <i class="fa fa-refresh"></i>
+          </button>
+          <button
+            type="button"
+            class="btn-toggle-collapse"
+            data-bs-toggle="collapse"
+            data-bs-target="#createrole"
+            aria-expanded="false"
+            aria-controls="createrole"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- form Data -->
+      <div *ngIf="fieldList && leadModuleList">
+        <div id="createrole" class="panel-collapse collapse show">
+          <div class="panel-body p-2" style="padding-bottom: 9rem">
+            <form #fieldtemplateForm="ngForm" (ngSubmit)="submit(fieldtemplateForm, 'lead')">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col" style="width: 20%">
+                      <h5>Select</h5>
+                    </th>
+                    <th scope="col" style="width: 30%">
+                      <h5>Fields</h5>
+                    </th>
+                    <th scope="col" style="width: 20%">
+                      <h5>Mandatory</h5>
+                    </th>
+                    <th scope="col" style="width: 30%">
+                      <h5>Module Name</h5>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of fieldList; let i = index">
+                    <td>
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        name="{{ i + 1 }}isAccess"
+                        [(ngModel)]="item.isBounded"
+                        style="width: 18px; height: 18px; margin-left: 20px"
+                        [disabled]="item.defaultMandatory"
+                      />
+                    </td>
+                    <!-- <th >{{item.fieldname}}</th> -->
+                    <th>
+                      <input
+                        type="text"
+                        style="border: none"
+                        name="{{ i + 1 }}fieldName"
+                        [(ngModel)]="item.name"
+                        readonly
+                      />
+                    </th>
+                    <td>
+                      <input
+                        type="checkbox"
+                        class="form-check-input"
+                        name="{{ i + 1 }}isMandatory"
+                        [(ngModel)]="item.isMandatory"
+                        style="width: 18px; height: 18px"
+                        [disabled]="item.defaultMandatory"
+                      />
+                    </td>
+                    <td>
+                      <p-dropdown
+                        *ngIf="item.fieldname !== 'addressList'"
+                        [ngClass]="{ 'is-invalid': item.isBounded && !item.module }"
+                        [options]="leadModuleList"
+                        optionValue="text"
+                        optionLabel="text"
+                        [filter]="true"
+                        filterBy="text"
+                        placeholder="Select a Module Name"
+                        [(ngModel)]="item.module"
+                        name="{{ i + 1 }}module"
+                        [disabled]="item.defaultMandatory"
+                      ></p-dropdown>
+                      <p-dropdown
+                        *ngIf="item.fieldname === 'addressList'"
+                        [ngClass]="{ 'is-invalid': item.isBounded && !item.module }"
+                        [options]="leadModuleAddressList"
+                        optionValue="text"
+                        optionLabel="text"
+                        [filter]="true"
+                        filterBy="text"
+                        placeholder="Select a Module Name"
+                        [(ngModel)]="item.module"
+                        name="{{ i + 1 }}module"
+                        [disabled]="item.defaultMandatory"
+                      ></p-dropdown>
+                    </td>
+                  </tr>
+                  <div class="submitBtn" style="padding-top: 2.5rem">
+                    <button
+                      class="btn btn-primary"
+                      type="submit"
+                      [disabled]="leadSaveAccess"
+                      style="margin: auto"
+                    >
+                      Save Template
+                    </button>
+                  </div>
+                </tbody>
+              </table>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

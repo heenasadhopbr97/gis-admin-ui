@@ -1,0 +1,68 @@
+<!-- device-details.component.html -->
+<div class="device-details-dialog" [class.visible]="visible">
+  <div class="dialog-overlay" (click)="closeDialog()"></div>
+  
+  <div class="dialog-content">
+    <div class="dialog-header">
+      <h2>Source Device</h2>
+      <button class="close-button" (click)="closeDialog()">×</button>
+    </div>
+    
+    <div class="dialog-body">
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading device details...</p>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="error && !isLoading" class="error-state">
+        <p class="error-text">{{ error }}</p>
+        <button (click)="loadDeviceDetails()" class="retry-btn">Retry</button>
+      </div>
+
+      <!-- Device Details -->
+      <div *ngIf="deviceDetails && !isLoading" class="device-info-container">
+        <div class="info-row">
+          <span class="info-label">Device:</span>
+          <span class="info-value">{{ deviceData?.name || 'N/A' }}</span>
+        </div>
+        
+        <div class="info-row">
+          <span class="info-label">Type:</span>
+          <span class="info-value">{{ deviceDetails?.deviceType || 'OLT' }}</span>
+        </div>
+        
+        <div class="info-row">
+          <span class="info-label">Status:</span>
+          <span class="info-value status-badge" [class]="getStatusClass()">
+            {{ getDeviceStatus() }}
+          </span>
+        </div>
+
+        <!-- Additional details from API response -->
+        <div *ngIf="deviceDetails?.location" class="info-row">
+          <span class="info-label">Location:</span>
+          <span class="info-value">{{ deviceDetails.location }}</span>
+        </div>
+
+        <div *ngIf="deviceDetails?.installationDate" class="info-row">
+          <span class="info-label">Installed:</span>
+          <span class="info-value">{{ deviceDetails.installationDate | date }}</span>
+        </div>
+
+        <div *ngIf="deviceDetails?.capacity" class="info-row">
+          <span class="info-label">Capacity:</span>
+          <span class="info-value">{{ deviceDetails.capacity }} ports</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="dialog-footer">
+      <button class="btn btn-secondary clear-btn" (click)="onClearSelection()">
+        Clear Selection
+      </button>
+      <button class="btn btn-primary" (click)="closeDialog()">Close</button>
+    </div>
+  </div>
+</div>

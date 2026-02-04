@@ -1,0 +1,492 @@
+<div class="row">
+  <div class="col-md-12 col-sm-12">
+    <div class="panel">
+      <div class="panel-heading">
+        <a
+          (click)="custTerminationWorkflowAuditopen('custauditWorkflowModal', customerId)"
+          class="detailOnAnchorClick"
+          style="margin-left: 15px"
+          title="Audit & Termination Status Details"
+        >
+          <img height="32" src="assets/img/05_inventory-to-customer_Y.png" width="42" height="42" />
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12 col-sm-12">
+    <div class="panel">
+      <div class="panel-heading">
+        <div class="displayflex">
+          <button
+            (click)="customerDetailOpen(customerId)"
+            class="btn btn-secondary backbtn"
+            data-placement="bottom"
+            data-bs-toggle="tooltip"
+            title="Go to Customer Details"
+            type="button"
+          >
+            <i
+              class="fa fa-arrow-circle-left"
+              style="color: darkblue !important; font-size: 28px"
+            ></i>
+          </button>
+          <h3 class="panel-title">
+            {{ customerLedgerDetailData?.title }}
+            {{ customerLedgerDetailData?.firstname }}
+            {{ customerLedgerDetailData?.lastname }} Status List
+          </h3>
+        </div>
+        <div class="right">
+          <button
+            aria-controls="customerStatusList"
+            aria-expanded="false"
+            class="btn-toggle-collapse"
+            data-bs-target="#customerStatusList"
+            data-bs-toggle="collapse"
+            type="button"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-collapse collapse show" id="customerStatusList">
+        <div class="panel-body table-responsive">
+          <div class="row">
+            <div *ngIf="AllcustApproveList.length !== 0" class="col-lg-12 col-md-12">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Current Status</th>
+                    <th>New Status</th>
+                    <th>Request Raised Staff</th>
+                    <th>Remark</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                    <th>Remaining Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="
+                      let data of AllcustApproveList
+                        | paginate
+                          : {
+                              id: 'ChangeStatuspageData',
+                              itemsPerPage: custChangeStatusConfigitemsPerPage,
+                              currentPage: currentPagecustChangeStatusConfig,
+                              totalItems: custChangeStatusConfigtotalRecords
+                            };
+                      index as i
+                    "
+                  >
+                    <td>
+                      {{ data.custName }}
+                    </td>
+                    <td>{{ data.currentStatus }}</td>
+                    <td>{{ data.activeStatus }}</td>
+                    <td>{{ data.currentStaff }}</td>
+                    <td>{{ data.remark }}</td>
+                    <td>
+                      <div *ngIf="data.status == 'Approved'">
+                        <span class="badge badge-success">
+                          {{ data.status }}
+                        </span>
+                      </div>
+                      <div *ngIf="data.status == 'Rejected'">
+                        <span class="badge badge-danger">
+                          {{ data.status }}
+                        </span>
+                      </div>
+                      <div *ngIf="data.status == 'pending'">
+                        <span class="badge badge-info">
+                          {{ data.status }}
+                        </span>
+                      </div>
+                    </td>
+                    <td style="padding: 0px !important">
+                      <button
+                        class="approve-btn"
+                        style="border: none; background: transparent; padding: 0; margin-right: 4px"
+                        type="button"
+                        title="Pick"
+                        [disabled]="
+                          data.status == 'Approved' ||
+                          data.status == 'Rejected' ||
+                          (data.currentStaff != null && data.currentStaff != '') ||
+                          data.currentStatus == 'Terminate'
+                        "
+                        (click)="pickModalOpen(data)"
+                      >
+                        <img width="30px" src="assets/img/17_Pick-ticket-to-resolve_Y.png" />
+                      </button>
+                      <div *ngIf="userName == data.currentStaff">
+                        <div>
+                          <button
+                            (click)="approvestatusModalOpen(data.customerID, data.id)"
+                            [disabled]="
+                              data.status == 'Approved' ||
+                              data.status == 'Rejected' ||
+                              data.currentStaff == '' ||
+                              data.currentStaff == null ||
+                              data.currentStatus == 'Terminate'
+                            "
+                            class="approve-btn"
+                            title="Approve"
+                            type="button"
+                          >
+                            <img src="assets/img/assign.jpg" />
+                          </button>
+
+                          <button
+                            (click)="rejectstatusModalOpen(data.customerID, data.id)"
+                            [disabled]="
+                              data.status == 'Approved' ||
+                              data.status == 'Rejected' ||
+                              data.currentStaff == '' ||
+                              data.currentStaff == null ||
+                              data.currentStatus == 'Terminate'
+                            "
+                            class="approve-btn"
+                            title="Reject"
+                            type="button"
+                          >
+                            <img src="assets/img/reject.jpg" />
+                          </button>
+                          <button
+                            id="assign-button"
+                            class="approve-btn"
+                            title="Reassign Termination"
+                            (click)="StaffReasignListForTermination(customerLedgerDetailData.id)"
+                            [disabled]="
+                              data.currentStatus == 'Terminate' || data.status == 'Rejected'
+                            "
+                          >
+                            <img width="32" height="32" src="assets/img/icons-02.png" />
+                          </button>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div *ngIf="data.status !== 'Rejected'">
+                        {{ customerLedgerDetailData?.remainTime }}
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="pagination_Dropdown">
+                <pagination-controls
+                  (pageChange)="pageChangeStatusConfig($event)"
+                  [directionLinks]="true"
+                  id="ChangeStatuspageData"
+                  [maxSize]="10"
+                  nextLabel=""
+                  previousLabel=""
+                ></pagination-controls>
+                <div id="itemPerPageDropdown">
+                  <p-dropdown
+                    (onChange)="TotalChangeStatusItemPerPage($event)"
+                    [options]="pageLimitOptions"
+                    optionLabel="value"
+                    optionValue="value"
+                  ></p-dropdown>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="AllcustApproveList.length === 0" class="col-lg-12 col-md-12">
+              Customer Status data list not found
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Approve Reject Modal Start -->
+<div
+  aria-labelledby="myModalLabel"
+  class="modal fade"
+  id="ApproveRejectModal"
+  role="dialog"
+  tabindex="-1"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4
+          class="modal-title"
+          id="myModalLabel"
+          style="color: #fff !important"
+          *ngIf="ifApproveStatus"
+        >
+          Approve Status
+        </h4>
+        <h4
+          class="modal-title"
+          id="myModalLabel"
+          style="color: #fff !important"
+          *ngIf="!ifApproveStatus"
+        >
+          Reject Status
+        </h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <label>Remark</label>
+            <textarea
+              [(ngModel)]="approveRejectRemark"
+              placeholder="Remarks"
+              class="form-control"
+              name="remark"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          (click)="statusApporevedRejected()"
+          [disabled]="!approveRejectRemark"
+          class="btn btn-primary"
+          id="submit"
+          type="submit"
+        >
+          <i class="fa fa-check-circle"></i>
+          Save
+        </button>
+
+        <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Approve Reject Modal End -->
+
+<!-- Assign Customer Modal Start -->
+<div
+  aria-labelledby="myModalLabel"
+  class="modal fade"
+  id="assignCustomerInventoryModal"
+  role="dialog"
+  tabindex="-1"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="myModalLabel" style="color: #fff !important">Assign Staff</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div *ngIf="approved" class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="card">
+              <h5>Select Staff</h5>
+              <p-table
+                [(selection)]="selectStaff"
+                [value]="approveInventoryData"
+                responsiveLayout="scroll"
+              >
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th style="width: 3rem"></th>
+                    <th>Name</th>
+                    <th>Username</th>
+                  </tr>
+                </ng-template>
+                <ng-template let-product pTemplate="body">
+                  <tr>
+                    <td>
+                      <p-tableRadioButton [value]="product.id"></p-tableRadioButton>
+                    </td>
+                    <td>{{ product.fullName }}</td>
+                    <td>
+                      {{ product.username }}
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </div>
+        </div>
+        <!-- <input type="file" formControlName="fileName" name="fileName"> -->
+      </div>
+      <div class="modal-footer">
+        <button
+          (click)="assignToStaff(true)"
+          *ngIf="approved"
+          class="btn btn-primary"
+          id="submit"
+          type="submit"
+        >
+          <i class="fa fa-check-circle"></i>
+          Assign
+        </button>
+        <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Assign Customer Modal End-->
+
+<!-- Reject Customer Modal Start -->
+<div
+  aria-labelledby="myModalLabel"
+  class="modal fade"
+  id="rejectCustomerInventoryModal"
+  role="dialog"
+  tabindex="-1"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="myModalLabel" style="color: #fff !important">Assign Staff</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div *ngIf="reject" class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="card">
+              <h5>Select Staff</h5>
+              <p-table
+                [(selection)]="selectStaffReject"
+                [value]="rejectInventoryData"
+                responsiveLayout="scroll"
+              >
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th style="width: 3rem"></th>
+                    <th>Name</th>
+                    <th>Username</th>
+                  </tr>
+                </ng-template>
+                <ng-template let-product pTemplate="body">
+                  <tr>
+                    <td>
+                      <p-tableRadioButton [value]="product.id"></p-tableRadioButton>
+                    </td>
+                    <td>{{ product.fullName }}</td>
+                    <td>
+                      {{ product.username }}
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          (click)="assignToStaff(false)"
+          *ngIf="reject"
+          class="btn btn-primary"
+          id="submit"
+          type="submit"
+        >
+          <i class="fa fa-times-circle"></i>
+          Assign
+        </button>
+        <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Reject Customer Modal End -->
+
+<!-- Customer Termination Modal Start -->
+<p-dialog
+  header="Approve Customer"
+  [(visible)]="customerTermination"
+  [style]="{ width: '50%' }"
+  [modal]="true"
+  [responsive]="true"
+  [draggable]="false"
+  [closable]="false"
+>
+  <div class="modal-body">
+    <form [formGroup]="assignTerminationForm">
+      <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <div class="card">
+            <h5>Select Staff</h5>
+            <p-table [value]="staffDataList" [(selection)]="selectStaff" responsiveLayout="scroll">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width: 3rem"></th>
+                  <th>Name</th>
+                  <th>Username</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-product>
+                <tr>
+                  <td>
+                    <p-tableRadioButton [value]="product.id"></p-tableRadioButton>
+                  </td>
+                  <td>{{ product.fullName }}</td>
+                  <td>
+                    {{ product.username }}
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <label>Remark</label>
+          <textarea
+            class="form-control"
+            name="remark"
+            formControlName="remark"
+            [ngClass]="{
+              'is-invalid': assignPlansubmitted && assignTerminationForm.controls['remark'].errors
+            }"
+          ></textarea>
+          <div
+            class="errorWrap text-danger"
+            *ngIf="assignPlansubmitted && assignTerminationForm.controls['remark'].errors"
+          ></div>
+          <br />
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button
+      type="submit"
+      class="btn btn-primary"
+      id="submit"
+      (click)="reassignTerminationWorkflow()"
+    >
+      <i class="fa fa-check-circle"></i>
+      Assign
+    </button>
+
+    <button
+      type="button"
+      class="btn btn-default"
+      data-dismiss="modal"
+      (click)="closeStaffReasignListForTermination()"
+    >
+      Close
+    </button>
+  </div>
+</p-dialog>
+
+<app-workflow-audit-details-modal
+  *ngIf="ifModelIsShow"
+  [auditcustid]="auditcustid"
+  dialogId="custauditWorkflowModal"
+  (closeParentCustt)="closeModal()"
+></app-workflow-audit-details-modal>

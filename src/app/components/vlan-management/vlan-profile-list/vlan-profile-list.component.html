@@ -1,0 +1,731 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="panel mb-15">
+      <div class="panel-heading">
+        <h3 class="panel-title">VLAN ProfileManagement</h3>
+        <div class="right">
+          <button
+            aria-controls="searchPreCust"
+            aria-expanded="false"
+            class="btn-toggle-collapse"
+            data-bs-target="#searchPreCust"
+            data-bs-toggle="collapse"
+            type="button"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+      <div id="acctProfileSearchPanel" class="panel-collapse collapse show">
+        <div class="panel-body">
+          <div class="searchForm">
+            <form class="form-auth-small" [formGroup]="searchProfileForm">
+              <div class="row">
+                <div class="col-lg-3 col-md-3 m-b-10">
+                  <p-dropdown
+                    [options]="searchOptionSelect"
+                    optionValue="value"
+                    optionLabel="label"
+                    [filter]="true"
+                    filterBy="label"
+                    placeholder="Select a Search Option"
+                    [(ngModel)]="searchOption"
+                    [ngModelOptions]="{ standalone: true }"
+                    (onChange)="selSearchOption($event)"
+                  ></p-dropdown>
+                </div>
+                <div class="col-md-3" style="padding-left: 0%" *ngIf="searchOption == 'vlanName'">
+                  <input
+                    type="text"
+                    name="name"
+                    class="form-control"
+                    placeholder="Enter VLAN Name"
+                    formControlName="vlanName"
+                    (keydown.enter)="searchProfileByName()"
+                  />
+                </div>
+                <div
+                  class="col-md-3"
+                  style="padding-left: 0%"
+                  *ngIf="searchOption == 'nasIdentifier'"
+                >
+                  <input
+                    type="text"
+                    name="name"
+                    class="form-control"
+                    placeholder="Enter NAS Identifier"
+                    formControlName="nasIdentifier"
+                    (keydown.enter)="searchProfileByName()"
+                  />
+                </div>
+                <div class="col-md-4" style="padding-left: 0%">
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    title="Search Profile"
+                    data-bs-toggle="tooltip"
+                    (click)="searchProfileByName()"
+                    [disabled]="
+                      !searchProfileForm.value.nasIdentifier && !searchProfileForm.value.vlanName
+                    "
+                  >
+                    <i class="fa fa-search"></i>
+                    Search
+                  </button>
+                  &nbsp;
+                  <button
+                    type="reset"
+                    class="btn btn-default"
+                    title="Clear"
+                    data-bs-toggle="tooltip"
+                    (click)="clearSearchForm()"
+                  >
+                    <i class="fa fa-refresh"></i>
+                    Clear
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12 col-sm-12">
+    <div class="panel">
+      <div class="panel-heading">
+        <h3 class="panel-title">VLAN Profile List</h3>
+        <div class="right">
+          <button
+            aria-controls="listPreCust"
+            aria-expanded="false"
+            class="btn-toggle-collapse"
+            data-bs-target="#listPreCust"
+            data-bs-toggle="collapse"
+            type="button"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+      <div style="margin: 10px" *ngIf="selectedProfiles.size > 0">
+        <button type="button" class="btn btn-primary" (click)="deleteMultipleVLAnConfirm()">
+          Delete Multiple
+        </button>
+        <!-- class="p-button-danger" -->
+      </div>
+
+      <div class="panel-collapse collapse show" id="listPreCust">
+        <div class="panel-body table-responsive">
+          <div class="row">
+            <div class="col-lg-12 col-md-12">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th class="widthCheckboxColom">
+                      <div class="centerCheckbox">
+                        <p-checkbox
+                          name="allChecked"
+                          [(ngModel)]="isProfileChecked"
+                          [binary]="true"
+                          (onChange)="allSelectProfiles($event)"
+                        ></p-checkbox>
+                      </div>
+                    </th>
+                    <th width="20%">Name</th>
+                    <th width="20%">NAS Type</th>
+                    <th width="20%">NAS Identifier</th>
+                    <th width="20%">Last VLAN Matched</th>
+                    <th width="20%">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="
+                      let profile of profileData
+                        | paginate
+                          : {
+                              id: 'listing_groupdata',
+                              itemsPerPage: itemsPerPage,
+                              currentPage: currentPage,
+                              totalItems: totalRecords
+                            };
+                      index as i
+                    "
+                  >
+                    <td>
+                      <div class="centerCheckbox">
+                        <p-checkbox
+                          class="p-field-checkbox"
+                          [value]="profile.isSingleProfileChecked"
+                          [inputId]="profile.vlanId"
+                          [(ngModel)]="profile.isSingleProfileChecked"
+                          (onChange)="addProfileChecked(profile.vlanId, $event)"
+                          [binary]="true"
+                        ></p-checkbox>
+                      </div>
+                    </td>
+                    <td>
+                      <a
+                        (click)="getVlanProfileDetails(profile.vlanId)"
+                        title="Click To See Radius Client Group Detail"
+                        style="color: darkblue"
+                        class="curson_pointer"
+                      >
+                        {{ profile.vlanName }}
+                      </a>
+                    </td>
+                    <td>
+                      {{ profile.nasType }}
+                    </td>
+                    <td>
+                      {{ profile.nasIdentifier }}
+                    </td>
+                    <td>
+                      {{ profile.lastAuthMatched }}
+                    </td>
+                    <td class="btnAction">
+                      <a
+                        *ngIf="editAccess"
+                        type="button"
+                        data-title="Edit"
+                        data-bs-toggle="tooltip"
+                        class="curson_pointer"
+                        [routerLink]="[
+                          '/home/vlanManagement/edit/',
+                          profile.vlanId,
+                          profile.mvnoId
+                        ]"
+                      >
+                        <img src="assets/img/ioc01.jpg" />
+                      </a>
+                      <a
+                        *ngIf="deleteAccess"
+                        type="button"
+                        data-title="Delete"
+                        data-bs-toggle="tooltip"
+                        class="curson_pointer"
+                        (click)="deleteConfirm(profile.vlanId, profile.mvnoId, i)"
+                      >
+                        <img src="assets/img/ioc02.jpg" />
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div style="display: flex">
+                <pagination-controls
+                  id="listing_groupdata"
+                  [maxSize]="10"
+                  [directionLinks]="true"
+                  previousLabel=""
+                  nextLabel=""
+                  (pageChange)="pageChanged($event)"
+                ></pagination-controls>
+                <div id="itemPerPageDropdown">
+                  <p-dropdown
+                    [options]="pageLimitOptions"
+                    optionLabel="value"
+                    optionValue="value"
+                    (onChange)="TotalItemPerPage($event)"
+                  ></p-dropdown>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Vlan Audit Model-->
+<p-dialog
+  header="Vlan Audit details"
+  [(visible)]="isVlanAuditModel"
+  [modal]="true"
+  [style]="{ width: '75%' }"
+  [draggable]="false"
+  [resizable]="false"
+  [responsive]="true"
+  [closable]="true"
+  (onHide)="closeAuditDetailsModel()"
+>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-lg-12 col-md-12">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Vlan Name</th>
+              <th>Action</th>
+              <th>Staff name</th>
+              <th>Remark</th>
+              <th>Action Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="
+                let audit of auditDetails
+                  | paginate
+                    : {
+                        id: 'listing_groupdata',
+                        itemsPerPage: itemsPerPage,
+                        currentPage: currentPage,
+                        totalItems: totalRecords
+                      };
+                index as i
+              "
+            >
+              <td>
+                <div *ngIf="audit.entitytName">
+                  {{ audit.entitytName }}
+                </div>
+              </td>
+              <td>
+                <div>
+                  {{ audit.action }}
+                </div>
+              </td>
+              <td>
+                <div>
+                  {{ audit.actionByName }}
+                </div>
+              </td>
+              <td>
+                <div>
+                  {{ audit.remark }}
+                </div>
+              </td>
+              <td>
+                <div>
+                  {{ audit.actionDateTime | date: "yyyy-MM-dd hh:mm a" }}
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <br />
+        <br />
+        <div style="display: flex">
+          <pagination-controls
+            id="listing_groupdata"
+            [maxSize]="10"
+            [directionLinks]="true"
+            previousLabel=""
+            nextLabel=""
+            (pageChange)="pageAuditChanged($event)"
+          ></pagination-controls>
+          <div id="itemPerPageDropdown">
+            <p-dropdown
+              [options]="pageLimitOptions"
+              optionLabel="value"
+              optionValue="value"
+              (onChange)="TotalItemPerPageAudit($event)"
+            ></p-dropdown>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-default" (click)="closeAuditDetailsModel()">
+        Close
+      </button>
+    </div>
+  </div>
+</p-dialog>
+
+<p-dialog
+  header="VLAN profile Detail"
+  [(visible)]="vlanProfileDetailModal"
+  [baseZIndex]="10000"
+  [style]="{ width: '60%' }"
+  [modal]="true"
+  [responsive]="true"
+  [draggable]="false"
+  [closable]="true"
+  (onHide)="closeVlanProfileDetails()"
+>
+  <div class="modal-body">
+    <p-fieldset legend="VLAN Attribute">
+      <div class="boxWhite">
+        <div class="row">
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">VLAN Name :</label>
+            <span>
+              {{ vlanProfileData?.vlanName ? vlanProfileData?.vlanName : "-" }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">NAS Identifier :</label>
+            <span>{{ vlanProfileData?.nasIdentifier ? vlanProfileData?.nasIdentifier : "-" }}</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Circuit Type :</label>
+            <span>{{ vlanProfileData?.circuitType ? vlanProfileData?.circuitType : "-" }}</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">NAS Port 2 :</label>
+            <span>{{ vlanProfileData?.nasPortId2 ? vlanProfileData?.nasPortId2 : "-" }}</span>
+          </div>
+
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">NAS Port 4 :</label>
+            <span>{{ vlanProfileData?.nasPortId4 ? vlanProfileData?.nasPortId4 : "-" }}</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">NAS Port 5 :</label>
+            <span>
+              {{ vlanProfileData?.nasPortId5 ? vlanProfileData?.nasPortId5 : "-" }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Forward Policy :</label>
+            <span>{{ vlanProfileData?.forwardPolicy ? vlanProfileData?.forwardPolicy : "-" }}</span>
+          </div>
+
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">HTTP Redirect Profile :</label>
+            <span>{{
+              vlanProfileData?.httpRedirectProfileName
+                ? vlanProfileData?.httpRedirectProfileName
+                : "-"
+            }}</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Framed IP Address :</label>
+            <span>{{
+              vlanProfileData?.framedIpAddress ? vlanProfileData?.framedIpAddress : "-"
+            }}</span>
+          </div>
+
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">RB DHCP Max Leases :</label>
+            <span>{{
+              vlanProfileData?.rbDhcpMaxLeases ? vlanProfileData?.rbDhcpMaxLeases : "-"
+            }}</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">IP Address Pool Name :</label>
+            <span>
+              {{ vlanProfileData?.ipAddressPoolName ? vlanProfileData?.ipAddressPoolName : "-" }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">RB Interface Name :</label>
+            <span>{{
+              vlanProfileData?.rbInterfaceName ? vlanProfileData?.rbInterfaceName : "-"
+            }}</span>
+          </div>
+
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">HTTP Redirect URL :</label>
+            <span>{{
+              vlanProfileData?.httpRedirectUrl ? vlanProfileData?.httpRedirectUrl : "-"
+            }}</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Framed IPv6 Prefix :</label>
+            <span>{{
+              vlanProfileData?.framedIpv6Prefix ? vlanProfileData?.framedIpv6Prefix : "-"
+            }}</span>
+          </div>
+
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Delegated IPv6 Prefix :</label>
+            <span>{{
+              vlanProfileData?.delegatedIpv6Prefix ? vlanProfileData?.delegatedIpv6Prefix : "-"
+            }}</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Framed IPv6 Pool :</label>
+            <span>{{
+              vlanProfileData?.framedIpv6Pool ? vlanProfileData?.framedIpv6Pool : "-"
+            }}</span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Delegated IPv6 Pool :</label>
+            <span>{{
+              vlanProfileData?.delegatedIpv6Pool ? vlanProfileData?.delegatedIpv6Pool : "-"
+            }}</span>
+          </div>
+
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Sub Profile :</label>
+            <span>{{ vlanProfileData?.subProfile ? vlanProfileData?.subProfile : "-" }}</span>
+          </div>
+        </div>
+      </div>
+    </p-fieldset>
+    <p-fieldset legend="Additional Attribute" [toggleable]="true" [collapsed]="true">
+      <div class="boxWhite">
+        <div class="row">
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Radius Attribute Group Id :</label>
+            <span>
+              {{
+                vlanProfileData?.radiusAttributeGroupId
+                  ? vlanProfileData?.radiusAttributeGroupId
+                  : "-"
+              }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">NAS Type :</label>
+            <span>
+              {{ vlanProfileData?.nasType ? vlanProfileData?.nasType : "-" }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">NAS Port 1 :</label>
+            <span>
+              {{ vlanProfileData?.nasPortId1 ? vlanProfileData?.nasPortId1 : "-" }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">NAS Port 3 :</label>
+            <span>
+              {{ vlanProfileData?.nasPortId3 ? vlanProfileData?.nasPortId3 : "-" }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Calling Station Id :</label>
+            <span>
+              {{ vlanProfileData?.callingStationId ? vlanProfileData?.callingStationId : "-" }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Filter Id :</label>
+            <span>
+              {{ vlanProfileData?.filterId ? vlanProfileData?.filterId : "-" }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Context Name :</label>
+            <span>
+              {{ vlanProfileData?.contextName ? vlanProfileData?.contextName : "-" }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Rate Limit Rate :</label>
+            <span>
+              {{ vlanProfileData?.rateLimitRate ? vlanProfileData?.rateLimitRate : "-" }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Rate Limit Burst :</label>
+            <span>
+              {{ vlanProfileData?.rateLimitBurst ? vlanProfileData?.rateLimitBurst : "-" }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">QOS Policing Policy Name :</label>
+            <span>
+              {{
+                vlanProfileData?.qosPolicingPolicyName
+                  ? vlanProfileData?.qosPolicingPolicyName
+                  : "-"
+              }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">QOS Metering Policy Name :</label>
+            <span>
+              {{
+                vlanProfileData?.qosMeteringPolicyName
+                  ? vlanProfileData?.qosMeteringPolicyName
+                  : "-"
+              }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">PPPOE URL :</label>
+            <span>
+              {{ vlanProfileData?.pppoeUrl ? vlanProfileData?.pppoeUrl : "-" }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">PPP DNS Primary :</label>
+            <span>
+              {{ vlanProfileData?.pppDnsPrimary ? vlanProfileData?.pppDnsPrimary : "-" }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">PPP DNS Secondary :</label>
+            <span>
+              {{ vlanProfileData?.pppDnsSecondary ? vlanProfileData?.pppDnsSecondary : "-" }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">PPP NBNS Primary :</label>
+            <span>
+              {{ vlanProfileData?.pppNbnsPrimary ? vlanProfileData?.pppNbnsPrimary : "-" }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Session Timeout :</label>
+            <span>
+              {{ vlanProfileData?.sessionTimeOut ? vlanProfileData?.sessionTimeOut : "-" }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Idle Timeout :</label>
+            <span>
+              {{ vlanProfileData?.idleTimeOut ? vlanProfileData?.idleTimeOut : "-" }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">NAT Profile Name :</label>
+            <span>
+              {{ vlanProfileData?.natProfileName ? vlanProfileData?.natProfileName : "-" }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Framed Interface Id :</label>
+            <span>
+              {{ vlanProfileData?.framedInterfaceId ? vlanProfileData?.framedInterfaceId : "-" }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">IPv6 Option :</label>
+            <span>
+              {{ vlanProfileData?.ipv6Option ? vlanProfileData?.ipv6Option : "-" }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">IPv6 DNS :</label>
+            <span>
+              {{ vlanProfileData?.ipv6Dns ? vlanProfileData?.ipv6Dns : "-" }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Delegated Max Prefix :</label>
+            <span>
+              {{ vlanProfileData?.delegatedMaxPrefix ? vlanProfileData?.delegatedMaxPrefix : "-" }}
+            </span>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 dataGroup">
+            <label class="datalbl">Priority :</label>
+            <span>
+              {{ vlanProfileData?.priority ? vlanProfileData?.priority : "-" }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </p-fieldset>
+    <p-fieldset legend="Attribute Mapping Details" *ngIf="vlanProfileData?.mappingList?.length > 0">
+      <div class="boxWhite">
+        <div class="row table-responsive">
+          <div class="col-lg-12 col-md-12">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Profile Attribute</th>
+                  <th>Regex</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let attr of vlanProfileData?.mappingList">
+                  <td>
+                    {{
+                      attr?.radiusAttribute === null ||
+                      attr?.radiusAttribute === undefined ||
+                      attr?.radiusAttribute === ""
+                        ? "-"
+                        : attr?.radiusAttribute
+                    }}
+                  </td>
+                  <td>
+                    {{
+                      attr?.regex === null || attr?.regex === undefined || attr?.regex === ""
+                        ? "-"
+                        : attr?.regex
+                    }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </p-fieldset>
+    <!-- <fieldset
+      style="margin-top: 0rem; margin-bottom: 2rem"
+      *ngIf="vlanProfileData?.attribute?.length > 0"
+    >
+      <legend>Authentication Attribute Mapping Details</legend>
+      <div class="boxWhite">
+        <div class="row table-responsive">
+          <div class="col-lg-12 col-md-12">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Check Item</th>
+                  <th>Profile Attribute</th>
+                  <th>Radius Attribute</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="
+                    let authAttr of vlanProfileData?.attribute
+                      | paginate
+                        : {
+                            id: 'authenticateAttrData',
+                            itemsPerPage: authenticateAttrItemPerPage,
+                            currentPage: currentPageAuthenticateAttrList,
+                            totalItems: authenticateAttrtotalRecords
+                          };
+                    index as i
+                  "
+                >
+                  <td>
+                    {{
+                      authAttr?.checkitem === null ||
+                      authAttr?.checkitem === undefined ||
+                      authAttr?.checkitem === ""
+                        ? "-"
+                        : authAttr?.checkitem
+                    }}
+                  </td>
+                  <td>
+                    {{
+                      authAttr?.attributeValue === null ||
+                      authAttr?.attributeValue === undefined ||
+                      authAttr?.attributeValue === ""
+                        ? "-"
+                        : authAttr?.attributeValue
+                    }}
+                  </td>
+                  <td>
+                    {{
+                      authAttr?.attribute === null ||
+                      authAttr?.attribute === undefined ||
+                      authAttr?.attribute === ""
+                        ? "-"
+                        : authAttr?.attribute
+                    }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <pagination-controls
+              id="authenticateAttrData"
+              maxSize="10"
+              directionLinks="true"
+              previousLabel=""
+              nextLabel=""
+              (pageChange)="pageChangedAuthenticateAttrList($event)"
+            ></pagination-controls>
+          </div>
+        </div>
+      </div>
+    </fieldset> -->
+  </div>
+  <div class="modal-footer">
+    <button type="button" (click)="closeVlanProfileDetails()" class="btn btn-default">Close</button>
+  </div>
+</p-dialog>

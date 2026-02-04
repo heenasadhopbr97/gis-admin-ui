@@ -1,0 +1,353 @@
+// Custom Theming for Angular Material
+// For more information: https://material.angular.io/guide/theming
+// // @import '@angular/material/theming';
+@use "@angular/material" as mat;
+
+// // Plus imports for other components in your app.
+
+// // Include the common styles for Angular Material. We include this here so that you only
+// // have to load a single css file for Angular Material in your app.
+// // Be sure that you only ever include this mixin once!
+// // @include mat-core();
+// @include mat.core();
+
+// // Define the palettes for your theme using the Material Design palettes available in palette.scss
+// // (imported above). For each palette, you can optionally specify a default, lighter, and darker
+// // hue. Available color palettes: https://material.io/design/color/
+
+// // $XcessGui-primary: mat-palette($mat-indigo);
+// // $XcessGui-accent: mat-palette($mat-pink, A200, A100, A400);
+
+// $XcessGui-primary: mat.define-palette(mat.$indigo-palette);
+// $XcessGui-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
+
+// // The warn palette is optional (defaults to red).
+// // $XcessGui-warn: mat-palette($mat-red);
+// $XcessGui-warn: mat.define-palette(mat.$red-palette);
+
+// // Create the theme object. A theme consists of configurations for individual
+// // theming systems such as "color" or "typography".
+// // $XcessGui-theme: mat-light-theme((
+// //   color: (
+// //     primary: $XcessGui-primary,
+// //     accent: $XcessGui-accent,
+// //     warn: $XcessGui-warn,
+// //   )
+// // ));
+
+// $XcessGui-theme: mat.define-light-theme((
+//   color: (
+//     primary: $XcessGui-primary,
+//     accent: $XcessGui-accent,
+//     warn: $XcessGui-warn
+//   )
+// ));
+
+// // Include theme styles for core and each component used in your app.
+// // Alternatively, you can import and @include the theme mixins for each component
+// // that you are using.
+// // @include angular-material-theme($XcessGui-theme);
+// @include mat.all-component-themes($XcessGui-theme);
+
+html {
+  color-scheme: light dark;
+  @include mat.theme(
+    (
+      color: mat.$violet-palette,
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+
+.badge {
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  min-width: 75px;
+  &.badge-success {
+    color: #fff;
+    background-color: #28a745;
+  }
+  &.badge-danger {
+    color: #fff;
+    background-color: #dc3545;
+  }
+  &.badge-info {
+    color: #fff;
+    background-color: #17a2b8;
+  }
+}
+
+p-calendar {
+  &.m-b-0 {
+    margin-bottom: 0;
+    .p-calendar {
+      margin-bottom: 0px;
+    }
+  }
+  .p-calendar {
+    // margin-bottom: 22px;
+    width: 100%;
+
+    .p-inputtext {
+      border-radius: 2px;
+      padding: 6px 12px;
+      border: 1px solid #eaeaea;
+      line-height: 1;
+      background: transparent;
+      color: #555;
+      background-color: #fcfcfc;
+      box-shadow: 0px 1px 2px 0 rgb(0 0 0 / 10%);
+    }
+  }
+}
+
+.sidebar {
+  .userimg {
+    padding: 12px 10px;
+  }
+  .nav {
+    li {
+      a {
+        padding: 18px 10px 18px 10px;
+        font-size: 14px;
+        span {
+          top: 0;
+        }
+        img {
+          &.navi {
+            width: 25px;
+          }
+        }
+        i {
+          &.icon-submenu {
+            margin-right: 0;
+          }
+        }
+      }
+    }
+  }
+}
+.dataGroup {
+  margin-bottom: 10px;
+  &.m-0 {
+    margin-bottom: 0;
+  }
+  .datalbl {
+    margin-right: 5px;
+    font-weight: bold;
+  }
+}
+
+.red-bg {
+  background-color: #ffebeb;
+}
+
+.gridbtn {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 5px 10px;
+  font-size: 18px;
+  line-height: 1;
+  &:disabled {
+    &:hover {
+      background: transparent;
+      border: none;
+    }
+    &:focus {
+      background: transparent;
+      border: none;
+    }
+  }
+  &:hover {
+    background: transparent;
+    border: none;
+  }
+  &:focus {
+    background: transparent;
+    border: none;
+  }
+  &.btn-success {
+    color: #41b314;
+  }
+  &.btn-danger {
+    color: #d9534f;
+  }
+}
+
+a {
+  &#assign-button {
+    &[disabled="true"] {
+      pointer-events: none !important;
+      cursor: default;
+      opacity: 0.7;
+    }
+  }
+}
+
+.progressbarWrap {
+  display: -ms-flexbox;
+  display: flex;
+  justify-content: space-around;
+}
+.progressbarWrap .circleWrap {
+  flex-basis: 0;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
+  max-width: 100%;
+  position: relative;
+  text-align: center;
+}
+.progressbarWrap .circledv {
+  width: 30px;
+  height: 30px;
+  margin: 0 auto;
+  background: lightgray;
+  line-height: 30px;
+  text-align: center;
+  color: #fff;
+  border-radius: 50%;
+  position: relative;
+  z-index: 9;
+  cursor: pointer;
+}
+.circleWrap p {
+  margin-top: 10px;
+  color: gray;
+  font-family: var(--main-font-family);
+}
+.circleWrap.complete p {
+  color: #000;
+}
+.complete .circledv {
+  background: #1dc9b7;
+}
+.progressdv .circledv {
+  background: #ec7a86;
+}
+.line {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  z-index: 1;
+  height: 6px;
+  transition: all 0.5s ease;
+  background: lightgray;
+  width: 100%;
+}
+
+.complete .line {
+  background: #1dc9b7;
+}
+fieldset {
+  &.m-0 {
+    margin-top: 0;
+  }
+}
+
+.p-organizationchart {
+  .p-person {
+    padding: 0;
+    border: 0 none;
+  }
+
+  .node-header,
+  .node-content {
+    padding: 0.5em 0.7rem;
+  }
+
+  .node-header {
+    background-color: #495ebb;
+    color: #ffffff;
+  }
+
+  .node-content {
+    text-align: center;
+    border: 1px solid #495ebb;
+  }
+
+  .node-content img {
+    border-radius: 50%;
+  }
+
+  .department-cfo {
+    background-color: #7247bc;
+    color: #ffffff;
+  }
+
+  .department-coo {
+    background-color: #a534b6;
+    color: #ffffff;
+  }
+
+  .department-cto {
+    background-color: #e9286f;
+    color: #ffffff;
+  }
+}
+/* layers.component.scss */
+.feature-item {
+  transition: all 0.3s ease;
+
+  &.hidden {
+    opacity: 0.5;
+    label {
+      text-decoration: line-through;
+      color: #999;
+    }
+  }
+
+  // location
+  /* zoom-controls.component.scss */
+  .map-controls {
+    position: absolute;
+    right: 15px;
+    bottom: 15px;
+    z-index: 1000;
+  }
+
+  .zoom-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    padding: 8px;
+
+    button {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+
+      &:hover {
+        background: #f5f5f5;
+      }
+
+      &.active {
+        background: #e8f0fe;
+        box-shadow: 0 0 0 2px #e8f0fe;
+      }
+
+      &[disabled] {
+        opacity: 0.7;
+        cursor: wait;
+      }
+
+      svg {
+        width: 24px;
+        height: 24px;
+      }
+    }
+  }
+}

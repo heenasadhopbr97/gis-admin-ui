@@ -1,0 +1,102 @@
+<div class="row" *ngIf="isShowMenu">
+  <div class="col-md-12">
+    <div class="panel mb-15">
+      <div class="panel-heading">
+        <h3 class="panel-title">VLAN Profile Management</h3>
+        <div class="right">
+          <button
+            aria-controls="searchPreCust"
+            aria-expanded="false"
+            class="btn-toggle-collapse"
+            data-bs-target="#searchPreCust"
+            data-bs-toggle="collapse"
+            type="button"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+      <div class="panel-collapse collapse show" id="searchPreCust">
+        <div class="panel-body no-padding panel-udata">
+          <div [ngClass]="'col-md-3'" class="pcol" *ngIf="createAccess">
+            <div>
+              <a
+                [routerLink]="['/home/vlanManagement/create']"
+                class="curson_pointer"
+                href="javascript:void(0)"
+                class="dbox"
+              >
+                <img src="../../../assets/img/i01.png" style="width: 32px" />
+                <h5>Create VLAN Profile</h5>
+              </a>
+              <div
+                *ngIf="isShowCreateView"
+                [ngClass]="{
+                  activeSubMenu: true
+                }"
+              ></div>
+            </div>
+          </div>
+          <div [ngClass]="'col-md-3'" class="pcol">
+            <div>
+              <a
+                [routerLink]="['/home/vlanManagement/list']"
+                class="curson_pointer"
+                href="javascript:void(0)"
+                class="dbox"
+              >
+                <img src="../../../assets/img/i01.png" style="width: 32px" />
+                <h5>Search VLAN Profile</h5>
+              </a>
+              <div
+                [ngClass]="{
+                  activeSubMenu: true
+                }"
+                *ngIf="isShowListView"
+              ></div>
+            </div>
+          </div>
+          <div [ngClass]="'col-md-3'" class="pcol">
+            <div>
+              <a
+                [routerLink]="['/home/vlanManagement/bulkAdd']"
+                class="curson_pointer"
+                href="javascript:void(0)"
+                class="dbox"
+              >
+                <img src="../../../assets/img/i01.png" style="width: 32px" />
+                <h5>Bulk VLAN</h5>
+              </a>
+              <div
+                [ngClass]="{
+                  activeSubMenu: true
+                }"
+                *ngIf="isShowBulkView"
+              ></div>
+            </div>
+          </div>
+          <div [ngClass]="'col-md-3'" class="pcol">
+            <div>
+              <a
+                [routerLink]="['/home/vlanManagement/audit']"
+                class="curson_pointer"
+                href="javascript:void(0)"
+                class="dbox"
+              >
+                <img src="../../../assets/img/i01.png" style="width: 32px" />
+                <h5>Vlan Audit</h5>
+              </a>
+              <div
+                [ngClass]="{
+                  activeSubMenu: true
+                }"
+                *ngIf="isShowAudit"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<router-outlet> </router-outlet>

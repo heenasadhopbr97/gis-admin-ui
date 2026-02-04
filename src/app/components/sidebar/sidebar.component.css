@@ -1,0 +1,37 @@
+.innerMenu {
+  padding-left: 85px !important;
+}
+/* for adjist profile left side */
+.sidebar .userimg {
+  padding: 12px 10px;
+  font-size: 15px
+}
+
+.paddingmenuIcon {
+  float: right;
+}
+
+::ng-deep .mat-tooltip {
+  font-size: 15px !important;
+  white-space: pre-wrap !important;
+  border: 1px solid #494948 !important;
+  max-width: unset !important;
+  background-color: #494948 !important;
+  color: darkblue !important;
+}
+.circular-profile-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.brand img.img-responsive.logo.Keyannalogo {
+  display: block;
+  width: 100%;
+  padding-left: 34px;
+  padding-bottom: 12px;
+  max-width: 85%;
+  padding-top: 5px;
+  height: auto;
+}

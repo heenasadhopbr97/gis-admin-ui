@@ -1,0 +1,626 @@
+<div class="row">
+  <div class="col-md-12 col-sm-12">
+    <div class="panel">
+      <div class="panel-heading">
+        <div class="displayflex">
+          <button
+            (click)="customerDetailOpen()"
+            class="btn btn-secondary backbtn"
+            data-placement="bottom"
+            data-bs-toggle="tooltip"
+            title="Go to Customer Details"
+            type="button"
+          >
+            <i
+              class="fa fa-arrow-circle-left"
+              style="color: darkblue !important; font-size: 28px"
+            ></i>
+          </button>
+          <h3 class="panel-title">
+            Search {{ customerLedgerDetailData?.title }}
+            {{ customerLedgerDetailData?.firstname }}
+            {{ customerLedgerDetailData?.lastname }} Invoice
+          </h3>
+        </div>
+        <div class="right">
+          <button
+            aria-controls="searchInvoiceCust"
+            aria-expanded="false"
+            class="btn-toggle-collapse"
+            data-bs-target="#searchInvoiceCust"
+            data-bs-toggle="collapse"
+            type="button"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-collapse collapse show" id="searchInvoiceCust">
+        <div class="panel-body table-responsive">
+          <div class="searchForm">
+            <form [formGroup]="searchInvoiceMasterFormGroup">
+              <div class="row">
+                <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+                  <div class="form-group">
+                    <label>Invoice No</label>
+                    <input
+                      class="form-control"
+                      formControlName="docnumber"
+                      placeholder="Invoice No"
+                      type="text"
+                    />
+                  </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+                  <div class="form-group">
+                    <label>Customer Name</label>
+                    <select class="form-control" disabled name="customerid" style="width: 100%">
+                      <option>
+                        {{ customerLedgerDetailData?.title }}
+                        {{ customerLedgerDetailData?.custname }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+                  <div class="form-group">
+                    <label>Bill From Date</label>
+                    <input
+                      class="form-control"
+                      formControlName="billfromdate"
+                      placeholder="Enter Pay From Date"
+                      type="date"
+                    />
+                  </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+                  <div class="form-group">
+                    <label>Bill To Date</label>
+                    <input
+                      class="form-control"
+                      formControlName="billtodate"
+                      placeholder="Enter Pay To Date"
+                      type="date"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="addUpdateBtn">
+                <button (click)="searchInvoices()" class="btn btn-primary" type="submit">
+                  <i class="fa fa-search"></i>
+                  Search Invoice
+                </button>
+                <button
+                  (click)="clearSearchinvoiceMaster()"
+                  class="btn btn-default"
+                  id="searchbtn"
+                  type="submit"
+                >
+                  <i class="fa fa-refresh"></i>
+                  Clear
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-12 col-sm-12">
+    <div class="panel">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          {{ customerLedgerDetailData?.title }}
+          {{ customerLedgerDetailData?.firstname }}
+          {{ customerLedgerDetailData?.lastname }} Invoice Details
+        </h3>
+        <div class="right">
+          <button
+            aria-controls="invoiceCustomerDetails"
+            aria-expanded="false"
+            class="btn-toggle-collapse"
+            data-bs-target="#invoiceCustomerDetails"
+            data-bs-toggle="collapse"
+            type="button"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <app-invoice-detalis-model
+        *ngIf="isInvoiceDetail"
+        [invoiceID]="invoiceID"
+        [custID]="custID"
+        (closeInvoiceDetails)="closeInvoiceDetails()"
+      ></app-invoice-detalis-model>
+
+      <app-invoice-payment-details-modal
+        [invoiceId]="invoiceId"
+        dialogId="invoicePaymentDetailModal"
+      >
+      </app-invoice-payment-details-modal>
+
+      <div class="panel-collapse collapse show" id="invoiceCustomerDetails">
+        <div class="panel-body table-responsive">
+          <div class="row">
+            <div *ngIf="invoiceMasterListData.length !== 0" class="col-lg-12 col-md-12">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Customer</th>
+                    <th>Invoice Number</th>
+                    <th>Purchase By</th>
+                    <th>Billable To</th>
+                    <th>Total Amount</th>
+                    <th>Adjusted Amount</th>
+                    <th>Unpaid Amount</th>
+                    <th>Bill Run Status</th>
+                    <th>Bill Date</th>
+                    <th>Payment Status</th>
+                    <!-- <th>Reference Name</th> -->
+                    <th>Payment Owner</th>
+                    <!-- <th>Document</th> -->
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="
+                      let invoice of invoiceMasterListData
+                        | paginate
+                          : {
+                              id: 'searchinvoiceMasterPageData',
+                              itemsPerPage: invoiceMasteritemsPerPage,
+                              currentPage: currentPageinvoiceMasterSlab,
+                              totalItems: invoiceMastertotalRecords
+                            };
+                      index as i
+                    "
+                  >
+                    <td>
+                      <div>
+                        {{ invoice.customerName }}
+                      </div>
+                    </td>
+                    <td *ngIf="invoice.docnumber !== '' && invoice.docnumber !== null">
+                      <div
+                        (click)="openInvoiceModal('InvoiceDetailModal', invoice)"
+                        class="curson_pointer"
+                        style="color: darkblue"
+                      >
+                        {{ invoice.docnumber }}
+                      </div>
+                    </td>
+                    <td *ngIf="invoice.docnumber == '' || invoice.docnumber === null">
+                      <div
+                        (click)="openInvoiceModal('InvoiceDetailModal', invoice)"
+                        class="curson_pointer"
+                        style="color: darkblue"
+                      >
+                        N/A
+                      </div>
+                    </td>
+                    <td>{{ invoice.createdByName }}</td>
+                    <td>
+                      {{
+                        invoice.billableToName !== null && invoice.billableToName !== ""
+                          ? invoice.billableToName
+                          : "-"
+                      }}
+                    </td>
+                    <td>
+                      <!-- <span
+                      > -->
+                      {{ invoice.totalamount | currency: currency : true : "1.2-2" }}
+                      <!-- </span> -->
+                    </td>
+                    <td>
+                      <span
+                        (click)="openInvoicePaymentModal('invoicePaymentDetailModal', invoice.id)"
+                        *ngIf="invoice.adjustedAmount"
+                        class="curson_pointer"
+                        style="color: darkblue"
+                      >
+                        {{ invoice.adjustedAmount | currency: currency : true : "1.2-2" }}
+                      </span>
+                      <span *ngIf="!invoice.adjustedAmount">0</span>
+                    </td>
+                    <td>
+                      {{
+                        invoice.totalamount - invoice.adjustedAmount
+                          | currency: currency : true : "1.2-2"
+                      }}
+                    </td>
+                    <td>
+                      <div class="badge badge-success">
+                        {{ invoice.billrunstatus }}
+                      </div>
+                    </td>
+                    <td style="font-weight: 400">
+                      {{ invoice.billdate | date: "yyyy-MM-dd" }}
+                    </td>
+                    <td>
+                      <span
+                        *ngIf="invoice.paymentStatus !== null && invoice.paymentStatus !== ''"
+                        class="badge bg-success"
+                      >
+                        {{ invoice.paymentStatus }}
+                      </span>
+                      <span
+                        *ngIf="invoice.paymentStatus === null || invoice.paymentStatus === ''"
+                        class="badge bg-warning"
+                      >
+                        UnPaid
+                      </span>
+                    </td>
+                    <td>
+                      {{ invoice.paymentowner }}
+                    </td>
+                    <td class="btnAction">
+                      <a
+                        (click)="downloadPDFINvoice(invoice.id, invoice.customerName)"
+                        *ngIf="
+                          customerLedgerDetailData?.status !== 'Terminate' &&
+                          (invoice.billrunstatus == 'Exported' ||
+                            invoice.billrunstatus == 'Printed')
+                        "
+                        href="javascript:void(0)"
+                        id="edit-button"
+                        title="Download"
+                        type="button"
+                      >
+                        <img src="assets/img/pdf.png" style="width: 25px; height: 25px" />
+                      </a>
+                      <button
+                        [disabled]="invoice.docnumber == '' || invoice.docnumber === null"
+                        (click)="generatePDFInvoice(invoice.id)"
+                        *ngIf="
+                          customerLedgerDetailData?.status !== 'Terminate' &&
+                          invoice.billrunstatus == 'Generated' &&
+                          generateAccess
+                        "
+                        class="approve-btn"
+                        style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                        title="Generate"
+                        type="button"
+                      >
+                        <img src="assets/img/generate.jpg" style="width: 25px; height: 25px" />
+                      </button>
+
+                      <button
+                        (click)="invoicePaymentList(invoice)"
+                        *ngIf="
+                          customerLedgerDetailData?.status !== 'Terminate' &&
+                          invoicePaymentListAccess
+                        "
+                        class="approve-btn"
+                        style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                        title="Invoice Payment List"
+                        type="button"
+                      >
+                        <img src="assets/img/icons-03.png" style="width: 25px; height: 25px" />
+                      </button>
+                      <button
+                        (click)="invoiceRemarks(invoice, 'void')"
+                        *ngIf="
+                          invoice.billrunstatus != 'Cancelled' &&
+                          voidInvoiceAcces &&
+                          invoice.billrunstatus != 'VOID' &&
+                          invoice.billrunstatus !== 'Cancelled' &&
+                          customerLedgerDetailData?.status !== 'Terminate'
+                        "
+                        [disabled]="
+                          invoice.creditDocId.length > 0 ||
+                          invoice.totalamount - invoice.adjustedAmount <= 0
+                        "
+                        class="approve-btn"
+                        style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                        title="Void Invoice"
+                        type="button"
+                      >
+                        <img
+                          src="assets/img/20_Void-Invoice_Y.png"
+                          style="width: 25px; height: 25px"
+                        />
+                      </button>
+
+                      <a
+                        *ngIf="
+                          invoice.billrunstatus != 'Cancelled' &&
+                          reprintInvoiceAccess &&
+                          invoice.billrunstatus !== 'Cancelled' &&
+                          customerLedgerDetailData?.status !== 'Terminate'
+                        "
+                        (click)="InvoiceReprint(invoice.id, invoice.customerName)"
+                        href="javascript:void(0)"
+                        title="Reprint Invoice"
+                      >
+                        <img src="assets/img/09_Reprint-Invoice.png" />
+                      </a>
+                      <button
+                        [disabled]="
+                          invoice.creditDocId.length > 0 ||
+                          invoice.totalamount - invoice.adjustedAmount <= 0
+                        "
+                        (click)="invoiceRemarks(invoice, 'cancelRegenerate')"
+                        *ngIf="
+                          invoice.billrunstatus != 'Cancelled' &&
+                          cancelAndRegenerateAccess &&
+                          invoice.billrunstatus !== 'Cancelled' &&
+                          (invoice.paymentStatus === null ||
+                            invoice.paymentStatus === '' ||
+                            invoice.paymentStatus.toLowerCase() == 'unpaid' ||
+                            invoice.paymentStatus.toLowerCase() == 'clear' ||
+                            invoice.paymentStatus.toLowerCase() == 'partial pending' ||
+                            invoice.paymentStatus.toLowerCase() == 'partialy paid' ||
+                            invoice.paymentStatus.toLowerCase() == 'fully paid') &&
+                          customerLedgerDetailData?.status !== 'Terminate'
+                        "
+                        href="javascript:void(0)"
+                        title="Cancel and Regenerate Invoice"
+                        class="approve-btn"
+                        style="border: none; background: transparent; padding: 0; margin-right: 3px"
+                      >
+                        <img src="assets/img/21_Cancel-and-Regenerate-Invoice_Y.png" />
+                      </button>
+                      <a
+                        *ngIf="
+                          viewInvoiceAccess &&
+                          invoice.billrunstatus !== 'Cancelled' &&
+                          customerLedgerDetailData?.status !== 'Terminate'
+                        "
+                        (click)="viewInvoice(invoice.id, invoice.customerName)"
+                        href="javascript:void(0)"
+                        title="View Invoice"
+                      >
+                        <img src="assets/img/22_Reprint-invoice_Y.png" />
+                      </a>
+                      <button
+                        (click)="displayNote('invoice')"
+                        class="approve-btn"
+                        class="curson_pointer"
+                        data-backdrop="static"
+                        data-keyboard="false"
+                        data-bs-target="#note"
+                        data-bs-toggle="modal"
+                        style="border: none; background: transparent; padding: 0; margin: 0px 2px"
+                        title="Audit"
+                        type="button"
+                        *ngIf="
+                          (invoice.billrunstatus == 'Cancelled' ||
+                            invoice.billrunstatus === 'VOID') &&
+                          customerLedgerDetailData?.status !== 'Terminate'
+                        "
+                      >
+                        <img class="icon" src="assets/img/icons-03.png" />
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <br />
+              <div class="pagination_Dropdown">
+                <pagination-controls
+                  (pageChange)="pageChangedinvoiceMasterList($event)"
+                  [directionLinks]="true"
+                  id="searchinvoiceMasterPageData"
+                  [maxSize]="10"
+                  nextLabel=""
+                  previousLabel=""
+                >
+                </pagination-controls>
+                <div id="itemPerPageDropdown">
+                  <p-dropdown
+                    (onChange)="TotalItemPerPageInvoice($event)"
+                    [options]="pageLimitOptions"
+                    optionLabel="value"
+                    optionValue="value"
+                  ></p-dropdown>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="invoiceMasterListData.length === 0" class="col-lg-12 col-md-12">
+              Invoice data not found
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p-dialog
+  header="Add Remark"
+  [(visible)]="Remark"
+  [style]="{ width: '35%' }"
+  [modal]="true"
+  [responsive]="true"
+  [draggable]="false"
+  [closable]="false"
+>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <label>Remark*</label>
+        <textarea [(ngModel)]="invoiceCancelRemarks" class="form-control" name="remark"></textarea>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button
+      (click)="addInvoiceRemarks()"
+      [disabled]="!invoiceCancelRemarks"
+      class="btn btn-primary"
+      id="submit"
+      type="submit"
+    >
+      <i class="fa fa-check-circle"></i>
+      Remarks
+    </button>
+    <button class="btn btn-danger" id="searchbtn" type="reset" (click)="closeInvoiceCancelremark()">
+      <i class="fa fa-refresh"></i>
+      Close
+    </button>
+  </div>
+</p-dialog>
+
+<div aria-labelledby="myModalLabel" class="modal fade" id="note" role="dialog" tabindex="-1">
+  <div class="modal-dialog" role="document" style="width: 75%">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="myModalLabel" style="color: #fff !important">Audit</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <table class="table" *ngIf="!planNotes">
+              <thead>
+                <tr>
+                  <th>Event</th>
+                  <th>Date</th>
+                  <th>Remark</th>
+                  <th>Modified By</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let data of showdata">
+                  <td>
+                    <span *ngIf="data.operationType === 'Cancel_Regenerate'">
+                      Cancel and Regenerate Invoice
+                    </span>
+                    <span *ngIf="data.operationType == null"> - </span>
+                  </td>
+                  <td *ngIf="data.operationType === 'Change_Plan'">Change Plan</td>
+                  <td *ngIf="data.operationType === 'VOID'">Void Invoice</td>
+                  <td>{{ data.createdate }}</td>
+                  <td>
+                    {{ data.remarks }}
+                    <span *ngIf="data.remark == null"> </span>
+                  </td>
+
+                  <td>{{ data.lastModifiedByName }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <br />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer"></div>
+    </div>
+  </div>
+</div>
+
+<p-dialog
+  header="Payment Details"
+  [(visible)]="displayPaymentDetails"
+  [style]="{ width: '70%' }"
+  [modal]="true"
+  [responsive]="true"
+  [draggable]="false"
+  [closable]="true"
+>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-lg-12 col-md-12" style="margin-top: 3rem">
+        <table class="table">
+          <thead>
+            <tr>
+              <th class="widthCheckboxColom">
+                <div class="centerCheckbox">
+                  <p-checkbox
+                    (onChange)="checkInvoicePaymentAll($event)"
+                    [(ngModel)]="ispaymentChecked"
+                    [binary]="true"
+                    name="allChecked"
+                  ></p-checkbox>
+                </div>
+              </th>
+              <th>Recipt Number</th>
+              <th>Payment Date</th>
+              <th>Payment Amount</th>
+              <th>Adjusted Amount</th>
+              <th>Remaining Amount</th>
+              <th>Payment Mode</th>
+              <th>Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="
+                let data of invoicePaymentData
+                  | paginate
+                    : {
+                        id: 'invoicePaymentModal',
+                        itemsPerPage: invoicePaymentItemPerPage,
+                        currentPage: currentPageinvoicePaymentList,
+                        totalItems: invoicePaymenttotalRecords
+                      };
+                index as i
+              "
+            >
+              <td>
+                <div class="centerCheckbox">
+                  <p-checkbox
+                    (onChange)="addInvoicePaymentChecked(data.id, $event)"
+                    [(ngModel)]="data.isSinglepaymentChecked"
+                    [binary]="true"
+                    [inputId]="data.id"
+                    [value]="data.isSinglepaymentChecked"
+                    class="p-field-checkbox"
+                  ></p-checkbox>
+                </div>
+              </td>
+              <td>{{ data.reciptNo }}</td>
+              <td>{{ data.paymentdate }}</td>
+              <td>{{ data.amount | number: "1.2-2" }}</td>
+              <td>{{ data.adjustedAmount | number: "1.2-2" }}</td>
+              <td>{{ data.amount - data.adjustedAmount | number: "1.2-2" }}</td>
+              <td>{{ data.paymode }}</td>
+              <td>{{ data.type }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <pagination-controls
+          (pageChange)="pageChangedInvoicePaymentList($event)"
+          [directionLinks]="true"
+          id="invoicePaymentModal"
+          [maxSize]="10"
+          nextLabel=""
+          previousLabel=""
+        ></pagination-controls>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer" style="display: flex; justify-content: flex-end">
+    <div class="addUpdateBtn">
+      <button
+        #closebutton
+        (click)="invoicePaymentAdjsment()"
+        [disabled]="allchakedPaymentData.length == 0"
+        class="btn btn-success btn-sm"
+        data-dismiss="modal"
+        type="button"
+      >
+        Manual Adjustment
+      </button>
+    </div>
+    <div class="addUpdateBtn" style="margin-left: 1.5rem">
+      <button
+        #closebutton
+        (click)="invoicePaymentCloseModal()"
+        class="btn btn-danger btn-sm"
+        data-dismiss="modal"
+        type="button"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+</p-dialog>

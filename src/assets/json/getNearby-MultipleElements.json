@@ -1,0 +1,75 @@
+{
+    "success": true,
+    "message": "Nearby network elements fetched successfully",
+    "data": [
+        {
+            "id": 1,
+            "name": "Postman Joint Closure-001",
+            "layername": "ne_joint_closure",
+            "geom": {
+                "type": "Point",
+                "coordinates": [
+                    36.892345255,
+                    -1.282630201
+                ]
+            }
+        },
+        {
+            "id": 1,
+            "name": "OLT-001",
+            "layername": "ne_olt",
+            "geom": {
+                "type": "Point",
+                "coordinates": [
+                    36.892345255,
+                    -1.282630201
+                ]
+            }
+        },
+        {
+            "id": 2,
+            "name": "OLT-002",
+            "layername": "ne_olt",
+            "geom": {
+                "type": "Point",
+                "coordinates": [
+                    36.892345255,
+                    -1.282630201
+                ]
+            }
+        },
+        {
+            "id": 3,
+            "name": "OLT-003",
+            "layername": "ne_olt",
+            "geom": {
+                "type": "Point",
+                "coordinates": [
+                    36.892345255,
+                    -1.282630201
+                ]
+            }
+        },
+        {
+            "id": 4,
+            "name": "OLT-004",
+            "layername": "ne_olt",
+            "geom": {
+                "type": "Point",
+                "coordinates": [
+                    36.892345255,
+                    -1.282630201
+                ]
+            }
+        }
+    ],
+    "timestamp": [
+        2025,
+        8,
+        13,
+        17,
+        27,
+        17,
+        762161800
+    ]
+}

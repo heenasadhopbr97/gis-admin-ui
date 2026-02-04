@@ -1,0 +1,75 @@
+@import "@ng-select/ng-select/themes/default.theme.css";
+.form-control.ng-select {
+  border: none;
+  padding: 0;
+}
+
+.ml-15 {
+  padding-top: 15px;
+}
+
+.pl-1 {
+  padding-left: 1rem;
+}
+.pl-3 {
+  padding-left: 3rem;
+}
+.error {
+  color: red;
+}
+
+.form-group {
+  padding-top: 5px;
+}
+
+.position {
+  position: absolute;
+}
+
+input.ng-invalid.ng-touched,
+ng-select.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched {
+  border: 1px solid red;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+.modal-backdrop.fade {
+  opacity: 0.5;
+}
+.modal-open .modal {
+  opacity: 1;
+}
+
+.centerCheckbox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.custom-tree-table {
+  border-width: 2px; /* Adjust the value as needed */
+  border-style: solid;
+  border-color: #ccc; /* Change to your preferred border color */
+}
+
+.custom-tree-row {
+  border-top: 2px solid #ccc; /* Adjust the value and color as needed */
+  border-bottom: 2px solid #ccc; /* Adjust the value and color as needed */
+}
+
+.flex-class {
+  display: flex;
+}
+.center {
+  justify-content: center;
+  align-items: center;
+}

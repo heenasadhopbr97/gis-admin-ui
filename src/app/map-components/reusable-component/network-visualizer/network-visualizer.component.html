@@ -1,0 +1,55 @@
+<div class="network-visualizer">
+  <div class="header">
+    <h1>Splicing Diagram (Fluidic)</h1>
+    <div class="legend">
+      <div class="legend-item">
+        <svg width="40" height="40" viewBox="0 0 200 120">
+          <polygon points="10,10 190,10 100,60" fill="none" stroke="red" stroke-width="10" stroke-linejoin="round"/>
+          <polygon points="10,10 100,60 10,110" fill="none" stroke="red" stroke-width="10" stroke-linejoin="round"/>
+          <polygon points="190,10 100,60 190,110" fill="none" stroke="red" stroke-width="10" stroke-linejoin="round"/>
+        </svg>
+        <span>Splice Closure</span>
+      </div>
+      <div class="legend-item">
+        <svg width="40" height="40" viewBox="0 0 100 160">
+          <path d="M10 10 H90 V120 Q50 150 10 120 Z" fill="none" stroke="#FF00FF" stroke-width="5"/>
+          <text x="50" y="30" text-anchor="middle" font-size="14" fill="#FF00FF" font-family="Arial">FAT</text>
+          <circle cx="50" cy="65" r="10" stroke="#FF00FF" stroke-width="4" fill="none"/>
+          <text x="50" y="110" text-anchor="middle" font-size="18" fill="#FF00FF" font-family="Arial">HPs</text>
+        </svg>
+        <span>FAT (Fiber Access Terminal)</span>
+      </div>
+      <div class="legend-item">
+        <svg width="40" height="40">
+          <rect x="5" y="5" width="30" height="30" fill="none" stroke="#9C27B0" stroke-width="2"/>
+          <line x1="15" y1="15" x2="25" y2="15" stroke="#9C27B0" stroke-width="1"/>
+          <line x1="25" y1="15" x2="25" y2="25" stroke="#9C27B0" stroke-width="1"/>
+          <line x1="25" y1="25" x2="15" y2="25" stroke="#9C27B0" stroke-width="1"/>
+          <polygon points="25,20 30,15 30,25" fill="none" stroke="#9C27B0" stroke-width="1"/>
+        </svg>
+        <span>FDT (Fiber Distribution Terminal)</span>
+      </div>
+    </div>
+    
+
+  </div>
+  
+  <div class="graph-container" #graphContainer>
+    <div class="scroll-indicator" *ngIf="currentNetworkType === 'large'">
+      <span>📋 Large network loaded - Use scroll to navigate, zoom to explore details</span>
+    </div>
+  </div>
+  
+  <div class="controls">
+    <div class="all-controls">
+      <button (click)="resetZoom()" class="control-btn">Reset Zoom</button>
+      <button (click)="fitToScreen()" class="control-btn">Fit to Screen</button>
+      <button (click)="toggleLayout()" class="control-btn" [class.active]="isStaticLayout">
+        {{ isStaticLayout ? '🔄 Fluidic' : '📐 Static' }}
+      </button>
+      <button (click)="openSVGDiagram()" class="control-btn svg-btn">
+        🎨 SVG Diagram
+      </button>
+    </div>
+  </div>
+</div> 

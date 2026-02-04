@@ -1,0 +1,121 @@
+<div class="row">
+    <div class="col-md-12">
+        <table style="text-align:  center" class="table table-striped">
+            <thead>
+            <tr>
+                <th class="col-md-7  text-left">Module Name</th>
+                <th class="col-md-3">Full Access
+                     <mat-slide-toggle [(ngModel)]="isAllOperation"  color="success"(ngModelChange)="onAllFullAccess($event)" ></mat-slide-toggle>
+                    </th>
+                <th class="col-md-2 text-left">Access Details</th>
+            </tr>
+            </thead>
+            <tbody>
+           <tr *ngFor="let operation of DataList; let i = index;" >
+               <td class="text-left">{{operation.dispname}}</td>
+               <td class="col-md-3">
+                <mat-slide-toggle [(ngModel)]="operation.fullaccess"  color="success"(change)="onFullAccess($event,i)" ></mat-slide-toggle>
+            </td>
+               <td class="text-left col-md-2">
+                   <span *ngIf="operation.SelectOperationsList && operation.fullaccess !== true"> {{operation.SelectOperationsList.length}}</span>
+                   <a class="fa fa-eye ml-3"  (click)="onViewPermission(operation,i)"></a>
+                   <a *ngIf="!operation?.fullaccess" class="fa fa-edit ml-3" (click)="onEditPermission(operation,i)"></a>
+               </td>
+           </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal -->
+<div  class="modal fade" id="viewPermmision" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+        <h4 class="modal-title">View Permission of {{selectedModule?.dispname}}</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <div class="row m-2">
+
+                <div class="col-md-12 mt-2">
+                    <table class="table table-striped" *ngIf="DataList[targetedindex]?.SelectOperationsList">
+                        <thead>
+                        <tr>
+                            <th>Sr. No.</th>
+                            <th>Permission</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr *ngFor="let selected of DataList[targetedindex]?.SelectOperationsList; let i = index ">
+                            <td>{{i + 1}}</td>
+                            <td>{{selected?.opName}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+<div  class="modal fade" id="setPermmision" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Set Permission For {{selectedModule?.dispname}}</h4>
+          <button type="button" class="close" style="border: none" aria-label="Close" (click)="onPopUpCancel()">
+            <span aria-hidden="true">&times;</span>
+         </button>
+        </div>
+        <div class="modal-body">
+            <div class="row m-2">
+                <div class="col-md-12">
+                    <label>Permissions for {{selectedModule?.dispname}}</label>
+                    <ng-select
+                    [items]="selectedModule?.aclOperationsList"
+                    [multiple] ="true"
+                    [(ngModel)]="selectedPermissionNG"
+                    (change)="onSelectPermission($event)"
+                    bindLabel="opName"
+                    bindValue="id"
+                    >
+                    </ng-select>
+                </div>
+            </div>
+            <div class="row m-2">
+
+                <div class="col-md-12 mt-2">
+                    <table class="table table-striped" *ngIf="DataList[targetedindex]?.TempOperationsList">
+                        <thead>
+                        <tr>
+                            <th class="col-md-2">Sr. No.</th>
+                            <th class="col-md-7">Permission</th>
+                            <th class="col-md-3">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr *ngFor="let selected of DataList[targetedindex]?.TempOperationsList; let i = index ">
+                            <td class="col-md-1">{{i + 1}}</td>
+                            <td class="col-md-8">{{selected?.opName}}</td>
+                            <td class="col-md-3"><a class="fa fa-trash" (click)="onDeletSelected(i)" style="color: red"></a></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-12">
+                    <a class="btn btn-primary" *ngIf="!isUpdated" style="color: white" (click)="onSavePermission()">Save Permission</a>
+                    <a class="btn btn-primary" *ngIf="isUpdated" style="color: white" (click)="onSavePermission()">Update Permission</a>
+                    <a class="btn btn-secondary" (click)="onPopUpCancel()" >Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>

@@ -1,0 +1,156 @@
+<p-dialog
+  header="Near Location"
+  [(visible)]="nearLocationModal"
+  [style]="{ width: '50%' }"
+  [modal]="true"
+  [responsive]="true"
+  [draggable]="false"
+  [closable]="true"
+  (onHide)="nearsearchClose()"
+>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-lg-12 col-md-12" style="margin-top: 3rem">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Latitude</th>
+              <th>Longitude</th>
+              <th>Distance(KM)</th>
+              <th style="width: 35%">Address</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="
+                let data of nearDeviceLocationData
+                  | paginate
+                    : {
+                        id: 'nearDevicepageData',
+                        itemsPerPage: nearDeviceLocationItemPerPage,
+                        currentPage: currentPagenearDeviceLocationList,
+                        totalItems: nearDeviceLocationtotalRecords
+                      };
+                index as i
+              "
+            >
+              <td>
+                <span
+                  (click)="bindNetworkDevice(data.networkDeviceId)"
+                  class="HoverEffect"
+                  data-dismiss="modal"
+                >
+                  {{ data.name }}
+                </span>
+              </td>
+              <td>{{ data.latitude }}</td>
+              <td>{{ data.longitude }}</td>
+              <td>{{ data.distance }}</td>
+              <td style="width: 35%">{{ data.address }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <pagination-controls
+          (pageChange)="pageChangedNearDeviceList($event)"
+          [directionLinks]="true"
+          id="nearDevicepageData"
+          [maxSize]="10"
+          nextLabel=""
+          previousLabel=""
+        ></pagination-controls>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer" style="display: flex; justify-content: flex-end">
+    <div class="addUpdateBtn">
+      <button
+        #closebutton
+        (click)="nearsearchClose()"
+        class="btn btn-danger btn-sm"
+        data-dismiss="modal"
+        type="button"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+</p-dialog>
+
+<!-- <div class="modal fade" id="nearLocationModal" role="dialog" data-backdrop="static">
+  <div class="modal-dialog nearSearchModalLocation">
+
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="panel-title">Near Location</h3>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-12 col-md-12" style="margin-top: 3rem">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Latitude</th>
+                  <th>Longitude</th>
+                  <th>Distance(KM)</th>
+                  <th style="width: 35%">Address</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="
+                    let data of nearDeviceLocationData
+                      | paginate
+                        : {
+                            id: 'nearDevicepageData',
+                            itemsPerPage: nearDeviceLocationItemPerPage,
+                            currentPage: currentPagenearDeviceLocationList,
+                            totalItems: nearDeviceLocationtotalRecords
+                          };
+                    index as i
+                  "
+                >
+                  <td>
+                    <span
+                      (click)="bindNetworkDevice(data.networkDeviceId)"
+                      class="HoverEffect"
+                      data-dismiss="modal"
+                    >
+                      {{ data.name }}
+                    </span>
+                  </td>
+                  <td>{{ data.latitude }}</td>
+                  <td>{{ data.longitude }}</td>
+                  <td>{{ data.distance }}</td>
+                  <td style="width: 35%">{{ data.address }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <pagination-controls
+              (pageChange)="pageChangedNearDeviceList($event)"
+              directionLinks="true"
+              id="nearDevicepageData"
+              maxSize="10"
+              nextLabel=""
+              previousLabel=""
+            ></pagination-controls>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: flex-end">
+        <div class="addUpdateBtn">
+          <button
+            #closebutton
+            (click)="nearsearchClose()"
+            class="btn btn-danger btn-sm"
+            data-dismiss="modal"
+            type="button"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> -->

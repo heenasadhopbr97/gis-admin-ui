@@ -1,0 +1,409 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="panel top">
+      <div class="panel-heading">
+        <h3 class="panel-title">{{ title }}</h3>
+        <div class="right">
+          <button
+            type="button"
+            class="btn-toggle-collapse"
+            data-bs-toggle="collapse"
+            data-bs-target="#searchDataCountry"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+      <div id="searchDataCountry" class="panel-collapse collapse show">
+        <div id="" class="panel-body">
+          <div class="row">
+            <div class="col-lg-3 col-md-3">
+              <input
+                id="taxName"
+                type="text"
+                [(ngModel)]="searchInvestmentName"
+                class="form-control"
+                placeholder="Global Search Filter"
+                (keydown.enter)="searchInvestment()"
+              />
+            </div>
+            <div class="col-lg-3 col-md-4 marginTopSearchBtn">
+              <button
+                type="button"
+                class="btn btn-primary"
+                id="searchbtn"
+                (click)="searchInvestment()"
+              >
+                <i class="fa fa-search"></i>
+                Search
+              </button>
+              <button
+                type="reset"
+                class="btn btn-default"
+                id="searchbtn"
+                (click)="clearSearchInvestment()"
+              >
+                <i class="fa fa-refresh"></i>
+                Clear
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-6 left">
+    <div class="panel">
+      <div class="panel-heading">
+        <h3 class="panel-title">{{ title }}</h3>
+        <div class="right">
+          <button
+            type="button"
+            class="btn-toggle-collapse"
+            data-bs-toggle="collapse"
+            data-bs-target="#allDataCountry"
+            aria-expanded="false"
+            aria-controls="allDataCountry"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+      <div id="allDataCountry" class="panel-collapse collapse show">
+        <div class="panel-body table-responsive">
+          <div class="row">
+            <div class="col-lg-12 col-md-12">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th *ngIf="deleteAccess || editAccess">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="
+                      let data of investigationListData
+                        | paginate
+                          : {
+                              id: 'investigationListData',
+                              itemsPerPage: investmentItemsPerPage,
+                              currentPage: currentPageInvestmentSlab,
+                              totalItems: investmentTotalRecords
+                            };
+                      index as i
+                    "
+                  >
+                    <td>{{ data.username }}</td>
+                    <td *ngIf="data.status == 'ACTIVE' || data.status == 'Active'">
+                      <span class="badge badge-success">Active</span>
+                    </td>
+                    <td *ngIf="data.status == 'INACTIVE' || data.status == 'Inactive'">
+                      <span class="badge badge-danger">Inactive</span>
+                    </td>
+                    <td class="btnAction" *ngIf="deleteAccess || editAccess">
+                      <a
+                        *ngIf="editAccess"
+                        id="edit-button"
+                        href="javascript:void(0)"
+                        type="button"
+                        (click)="editCountry(data.id)"
+                      >
+                        <img src="assets/img/ioc01.jpg" />
+                      </a>
+                      <a
+                        *ngIf="deleteAccess"
+                        id="delete-button"
+                        href="javascript:void(0)"
+                        (click)="deleteConfirmonInvestigation(data)"
+                      >
+                        <img src="assets/img/ioc02.jpg" />
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div class="row">
+                <div class="col-md-12" style="display: flex">
+                  <pagination-controls
+                    id="investigationListData"
+                    [maxSize]="10"
+                    [directionLinks]="true"
+                    previousLabel=""
+                    nextLabel=""
+                    (pageChange)="pageChangedCountryList($event)"
+                  ></pagination-controls>
+                  <div id="itemPerPageDropdown">
+                    <p-dropdown
+                      [options]="pageLimitOptions"
+                      optionLabel="value"
+                      optionValue="value"
+                      (onChange)="TotalItemPerPage($event)"
+                    ></p-dropdown>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 right">
+    <div class="panel">
+      <div class="panel-heading">
+        <h3 class="panel-title">{{ isInvestmentEdit ? "Update" : "Create" }} {{ title }}</h3>
+        <div class="right">
+          <button
+            type="button"
+            class="btn-toggle-collapse"
+            data-bs-toggle="collapse"
+            data-bs-target="#createDataCountry"
+            aria-expanded="false"
+            aria-controls="createDataCountry"
+          >
+            <i class="fa fa-minus-circle"></i>
+          </button>
+        </div>
+      </div>
+      <div id="createDataCountry" class="panel-collapse collapse show">
+        <div class="panel-body table-responsive" *ngIf="!createAccess && !isInvestmentEdit">
+          Sorry you have not privilege to create operation!
+        </div>
+        <div class="panel-body" *ngIf="createAccess || (isInvestmentEdit && editAccess)">
+          <div class="panel-body">
+            <form [formGroup]="govIntragationFormGroup">
+              <label>Username *</label>
+              <input
+                id="name"
+                type="text"
+                class="form-control"
+                placeholder="Enter Username"
+                formControlName="username"
+                [ngClass]="{
+                  'is-invalid': submitted && govIntragationFormGroup.controls['username'].errors
+                }"
+              />
+              <div
+                class="errorWrap text-danger"
+                *ngIf="submitted && govIntragationFormGroup.controls['username'].errors"
+              >
+                <div
+                  class="error text-danger"
+                  *ngIf="submitted && govIntragationFormGroup.controls['username'].errors?.['required']"
+                >
+                  Username is required.
+                </div>
+              </div>
+              <br />
+              <label>Password *</label>
+              <div>
+                <input
+                  id="name"
+                  type="text"
+                  class="form-control"
+                  placeholder="Enter Password"
+                  formControlName="password"
+                  [ngClass]="{
+                    'is-invalid': submitted && govIntragationFormGroup.controls['password'].errors
+                  }"
+                />
+              </div>
+              <div
+                class="errorWrap text-danger"
+                *ngIf="submitted && govIntragationFormGroup.controls['password'].errors"
+              >
+                <div
+                  class="error text-danger"
+                  *ngIf="submitted && govIntragationFormGroup.controls['password'].errors?.['required']"
+                >
+                  Password is required.
+                </div>
+              </div>
+
+              <br />
+
+              <label>Status*</label>
+              <div>
+                <p-dropdown
+                  [options]="statusOptions"
+                  optionValue="label"
+                  optionLabel="label"
+                  [filter]="true"
+                  filterBy="label"
+                  placeholder="Select a Status"
+                  formControlName="status"
+                  [ngClass]="{
+                    'is-invalid': submitted && govIntragationFormGroup.controls['status'].errors
+                  }"
+                ></p-dropdown>
+              </div>
+              <div
+                class="errorWrap text-danger"
+                *ngIf="submitted && govIntragationFormGroup.controls['status'].errors"
+              >
+                <div
+                  class="error text-danger"
+                  *ngIf="submitted && govIntragationFormGroup.controls['status'].errors?.['required']"
+                >
+                  Status is required.
+                </div>
+              </div>
+              <fieldset>
+                <legend>API Mapping List</legend>
+                <div class="boxWhite">
+                  <div class="row" [formGroup]="this.governmentAPIMappingsFormGroup">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-12">
+                      <p-dropdown
+                        [options]="apiMethodList"
+                        optionValue="text"
+                        optionLabel="text"
+                        [filter]="true"
+                        filterBy="label"
+                        placeholder="Select API Name *"
+                        formControlName="apiName"
+                        [ngClass]="{
+                          'is-invalid':
+                            submitted && this.governmentAPIMappingsFormGroup.controls['apiName'].errors
+                        }"
+                      ></p-dropdown>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-12">
+                      <input
+                        class="form-control"
+                        type="text"
+                        placeholder="Enter Endpoint *"
+                        name="paramValue"
+                        id="paramValue"
+                        formControlName="endpoint"
+                        [ngClass]="{
+                          'is-invalid':
+                            submitted &&
+                            this.governmentAPIMappingsFormGroup.controls['endpoint'].errors
+                        }"
+                      />
+                    </div>
+
+                    <div class="col-lg-2 col-md-2 col-sm-2 col-12">
+                      <button
+                        style="object-fit: cover; padding: 5px 8px"
+                        class="btn btn-primary"
+                        [disabled]="
+                          this.governmentAPIMappingsFormGroup.controls['endpoint'].untouched &&
+                          this.governmentAPIMappingsFormGroup.controls['apiName'].untouched
+                        "
+                        (click)="onAddParameterMappingList()"
+                      >
+                        <i class="fa fa-plus-square" aria-hidden="true"></i>
+                        Add
+                      </button>
+                    </div>
+                  </div>
+                  <table class="table coa-table" style="margin-top: 10px">
+                    <thead>
+                      <tr>
+                        <th style="text-align: center">API Name</th>
+                        <th style="text-align: center">EndPoint</th>
+                        <th style="text-align: center">Delete</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        *ngFor="
+                          let row of governmentAPIMappingsFormArray.controls
+                            | paginate
+                              : {
+                                  id: 'parameterLISTID',
+                                  itemsPerPage: parameterItemPerPage,
+                                  currentPage: currentPageparameter,
+                                  totalItems: parametertotalRecords
+                                };
+                          let index = index
+                        "
+                      >
+                        <td>
+                          <input
+                            class="form-control"
+                            type="text"
+                            placeholder="Enter API Name"
+                            name="apiName"
+                            id="apiName"
+                            [formControl]="getControl(row, 'apiName')"
+                            [disabled]=""
+                          />
+                        </td>
+                        <td>
+                          <input
+                            class="form-control"
+                            type="text"
+                            placeholder="Enter endpoint"
+                            name="endpoint"
+                            id="endpoint"
+                            [formControl]="getControl(row, 'endpoint')"
+                            [disabled]=""
+                          />
+                        </td>
+                        <td style="text-align: center">
+                          <a
+                            *ngIf="governmentAPIMappingsFormArray.controls.length !== 1"
+                            id="deleteAtt"
+                            href="javascript:void(0)"
+                            (click)="deleteConfirmonParameterMappingList(index)"
+                          >
+                            <img src="assets/img/ioc02.jpg" />
+                          </a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  <div class="row">
+                    <div class="col-md-12">
+                      <pagination-controls
+                        id="parameterLISTID"
+                        [maxSize]="10"
+                        [directionLinks]="true"
+                        previousLabel=""
+                        nextLabel=""
+                        (pageChange)="pageChangedParameterMappingList($event)"
+                      ></pagination-controls>
+                    </div>
+                  </div>
+                  <br />
+                </div>
+              </fieldset>
+              <br />
+              <div class="addUpdateBtn">
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  id="submit"
+                  (click)="addEditGovIntegration('')"
+                  *ngIf="!isInvestmentEdit"
+                >
+                  <i class="fa fa-check-circle"></i>
+                  Add {{ title }}
+                </button>
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  id="submit"
+                  (click)="addEditGovIntegration(viewInvestmentListData.id)"
+                  *ngIf="isInvestmentEdit"
+                >
+                  <i class="fa fa-check-circle"></i>
+                  Update {{ title }}
+                </button>
+                <br />
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

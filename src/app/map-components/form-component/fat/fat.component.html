@@ -1,0 +1,170 @@
+<div class="">
+ <div class="icon-title" *ngIf="showHeader">
+  <img src="assets/icons/fat.svg" alt="FAT" width="24" height="24">
+  <h3 class="truncate" title="Fiber Access Terminal">FAT (Fiber Access Terminal)</h3>
+</div>
+
+<br>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div class="form-field">
+    <label for="name">
+      Name: <span class="required-star">*</span>
+    </label>
+    <input id="name" type="text" formControlName="name">
+      <span class="error-message" *ngIf="form.get('name')?.errors?.['required'] && form.get('name')?.touched">
+        Name is required
+      </span>
+  </div>
+
+  <div class="form-field">
+    <label for="capacity">
+      Capacity: <span class="required-star">*</span>
+    </label>
+    <input id="capacity" type="number" formControlName="capacity">
+    <span class="error-message" *ngIf="form.get('capacity')?.errors?.['required'] && form.get('capacity')?.touched">
+        Capacity is required
+      </span>
+  </div>
+
+  <div class="form-field">
+    <label for="address">Address:</label>
+    <textarea id="address" formControlName="address"></textarea>
+  </div>
+
+
+    <!-- Accessories FormArray -->
+<ng-container *ngIf="shouldShowAccessoryFields()">   
+  
+<ng-container *ngFor="let field of specificationParametersDTOList">
+  <div class="form-field" *ngIf="!field.isAccessories && shouldShowField(field)">
+    <label>
+      {{ field.paramName }}:
+      <span *ngIf="form.get(field.paramName)?.hasValidator(Validators.required)" class="required-star">*</span>
+    </label>
+
+    <!-- Dropdown if MultiValue -->
+    <select *ngIf="field.isMultiValueParam" [formControlName]="field.paramName">
+      <option value="">-- Select --</option>
+      <option *ngFor="let val of field.paramMultiValues" [value]="val">{{ val }}</option>
+    </select>
+
+    <!-- Textbox if not MultiValue -->
+    <input *ngIf="!field.isMultiValueParam" type="text" [formControlName]="field.paramName">
+  </div>
+</ng-container>
+
+<!-- Accessories Section (single row + table) -->
+<ng-container *ngIf="shouldShowAccessoryFields()">
+
+  <!-- Single Entry Row -->
+  <div [formGroup]="accessoryForm" class="form-field-group">
+    <div class="form-field">
+      <label>Accessory Field</label>
+      <select formControlName="paramName" (change)="onSingleAccessoryFieldChanged()">
+        <option value="">-- Select Field --</option>
+        <option *ngFor="let param of accessoryCategoryList" [value]="param">{{ param }}</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label>Accessory Value</label>
+      <select formControlName="paramValue">
+        <option value="">-- Select Value --</option>
+        <option *ngFor="let val of singleAccessoryValues" [value]="val">{{ val }}</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label>Quantity</label>
+      <input type="number" formControlName="quantity">
+    </div>
+
+    <div class="form-field">
+      <button class="addbutton" type="button" (click)="addAccessoryToList()">+ Add Accessory Field</button>
+    </div>
+  </div>
+
+
+
+</ng-container>
+
+</ng-container>  
+
+  <!-- <div class="form-field">
+    <label for="parentNeType">
+      Parent Type <span class="required-star">*</span>
+    </label>
+    <select id="parentNeType" formControlName="parentNeType" required>
+      <option value="Handhold">Handhold</option>
+      <option value="Manhole">Manhole</option>
+      <option value="Pole">Pole</option>
+    </select>
+    <span class="error-message" *ngIf="form.get('parentNeType')?.errors?.['required'] && form.get('parentNeType')?.touched">
+        ParentNe Type is required
+    </span>
+  </div> -->
+
+   
+  <div class="form-field">
+    <label for="powerLevels">Power Levels</label>
+    <input id="powerLevels" type="number" formControlName="powerLevels">
+  </div>
+
+  <div class="form-field">
+    <label for="photo1">Photo 1</label>
+    <input id="photo1" type="file" formControlName="photo1">
+  </div>
+  
+  <div class="form-field">
+    <label for="photo2">Photo 2</label>
+    <input id="photo2" type="file" formControlName="photo2">
+  </div>
+
+  <div class="form-field">
+    <label for="remarks">
+      Remarks
+    </label>
+    <input id="remarks" type="text" formControlName="remarks">
+  </div>
+
+  <!-- Coordinates Validation -->
+  <div *ngIf="(form.get('longitude')?.errors?.['required'] || form.get('latitude')?.errors?.['required']) && 
+               (form.get('longitude')?.touched || form.get('latitude')?.touched)" 
+       class="error-message">
+    Please select a location on the map
+  </div>
+
+  <div class="form-actions-wrapper">
+    <div class="form-actions">
+      <button type="submit" [disabled]="form.invalid" class="submit-btn">Submit</button>
+      <button type="button" (click)="onCancel()" class="cancel-btn">Cancel</button>
+    </div>
+  </div>
+</form>
+
+<!-- Accessory List Table shown outside form -->
+<table class="accessory-table upgraded-table" *ngIf="inventoryList.length > 0">
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Value</th>
+      <th>Qty</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let group of inventoryList.controls; let i = index">
+      <td>{{ group.get('paramName')?.value }}</td>
+      <td>{{ group.get('paramValue')?.value }}</td>
+      <td>{{ group.get('quantity')?.value }}</td>
+      <td>
+        <button pButton type="button" icon="pi pi-trash"
+          class="p-button-text p-button-danger p-button-sm"
+          (click)="removeAccessoryDetail(i)"></button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+</div>

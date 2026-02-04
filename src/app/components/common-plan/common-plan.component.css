@@ -1,0 +1,20 @@
+.addeditbtntop {
+  margin: 4rem 0;
+}
+
+.top {
+  margin-top: 10px;
+}
+.displayflex {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.marginlefttop7px {
+  margin: 0 0 0 6px;
+}
+
+.marginbottm2 {
+  margin-bottom: 1.5rem;
+}

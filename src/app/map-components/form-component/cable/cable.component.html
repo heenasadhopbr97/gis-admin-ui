@@ -1,0 +1,444 @@
+<div class="form-container" *ngIf="showLayerDropdown">
+  <div class="form-field">
+    <label for="layerSelect" style="font-size:14px">Select Layer:</label>
+    <select id="layerSelect" class="form-select" [(ngModel)]="selectedLayer">
+      <option value="">-- Select a layer --</option>
+      <option value="cable">Cable</option>
+      <option value="trench">Trench</option>
+      <option value="duct">Duct</option>
+      <option value="street">Street</option>
+    </select>
+  </div>
+</div>
+
+
+<div *ngIf="selectedLayer === 'cable'">
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <!-- <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="successMessage" class="success-message">
+    {{ successMessage }}
+  </div> -->
+  <!-- Basic Information -->
+  <div class="form-field">
+    <label for="name">
+      Name: <span class="required-star">*</span>
+    </label>
+    <input id="name" type="text" formControlName="name">
+      <span class="error-message" *ngIf="form.get('name')?.errors?.['required'] && form.get('name')?.touched">
+        Name is required
+      </span>
+  </div>
+
+  <div class="form-field">
+    <label for="cableTypeId">
+      Cable Type: <span class="required-star">*</span>
+    </label>
+    <select id="cableTypeId" formControlName="cableTypeId" required>
+      <option *ngIf="isTypeLoading" value="" disabled>Loading Type...</option>
+      <option *ngIf="typeError" value="" disabled>{{typeError}}</option>
+      <option *ngFor="let type of cableType" [value]="type.id">
+        {{ type.name }}
+      </option>
+    </select>
+    <span class="error-message" *ngIf="form.get('cableTypeId')?.errors?.['required'] && form.get('cableTypeId')?.touched">
+      Cable Type is required
+    </span>
+  </div>
+
+  <div class="form-field">
+    <label for="specificationId">
+      Cable Specification: <span class="required-star">*</span>
+    </label>
+    <select id="specificationId" formControlName="specificationId" required>
+      <option *ngIf="isSpecificationsLoading" value="" disabled>Loading specifications...</option>
+      <option *ngIf="specificationError" value="" disabled>{{ specificationError }}</option>
+      <option *ngFor="let spec of cableSpecifications" [value]="spec.id">
+        {{ spec.name }}
+      </option>
+    </select>
+    <span class="error-message" *ngIf="form.get('specificationId')?.errors?.['required'] && form.get('specificationId')?.touched">
+      Cable Specification is required
+    </span>
+  </div>
+
+  <div class="form-field">
+    <label for="mountingType">
+      Mounting Type:<span class="required-star">*</span>
+    </label>
+    <select id="mountingType" formControlName="mountingType" required>
+      <option value="Overhead">Overhead</option>
+      <option value="Underground">Underground</option>
+      <option value="Conduit">Conduit</option>
+    </select>
+    <span class="error-message" *ngIf="form.get('mountingType')?.errors?.['required'] && form.get('mountingType')?.touched">
+      Mounting Type is required
+    </span>
+  </div>
+  
+
+  <div class="form-field">
+    <label for="measuredLengthM">
+      Length (meters):<span class="required-star">*</span>
+    </label>
+    <input id="measuredLengthM" type="number" formControlName="measuredLengthM" required>
+    <span class="error-message" *ngIf="form.get('measuredLengthM')?.errors?.['required'] && form.get('measuredLengthM')?.touched">
+      Length (meters) is required
+    </span>
+  </div>
+
+  <div class="form-field">
+    <label for="installationDate">
+      Installation Date: <span class="required-star">*</span>
+    </label>
+    <input id="installationDate" type="date" formControlName="installationDate" required>
+    <span class="error-message" *ngIf="form.get('installationDate')?.errors?.['required'] && form.get('installationDate')?.touched">
+      Installation Date is required
+    </span>
+  </div>
+
+  <!-- Node Information -->
+  <!-- <div class="form-field">
+    <label for="originNodeId">Origin Node Id:</label>
+    <input id="originNodeId" type="text" formControlName="originNodeId" required>
+  </div>
+
+  <div class="form-field">
+    <label for="originNodeType">Origin Node Type:</label>
+    <input id="originNodeType" type="text" formControlName="originNodeType" required>
+  </div>
+
+  <div class="form-field">
+    <label for="destinationNodeId">Destination Node Id:</label>
+    <input id="destinationNodeId" type="text" formControlName="destinationNodeId" required>
+  </div>
+
+  <div class="form-field">
+    <label for="destinationNodeType">Destination Node Type:</label>
+    <input id="destinationNodeType" type="text" formControlName="destinationNodeType" required>
+  </div> -->
+
+<!-- <div class="form-field">
+  <label for="splitterPortId">Splitter Port:</label>
+  <select id="splitterPortId" formControlName="splitterPortId" required>
+    <option value="">-- Select Splitter Port --</option>
+    <option *ngFor="let port of splitterPorts" [value]="port.id">
+      {{ port.portType }} Port {{ port.portNumber }} ({{ port.portStatus }})
+    </option>
+  </select>
+</div>
+
+<div class="form-field">
+  <label for="sduId">SDU:</label>
+  <select id="sduId" formControlName="sduId" required>
+    <option value="">-- Select SDU --</option>
+    <option *ngFor="let sdu of nearbySdus" [value]="sdu.id">
+      {{ sdu.name }}
+    </option>
+  </select>
+</div>
+
+  
+  <div class="form-field">
+    <label for="connectionType">Connection Type:</label>
+    <select id="connectionType" formControlName="connectionType" required>
+      <option value="Through">Through</option>
+      <option value="Splice">Splice</option>
+    </select>
+  </div> -->
+
+
+  <!-- Accessory Section -->
+<div [formGroup]="accessoryForm" class="form-field-group">
+  <div class="form-field">
+    <label>Accessory Category</label>
+    <select formControlName="paramName" (change)="onSingleAccessoryFieldChanged()">
+      <option value="">-- Select Category --</option>
+      <option *ngFor="let cat of accessoryCategoryList">{{ cat }}</option>
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label>Accessory Value</label>
+    <select formControlName="paramValue">
+      <option value="">-- Select Value --</option>
+      <option *ngFor="let val of singleAccessoryValues">{{ val }}</option>
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label>Qty</label>
+    <input type="number" formControlName="quantity">
+  </div>
+
+  <div class="form-field">
+    <button class="addbutton" type="button" [disabled]="accessoryForm.invalid" (click)="addAccessoryToList()">+ Add</button>
+  </div>
+</div>
+
+
+  <div class="form-field">
+    <label for="parentNeType">Parent Type:</label>
+    <input id="parentNeType" type="text" formControlName="parentNeType">
+  </div>
+
+  <div class="form-field">
+    <label for="remarks">Remarks:</label>
+    <textarea id="remarks" formControlName="remarks"></textarea>
+  </div>
+
+  <div class="form-actions-wrapper">
+    <div class="form-actions">
+      <button type="submit" [disabled]="form.invalid" class="submit-btn">Submit</button>
+      <button type="button" (click)="onCancel()" class="cancel-btn">Cancel</button>
+    </div>
+  </div>
+</form>
+
+<!-- Table for Accessories -->
+<table *ngIf="inventoryList.length > 0" class="accessory-table">
+  <thead>
+    <tr>
+      <th>Category</th>
+      <th>Value</th>
+      <th>Qty</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let fg of inventoryList.controls; let i = index">
+      <td>{{ fg.get('paramName')?.value }}</td>
+      <td>{{ fg.get('paramValue')?.value }}</td>
+      <td>{{ fg.get('quantity')?.value }}</td>
+      <td>
+          <button pButton type="button" icon="pi pi-trash"
+          class="p-button-text p-button-danger p-button-sm"
+          (click)="removeAccessoryDetail(i)"></button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div *ngIf="selectedLayer === 'trench'">
+  <form [formGroup]="trenchForm" (ngSubmit)="onSubmitTrench()">
+    <div class="form-field">
+      <label for="name">Trench Name:</label>
+      <input id="name" type="text" formControlName="name" required>
+    </div>
+
+    <div class="form-field">
+      <label for="owner">Owner:</label>
+      <input id="owner" type="text" formControlName="owner" required>
+    </div>
+
+    <div class="form-field">
+      <label for="contractor">Contractor:</label>
+      <input id="contractor" type="text" formControlName="contractor" required>
+    </div>
+
+    <div class="form-field">
+      <label for="relatedAssets">Related Assets:</label>
+     <input id="relatedAssets" type="text" formControlName="relatedAssets" required>
+    </div>
+
+    <div class="form-field">
+      <label for="status">Status:</label>
+      <select id="status" formControlName="status" required>
+        <option value="InService">InService</option>
+        <option value="Inactive">Inactive</option>
+        <option value="Planned">Planned</option>
+        <option value="Active">Active</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Completed">Completed</option>
+        <option value="Backfilled">Backfilled</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label for="measuredLengthM">length(M):</label>
+     <input id="measuredLengthM" type="number" formControlName="measuredLengthM" required>
+    </div>
+
+    <div class="form-field">
+      <label for="widthM">Width(M):</label>
+      <input id="widthM" type="number" formControlName="widthM" required>
+    </div>
+
+    <div class="form-field">
+      <label for="depthM">Depth(M):</label>
+      <input id="depthM" type="number" formControlName="depthM" required> 
+    </div>
+
+    <div class="form-field">
+      <label for="remarks">Remarks:</label>
+      <textarea id="remarks" formControlName="remarks"></textarea>
+    </div>
+
+
+  <div class="form-actions-wrapper">
+    <div class="form-actions">
+      <button type="submit" [disabled]="trenchForm.invalid" class="submit-btn">Submit</button>
+      <button type="button" (click)="onCancel()" class="cancel-btn">Cancel</button>
+    </div>
+  </div>
+  </form>
+</div>
+
+<div *ngIf="selectedLayer === 'duct'">
+
+  <form [formGroup]="ductForm" (ngSubmit)="onSubmitDuct()">
+
+    <div class="form-field">
+      <label for="name">Duct Name:</label>
+      <input id="name" type="text" formControlName="name" required>
+    </div>
+
+    <div class="form-field">
+      <label for="material">Material:</label>
+      <input id="material" type="text" formControlName="material" required>
+    </div>
+
+    <div class="form-field">
+      <label for="diameterMm">Diameter(MM):</label>
+      <input id="diameterMm" type="number" formControlName="diameterMm" required>
+    </div>
+
+    <div class="form-field">
+      <label for="measuredLengthM">length(M):</label>
+     <input id="measuredLengthM" type="number" formControlName="measuredLengthM" required>
+    </div>
+
+    <div class="form-field">
+      <label for="status">Status:</label>
+      <select id="status" formControlName="status" required>
+        <option value="InService">InService</option>
+        <option value="Inactive">Inactive</option>
+        <option value="Planned">Planned</option>
+        <option value="Active">Active</option>
+        <option value="Abandoned">Abandoned</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label for="owner">Owner:</label>
+      <input id="owner" type="text" formControlName="owner" required>
+    </div>
+
+    <div class="form-field">
+      <label for="available_subducts">Available Subducts</label>
+      <input id="available_subducts" type="number" formControlName="available_subducts" min="0" required>
+    </div>
+
+    <div class="form-field">
+      <label for="numSubducts">Number Of Subducts</label>
+      <input id="numSubducts" type="number" formControlName="numSubducts" min="0" required>
+    </div>
+
+    <div class="form-field">
+      <label for="usedSubducts">Used Subducts</label>
+      <input id="usedSubducts" type="number" formControlName="usedSubducts" min="0" required>
+    </div>
+
+    <div class="form-field">
+      <label for="networkType">Network Type:</label>
+      <select id="networkType" formControlName="networkType" required>
+        <option value="Backbone">Backbone</option>
+        <option value="Access">Access</option>
+        <option value="Distribution">Distribution</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label for="installDate">Install Date:</label>
+      <input id="installDate" type="date" formControlName="installDate" required>
+    </div>
+
+    <div class="form-field">
+      <label for="remarks">Remarks:</label>
+      <textarea id="remarks" formControlName="remarks"></textarea>
+    </div>
+
+  <div class="form-actions-wrapper">
+    <div class="form-actions">
+      <button type="submit" [disabled]="ductForm.invalid" class="submit-btn">Submit</button>
+      <button type="button" (click)="onCancel()" class="cancel-btn">Cancel</button>
+    </div>
+  </div>
+
+  </form>
+
+</div>
+
+<div *ngIf="selectedLayer === 'street'">
+  <form [formGroup]="streetForm" (ngSubmit)="onSubmitStreet()">
+    
+    <div class="form-field">
+      <label for="name">Street Name:</label>
+      <input id="name" type="text" formControlName="name" required>
+    </div>
+
+    <div class="form-field">
+      <label for="code">Code:</label>
+      <input id="code" type="text" formControlName="code" required>
+    </div>
+
+    <div class="form-field">
+      <label id="type" for="type">Type:</label>
+      <select id="type" formControlName="type" required>
+        <option value="Residential">Residential</option>
+        <option value="Highway">Highway</option>
+        <option value="Arterial">Arterial</option>
+        <option value="Collector">Collector</option>
+        <option value="Alley">Alley</option>
+        <option value="Pedestrian">Pedestrian</option>
+        <option value="Service road">Service road</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label for="measuredLengthM">Length (meters):</label>
+      <input id="measuredLengthM" type="number" formControlName="measuredLengthM" required>
+    </div>
+
+    <div class="form-field">
+      <label for="status">Status:</label>
+      <select id="status" formControlName="status" required>
+        <option value="InService">InService</option>
+        <option value="Inactive">Inactive</option>
+        <option value="Planned">Planned</option>
+      </select>
+    </div>
+  
+    <div class="form-field">
+      <label for="oneWay">One Way:</label>
+      <select id="oneWay" formControlName="oneWay">
+        <option [value]="true">Yes</option>
+        <option [value]="false">No</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label for="surface">Surface:</label>
+      <select id="surface" formControlName="surface">
+        <option value="Asphalt">Asphalt</option>
+        <option value="Concrete">Concrete</option>
+        <option value="Gravel">Gravel</option>
+        <option value="Cobblestone">Cobblestone</option>
+        <option value="Dirt">Dirt</option>
+        <option value="Paved">Paved</option>
+        <option value="Unpaved">Unpaved</option>
+      </select>
+    </div>
+
+  <div class="form-actions-wrapper">
+    <div class="form-actions">
+      <button type="submit" [disabled]="streetForm.invalid" class="submit-btn">Submit</button>
+      <button type="button" (click)="onCancel()" class="cancel-btn">Cancel</button>
+    </div>
+  </div>
+  </form>
+</div>

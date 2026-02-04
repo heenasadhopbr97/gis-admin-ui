@@ -1,0 +1,747 @@
+<div class="stage-select-wrapper">
+  <select class="admin-panel-button" [(ngModel)]="selectedStage" (change)="onStageChange()">
+    <option value="" disabled selected>Select Stage</option>
+    <option *ngFor="let option of stagesOptions" [value]="option.value">
+      {{ option.label }}
+    </option>
+  </select>
+  <button *ngIf="selectedStage" class="close-btn" (click)="clearStage()">✕</button>
+</div>
+
+<!-- Search bar always visible -->
+<div class="survey-list-container" *ngIf="isSurveyShow">
+
+  <div class="search-container">
+    <input type="text" [(ngModel)]="surveySearchTerm" (input)="filterSurveyAreas()"
+      placeholder="Search survey names...">
+  </div>
+
+  <!-- Surveys list -->
+  <div *ngIf="filteredSurveyData.length > 0">
+    <div class="survey-list-header">
+      {{ selectedStage | titlecase }} Surveys
+    </div>
+    <div class="survey-item" *ngFor="let survey of filteredSurveyData" [class.active]="selectedSurveyIds[survey.id]">
+        <input
+          type="checkbox"
+          [id]="'survey-checkbox-' + survey.id"
+          [(ngModel)]="selectedSurveyIds[survey.id]"
+          (change)="onSurveyCheckboxChange(survey)"
+          class="survey-checkbox"
+        />
+      <div class="survey-info">
+      <!-- <div class="survey-info" (click)="onSurveySelect(survey)"> -->
+        <div class="survey-name">{{ survey.name }}</div>
+        <div>
+          <span class="survey-status">Status: {{ survey.surveyStatusName }}</span>
+          <span class="survey-stage">Stage: {{ survey.surveyStageName }}</span>
+        </div>
+      </div>
+
+      <!-- Eye icon for viewing details -->
+      <div class="survey-action" (click)="onViewDetails(survey, $event)">
+        <i class="fas fa-eye"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- No surveys message -->
+  <div class="no-surveys-message" *ngIf="filteredSurveyData.length === 0 && surveyData.length > 0">
+    No {{ selectedStage }} surveys found.
+  </div>
+
+</div>
+
+<!-- Detail Popup -->
+<div class="popup-overlay" *ngIf="showDetailPopup" (click)="closeDetailPopup()">
+  <div class="popup-content" (click)="$event.stopPropagation()">
+    <div class="popup-header">
+      <h3>Survey Details</h3>
+      <button class="close-btn" (click)="closeDetailPopup()">&times;</button>
+    </div>
+
+    <div class="popup-body">
+      <div *ngIf="isLoadingDetail" class="loading-spinner">
+        <i class="fas fa-spinner fa-spin"></i> Loading details...
+      </div>
+
+      <div *ngIf="!isLoadingDetail && selectedSurveyDetail" class="survey-details">
+        <!-- Survey Details -->
+        <div *ngIf="selectedSurveyDetail.survey_area && selectedSurveyDetail.survey_area.length > 0;">
+          <div class="detail-row" *ngFor="let survey of selectedSurveyDetail.survey_area">
+            <label>Name:</label>
+            <span>{{ survey.name }}</span>
+          </div>
+
+          <div class="detail-row" *ngIf="selectedSurveyDetail.survey_area[0].description">
+            <label>Description:</label>
+            <span>{{ selectedSurveyDetail.survey_area[0]?.description }}</span>
+          </div>
+
+          <div class="detail-row">
+            <label>Status:</label>
+            <span>{{ selectedSurveyDetail.survey_area[0]?.surveyStatusName || 'Not specified' }}</span>
+          </div>
+
+          <!-- <div class="detail-row">
+      <label>Layer Name:</label>
+      <span>{{ selectedSurveyDetail.survey_area[0].layerName }}</span>
+    </div> -->
+
+          <div class="detail-row">
+            <label>Start Date:</label>
+            {{ selectedSurveyDetail?.survey_area?.[0]?.surveyStartDate
+            ? (selectedSurveyDetail.survey_area[0].surveyStartDate | date:'yyyy-MM-dd')
+            : '-' }}
+          </div>
+
+          <div class="detail-row">
+            <label>End Date:</label>
+            {{ selectedSurveyDetail?.survey_area?.[0]?.surveyEndDate
+            ? (selectedSurveyDetail.survey_area[0].surveyEndDate | date:'yyyy-MM-dd')
+            : '-' }}
+          </div>
+
+          <div class="detail-row">
+            <label>Active:</label>
+            <span class="status-indicator" [class.active]="selectedSurveyDetail.survey_area[0].isActive === 'true'">
+              <i class="fas fa-circle"></i>
+              {{ selectedSurveyDetail.survey_area[0].isActive === 'true' ? 'Active' : 'Inactive' }}
+            </span>
+          </div>
+
+          <!-- Element Details Section -->
+          <div class="elements-section" *ngIf="hasElements(selectedSurveyDetail)">
+            <h4>Network Elements in this Survey</h4>
+
+            <!-- SDU Elements -->
+            <div class="element-group" *ngIf="selectedSurveyDetail.sdu && selectedSurveyDetail.sdu.length > 0">
+              <h5>SDU Elements ({{ selectedSurveyDetail.sdu.length }})</h5>
+              <div class="element-list">
+                <div class="element-item" *ngFor="let sdu of selectedSurveyDetail.sdu">
+                  <div class="element-header">
+                    <div class="element-name">Network Element: {{ sdu.name }}</div>
+                    <!-- <div class="element-actions">
+              <i class="fas fa-edit edit-icon" (click)="onEditElement(sdu, 'sdu')" title="Edit SDU"></i>
+              <i class="fas fa-trash delete-icon" (click)="onDeleteElement(sdu, 'sdu')" title="Delete SDU"></i>
+            </div> -->
+                  </div>
+                  <div class="element-properties">
+                    <span>Type: SDU</span>
+                    <span>Connectivity: No</span>
+                    <span>Photo:
+                      <a href="javascript:void(0)" (click)="openImagePopup([
+       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwz3FWCR2-kejB0rdSk5Yk-6grJbM30Z8B4mzLBE3PgffJ2lkvC2Y_d7vrO5T1zvxGJZ0&usqp=CAU','https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTzbpCFF-InNaCDDYIOIJH-hK2GzE2dsMHvleiLqt1dqn13eEtmWSlzq2u2nQC-M5lhp4&usqp=CAU','https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTzbpCFF-InNaCDDYIOIJH-hK2GzE2dsMHvleiLqt1dqn13eEtmWSlzq2u2nQC-M5lhp4&usqp=CAU'], sdu.name)">
+                        View (3 images)
+                      </a>
+                    </span>
+                    <span>Public ID: {{ sdu.publicId }}</span>
+                    <span *ngIf="sdu.status">Status: {{ sdu.status }}</span>
+                    <span>Coordinates: {{ sdu.geom?.coordinates?.join(', ') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Splitter Elements -->
+            <div class="element-group"
+              *ngIf="selectedSurveyDetail.splitter && selectedSurveyDetail.splitter.length > 0">
+              <h5>Splitter Elements ({{ selectedSurveyDetail.splitter.length }})</h5>
+              <div class="element-list">
+                <div class="element-item" *ngFor="let splitter of selectedSurveyDetail.splitter">
+                  <div class="element-header">
+                    <div class="element-name">Network Element: {{ splitter.name }}</div>
+                    <!-- <div class="element-actions">
+              <i class="fas fa-edit edit-icon" (click)="onEditElement(splitter, 'splitter')" title="Edit Splitter"></i>
+              <i class="fas fa-trash delete-icon" (click)="onDeleteElement(splitter, 'splitter')" title="Delete Splitter"></i>
+            </div> -->
+                  </div>
+                  <div class="element-properties">
+                    <span>Type: Splitter</span>
+                    <span>Connectivity: No</span>
+                    <span>Photo: <a
+                        href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGlqAff-YJJjMUOtL3lLmjMprZPkKHVLFGQw&s">View</a></span>
+                    <span>Public ID: {{ splitter.publicId }}</span>
+                    <span *ngIf="splitter.status">Status: {{ splitter.status }}</span>
+                    <span>Coordinates: {{ splitter.geom?.coordinates?.join(', ') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 8m Elements -->
+            <div class="element-group" *ngIf="selectedSurveyDetail['8m'] && selectedSurveyDetail['8m'].length > 0">
+              <h5>8m Elements ({{ selectedSurveyDetail['8m'].length }})</h5>
+              <div class="element-list">
+                <div class="element-item" *ngFor="let eightM of selectedSurveyDetail['8m']">
+                  <div class="element-header">
+                    <div class="element-name">Network Element: {{ eightM.name }}</div>
+                    <!-- <div class="element-actions">
+              <i class="fas fa-edit edit-icon" (click)="onEditElement(eightM, '8m')" title="Edit 8m"></i>
+              <i class="fas fa-trash delete-icon" (click)="onDeleteElement(eightM, '8m')" title="Delete 8m"></i>
+            </div> -->
+                  </div>
+                  <div class="element-properties">
+                    <span>Type: 8m</span>
+                    <span>Connectivity: No</span>
+                    <span>Photo: <a
+                        href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGlqAff-YJJjMUOtL3lLmjMprZPkKHVLFGQw&s">View</a></span>
+                    <span>Public ID: {{ eightM.publicId }}</span>
+                    <span *ngIf="eightM.status">Status: {{ eightM.status }}</span>
+                    <span>Coordinates: {{ eightM.geom?.coordinates?.join(', ') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- OLT Elements -->
+            <div class="element-group" *ngIf="selectedSurveyDetail.olt && selectedSurveyDetail.olt.length > 0">
+              <h5>OLT Elements ({{ selectedSurveyDetail.olt.length }})</h5>
+              <div class="element-list">
+                <div class="element-item" *ngFor="let olt of selectedSurveyDetail.olt">
+                  <div class="element-header">
+                    <div class="element-name">Network Element: {{ olt.name }}</div>
+                    <!-- <div class="element-actions">
+              <i class="fas fa-edit edit-icon" (click)="onEditElement(olt, 'olt')" title="Edit OLT"></i>
+              <i class="fas fa-trash delete-icon" (click)="onDeleteElement(olt, 'olt')" title="Delete OLT"></i>
+            </div> -->
+                  </div>
+                  <div class="element-properties">
+                    <span>Type: OLT</span>
+                    <span>Connectivity: No</span>
+                    <span>Photo: <a
+                        href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGlqAff-YJJjMUOtL3lLmjMprZPkKHVLFGQw&s">View</a></span>
+                    <span>Public ID: {{ olt.publicId }}</span>
+                    <span *ngIf="olt.status">Status: {{ olt.status }}</span>
+                    <span>Coordinates: {{ olt.geom?.coordinates?.join(', ') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FAT Elements -->
+            <div class="element-group" *ngIf="selectedSurveyDetail.fat && selectedSurveyDetail.fat.length > 0">
+              <h5>FAT Elements ({{ selectedSurveyDetail.fat.length }})</h5>
+              <div class="element-list">
+                <div class="element-item" *ngFor="let fat of selectedSurveyDetail.fat">
+                  <div class="element-header">
+                    <div class="element-name">Network Element: {{ fat.name }}</div>
+                    <!-- <div class="element-actions">
+              <i class="fas fa-edit edit-icon" (click)="onEditElement(fat, 'fat')" title="Edit FAT"></i>
+              <i class="fas fa-trash delete-icon" (click)="onDeleteElement(fat, 'fat')" title="Delete FAT"></i>
+            </div> -->
+                  </div>
+                  <div class="element-properties">
+                    <span>Type: FAT</span>
+                    <span>Connectivity: No</span>
+                    <span>Photo: <a
+                        href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGlqAff-YJJjMUOtL3lLmjMprZPkKHVLFGQw&s">View</a></span>
+                    <span>Public ID: {{ fat.publicId }}</span>
+                    <span *ngIf="fat.status">Status: {{ fat.status }}</span>
+                    <span>Coordinates: {{ fat.geom?.coordinates?.join(', ') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cable Elements -->
+            <div class="element-group" *ngIf="selectedSurveyDetail.cable && selectedSurveyDetail.cable.length > 0">
+              <h5>Cable Elements ({{ selectedSurveyDetail.cable.length }})</h5>
+              <div class="element-list">
+                <div class="element-item" *ngFor="let cable of selectedSurveyDetail.cable">
+                  <div class="element-header">
+                    <div class="element-name">Network Element: {{ cable.name }}</div>
+                    <!-- <div class="element-actions">
+              <i class="fas fa-edit edit-icon" (click)="onEditElement(cable, 'cable')" title="Edit Cable"></i>
+              <i class="fas fa-trash delete-icon" (click)="onDeleteElement(cable, 'cable')" title="Delete Cable"></i>
+            </div> -->
+                  </div>
+                  <div class="element-properties">
+                    <span>Type: Cable</span>
+                    <span>Connectivity: No</span>
+                    <span>Photo: <a
+                        href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGlqAff-YJJjMUOtL3lLmjMprZPkKHVLFGQw&s">View</a></span>
+                    <span>Public ID: {{ cable.publicId }}</span>
+                    <span *ngIf="cable.status">Status: {{ cable.status }}</span>
+                    <span>Line Coordinates: {{ cable.geom?.coordinates?.join('; ') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Trench Elements -->
+            <div class="element-group" *ngIf="selectedSurveyDetail.trench && selectedSurveyDetail.trench.length > 0">
+              <h5>Trench Elements ({{ selectedSurveyDetail.trench.length }})</h5>
+              <div class="element-list">
+                <div class="element-item" *ngFor="let trench of selectedSurveyDetail.trench">
+                  <div class="element-name"><span class="element-label">Network Element: </span>{{ trench.name }}</div>
+                  <div class="element-properties">
+                    <span>Type: Trench</span>
+                    <span>Connectivity: No</span>
+                    <span>Photo: <a
+                        href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGlqAff-YJJjMUOtL3lLmjMprZPkKHVLFGQw&s">View</a></span>
+                    <span>Public ID: {{ trench.publicId }}</span>
+                    <span *ngIf="trench.status">Status: {{ trench.status }}</span>
+                    <span>Coordinates: {{ trench.geom?.coordinates?.join(', ') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- MDU Elements -->
+            <div class="element-group" *ngIf="selectedSurveyDetail.mdu && selectedSurveyDetail.mdu.length > 0">
+              <h5>MDU Elements ({{ selectedSurveyDetail.mdu.length }})</h5>
+              <div class="element-list">
+                <div class="element-item" *ngFor="let mdu of selectedSurveyDetail.mdu">
+                  <div class="element-name"><span class="element-label">Network Element: </span>{{ mdu.name }}</div>
+                  <div class="element-properties">
+                    <span>Type: MDU</span>
+                    <span>Connectivity: No</span>
+                    <span>Photo: <a
+                        href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGlqAff-YJJjMUOtL3lLmjMprZPkKHVLFGQw&s">View</a></span>
+                    <span>Public ID: {{ mdu.publicId }}</span>
+                    <span *ngIf="mdu.status">Status: {{ mdu.status }}</span>
+                    <span>Coordinates: {{ mdu.geom?.coordinates?.join(', ') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CDU Elements -->
+            <div class="element-group" *ngIf="selectedSurveyDetail.cdu && selectedSurveyDetail.cdu.length > 0">
+              <h5>CDU Elements ({{ selectedSurveyDetail.cdu.length }})</h5>
+              <div class="element-list">
+                <div class="element-item" *ngFor="let cdu of selectedSurveyDetail.cdu">
+                  <div class="element-name"><span class="element-label">Network Element: </span>{{ cdu.name }}</div>
+                  <div class="element-properties">
+                    <span>Type: CDU</span>
+                    <span>Connectivity: No</span>
+                    <span>Photo: <a
+                        href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGlqAff-YJJjMUOtL3lLmjMprZPkKHVLFGQw&s">View</a></span>
+                    <span>Public ID: {{ cdu.publicId }}</span>
+                    <span *ngIf="cdu.status">Status: {{ cdu.status }}</span>
+                    <span>Coordinates: {{ cdu.geom?.coordinates?.join(', ') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 12m Elements -->
+            <div class="element-group" *ngIf="selectedSurveyDetail['12m'] && selectedSurveyDetail['12m'].length > 0">
+              <h5>12m Elements ({{ selectedSurveyDetail['12m'].length }})</h5>
+              <div class="element-list">
+                <div class="element-item" *ngFor="let twelveM of selectedSurveyDetail['12m']">
+                  <div class="element-name"><span class="element-label">Network Element: </span>{{ twelveM.name }}</div>
+                  <div class="element-properties">
+                    <span>Type: 12m</span>
+                    <span>Connectivity: No</span>
+                    <span>Photo: <a
+                        href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGlqAff-YJJjMUOtL3lLmjMprZPkKHVLFGQw&s">View</a></span>
+                    <span>Public ID: {{ twelveM.publicId }}</span>
+                    <span *ngIf="twelveM.status">Status: {{ twelveM.status }}</span>
+                    <span>Coordinates: {{ twelveM.geom?.coordinates?.join(', ') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Duct Elements -->
+            <div class="element-group" *ngIf="selectedSurveyDetail.duct && selectedSurveyDetail.duct.length > 0">
+              <h5>Duct Elements ({{ selectedSurveyDetail.duct.length }})</h5>
+              <div class="element-list">
+                <div class="element-item" *ngFor="let duct of selectedSurveyDetail.duct">
+                  <div class="element-name"><span class="element-label">Network Element: </span>{{ duct.name }}</div>
+                  <div class="element-properties">
+                    <span>Type: Duct</span>
+                    <span>Connectivity: No</span>
+                    <span>Photo: <a
+                        href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGlqAff-YJJjMUOtL3lLmjMprZPkKHVLFGQw&s">View</a></span>
+                    <span>Public ID: {{ duct.publicId }}</span>
+                    <span *ngIf="duct.status">Status: {{ duct.status }}</span>
+                    <span>Coordinates: {{ duct.geom?.coordinates?.join(', ') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 10m Elements -->
+            <div class="element-group" *ngIf="selectedSurveyDetail['10m'] && selectedSurveyDetail['10m'].length > 0">
+              <h5>10m Elements ({{ selectedSurveyDetail['10m'].length }})</h5>
+              <div class="element-list">
+                <div class="element-item" *ngFor="let tenM of selectedSurveyDetail['10m']">
+                  <div class="element-name"><span class="element-label">Network Element: </span>{{ tenM.name }}</div>
+                  <div class="element-properties">
+                    <span>Type: 10m</span>
+                    <span>Connectivity: No</span>
+                    <span>Photo: <a
+                        href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGlqAff-YJJjMUOtL3lLmjMprZPkKHVLFGQw&s">View</a></span>
+                    <span>Public ID: {{ tenM.publicId }}</span>
+                    <span *ngIf="tenM.status">Status: {{ tenM.status }}</span>
+                    <span>Coordinates: {{ tenM.geom?.coordinates?.join(', ') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- POP Elements -->
+            <div class="element-group" *ngIf="selectedSurveyDetail.pop && selectedSurveyDetail.pop.length > 0">
+              <h5>POP Elements ({{ selectedSurveyDetail.pop.length }})</h5>
+              <div class="element-list">
+                <div class="element-item" *ngFor="let pop of selectedSurveyDetail.pop">
+                  <div class="element-name"><span class="element-label">Network Element: </span>{{ pop.name }}</div>
+                  <div class="element-properties">
+                    <span>Type: POP</span>
+                    <span>Connectivity: No</span>
+                    <span>Photo: <a
+                        href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGlqAff-YJJjMUOtL3lLmjMprZPkKHVLFGQw&s">View</a></span>
+                    <span>Public ID: {{ pop.publicId }}</span>
+                    <span *ngIf="pop.status">Status: {{ pop.status }}</span>
+                    <span>Coordinates: {{ pop.geom?.coordinates?.join(', ') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ODF Elements -->
+            <div class="element-group" *ngIf="selectedSurveyDetail.odf && selectedSurveyDetail.odf.length > 0">
+              <h5>ODF Elements ({{ selectedSurveyDetail.odf.length }})</h5>
+              <div class="element-list">
+                <div class="element-item" *ngFor="let odf of selectedSurveyDetail.odf">
+                  <div class="element-name"><span class="element-label">Network Element: </span>{{ odf.name }}</div>
+                  <div class="element-properties">
+                    <span>Type: ODF</span>
+                    <span>Connectivity: No</span>
+                    <span>Photo: <a
+                        href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGlqAff-YJJjMUOtL3lLmjMprZPkKHVLFGQw&s">View</a></span>
+                    <span>Public ID: {{ odf.publicId }}</span>
+                    <span *ngIf="odf.status">Status: {{ odf.status }}</span>
+                    <span>Coordinates: {{ odf.geom?.coordinates?.join(', ') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Handhole Elements -->
+            <div class="element-group"
+              *ngIf="selectedSurveyDetail.handhole && selectedSurveyDetail.handhole.length > 0">
+              <h5>Handhole Elements ({{ selectedSurveyDetail.handhole.length }})</h5>
+              <div class="element-list">
+                <div class="element-item" *ngFor="let handhole of selectedSurveyDetail.handhole">
+                  <div class="element-name"><span class="element-label">Network Element: </span>{{ handhole.name }}
+                  </div>
+                  <div class="element-properties">
+                    <span>Type: Handhole</span>
+                    <span>Connectivity: No</span>
+                    <span>Photo: <a
+                        href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGlqAff-YJJjMUOtL3lLmjMprZPkKHVLFGQw&s">View</a></span>
+                    <span>Public ID: {{ handhole.publicId }}</span>
+                    <span *ngIf="handhole.status">Status: {{ handhole.status }}</span>
+                    <span>Coordinates: {{ handhole.geom?.coordinates?.join(', ') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FDP Elements -->
+            <div class="element-group" *ngIf="selectedSurveyDetail.fdp && selectedSurveyDetail.fdp.length > 0">
+              <h5>FDP Elements ({{ selectedSurveyDetail.fdp.length }})</h5>
+              <div class="element-list">
+                <div class="element-item" *ngFor="let fdp of selectedSurveyDetail.fdp">
+                  <div class="element-name"><span class="element-label">Network Element: </span>{{ fdp.name }}</div>
+                  <div class="element-properties">
+                    <span>Type: FDP</span>
+                    <span>Connectivity: No</span>
+                    <span>Photo: <a
+                        href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGlqAff-YJJjMUOtL3lLmjMprZPkKHVLFGQw&s">View</a></span>
+                    <span>Public ID: {{ fdp.publicId }}</span>
+                    <span *ngIf="fdp.status">Status: {{ fdp.status }}</span>
+                    <span>Coordinates: {{ fdp.geom?.coordinates?.join(', ') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Manhole Elements -->
+            <div class="element-group" *ngIf="selectedSurveyDetail.manhole && selectedSurveyDetail.manhole.length > 0">
+              <h5>Manhole Elements ({{ selectedSurveyDetail.manhole.length }})</h5>
+              <div class="element-list">
+                <div class="element-item" *ngFor="let manhole of selectedSurveyDetail.manhole">
+                  <div class="element-name"><span class="element-label">Network Element: </span>{{ manhole.name }}</div>
+                  <div class="element-properties">
+                    <span>Type: Manhole</span>
+                    <span>Connectivity: No</span>
+                    <span>Photo: <a
+                        href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGlqAff-YJJjMUOtL3lLmjMprZPkKHVLFGQw&s">View</a></span>
+                    <span>Public ID: {{ manhole.publicId }}</span>
+                    <span *ngIf="manhole.status">Status: {{ manhole.status }}</span>
+                    <span>Coordinates: {{ manhole.geom?.coordinates?.join(', ') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FDT Elements -->
+            <div class="element-group" *ngIf="selectedSurveyDetail.fdt && selectedSurveyDetail.fdt.length > 0">
+              <h5>FDT Elements ({{ selectedSurveyDetail.fdt.length }})</h5>
+              <div class="element-list">
+                <div class="element-item" *ngFor="let fdt of selectedSurveyDetail.fdt">
+                  <div class="element-name"><span class="element-label">Network Element: </span>{{ fdt.name }}</div>
+                  <div class="element-properties">
+                    <span>Type: FDT</span>
+                    <span>Connectivity: No</span>
+                    <span>Photo: <a
+                        href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGlqAff-YJJjMUOtL3lLmjMprZPkKHVLFGQw&s">View</a></span>
+                    <span>Public ID: {{ fdt.publicId }}</span>
+                    <span *ngIf="fdt.status">Status: {{ fdt.status }}</span>
+                    <span>Coordinates: {{ fdt.geom?.coordinates?.join(', ') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Joint Closure Elements -->
+            <div class="element-group"
+              *ngIf="selectedSurveyDetail.jointclosure && selectedSurveyDetail.jointclosure.length > 0">
+              <h5>Joint Closure Elements ({{ selectedSurveyDetail.jointclosure.length }})</h5>
+              <div class="element-list">
+                <div class="element-item" *ngFor="let jointclosure of selectedSurveyDetail.jointclosure">
+                  <div class="element-name"><span class="element-label">Network Element: </span>{{ jointclosure.name }}
+                  </div>
+                  <div class="element-properties">
+                    <span>Type: Joint Closure</span>
+                    <span>Connectivity: No</span>
+                    <span>Photo: <a
+                        href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGlqAff-YJJjMUOtL3lLmjMprZPkKHVLFGQw&s">View</a></span>
+                    <span>Public ID: {{ jointclosure.publicId }}</span>
+                    <span *ngIf="jointclosure.status">Status: {{ jointclosure.status }}</span>
+                    <span>Coordinates: {{ jointclosure.geom?.coordinates?.join(', ') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Customer Elements -->
+            <div class="element-group"
+              *ngIf="selectedSurveyDetail.customer && selectedSurveyDetail.customer.length > 0">
+              <h5>Customer Elements ({{ selectedSurveyDetail.customer.length }})</h5>
+              <div class="element-list">
+                <div class="element-item" *ngFor="let customer of selectedSurveyDetail.customer">
+                  <div class="element-name"><span class="element-label">Network Element: </span>{{ customer.name }}
+                  </div>
+                  <div class="element-properties">
+                    <span>Type: Customer</span>
+                    <span>Connectivity: No</span>
+                    <span>Photo: <a
+                        href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGlqAff-YJJjMUOtL3lLmjMprZPkKHVLFGQw&s">View</a></span>
+                    <span>Public ID: {{ customer.publicId }}</span>
+                    <span *ngIf="customer.status">Status: {{ customer.status }}</span>
+                    <span>Coordinates: {{ customer.geom?.coordinates?.join(', ') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- No elements message -->
+          <div class="no-elements-message" *ngIf="!hasElements(selectedSurveyDetail)">
+            <p>No network elements found in this survey.</p>
+          </div>
+
+          <div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
+            <div class="modal-content" (click)="$event.stopPropagation()">
+              <div class="modal-header">
+                <h3 class="element-label-header">Edit {{ editingElementType | uppercase }} Element</h3>
+                <button class="close-btn" (click)="closeEditModal()">&times;</button>
+              </div>
+              <div class="modal-body">
+                <!-- <form *ngIf="editingElement" (ngSubmit)="onSaveElement()">
+        <div class="form-group">
+          <label for="elementName">Name</label>
+          <input type="text" id="elementName" [(ngModel)]="editingElement.name" [ngModelOptions]="{standalone: true}" required>
+        </div>
+        
+        <div class="form-group" *ngIf="editingElement.status">
+          <label for="elementStatus">Status</label>
+          <input type="text" id="elementStatus" [(ngModel)]="editingElement.status" [ngModelOptions]="{standalone: true}">
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeEditModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form> -->
+                <form *ngIf="editingElement" (ngSubmit)="onSaveElement()">
+                  <!-- Read-only fields -->
+                  <div class="form-group">
+                    <label>Public ID</label>
+                    <p class="read-only-field">{{ editingElement.publicId }}</p>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Layer Name</label>
+                    <p class="read-only-field">{{ editingElement.layerName }}</p>
+                  </div>
+
+                  <!-- FAT-specific fields -->
+                  <div class="form-group" *ngIf="editingElementType === 'fat'">
+                    <label for="fatName">Name *</label>
+                    <input type="text" id="fatName" [(ngModel)]="editingElement.name"
+                      [ngModelOptions]="{standalone: true}" required>
+                  </div>
+
+                  <div class="form-group" *ngIf="editingElementType === 'fat'">
+                    <label for="fatCapacity">Capacity</label>
+                    <input type="number" id="fatCapacity" [(ngModel)]="editingElement.capacity"
+                      [ngModelOptions]="{standalone: true}">
+                  </div>
+
+                  <div class="form-group" *ngIf="editingElementType === 'fat'">
+                    <label for="fatAddress">Address</label>
+                    <input type="text" id="fatAddress" [(ngModel)]="editingElement.address"
+                      [ngModelOptions]="{standalone: true}">
+                  </div>
+
+                  <div class="form-group" *ngIf="editingElementType === 'fat' && editingElement.geom?.coordinates">
+                    <label>Coordinates</label>
+                    <p class="read-only-field">
+                      Longitude: {{ editingElement.geom.coordinates[0] }},
+                      Latitude: {{ editingElement.geom.coordinates[1] }}
+                    </p>
+                  </div>
+
+                  <div class="form-group" *ngIf="editingElementType === 'fat'">
+                    <label for="fatStatus">Status</label>
+                    <select id="fatStatus" [(ngModel)]="editingElement.status" [ngModelOptions]="{standalone: true}">
+                      <option value="">Select Status</option>
+                      <option value="Active">Active</option>
+                      <option value="Inactive">Inactive</option>
+                      <option value="Planned">Planned</option>
+                      <option value="Under Construction">Under Construction</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group" *ngIf="editingElementType === 'fat'">
+                    <label for="fatParentNeId">Parent NE ID</label>
+                    <input type="number" id="fatParentNeId" [(ngModel)]="editingElement.parentNeId"
+                      [ngModelOptions]="{standalone: true}">
+                  </div>
+
+                  <div class="form-group" *ngIf="editingElementType === 'fat'">
+                    <label for="fatParentNeType">Parent NE Type</label>
+                    <input type="text" id="fatParentNeType" [(ngModel)]="editingElement.parentNeType"
+                      [ngModelOptions]="{standalone: true}">
+                  </div>
+
+                  <div class="form-group" *ngIf="editingElementType === 'fat'">
+                    <label for="fatMvnoId">MVNO ID</label>
+                    <input type="number" id="fatMvnoId" [(ngModel)]="editingElement.mvnoId"
+                      [ngModelOptions]="{standalone: true}">
+                  </div>
+
+                  <div class="form-group" *ngIf="editingElementType === 'fat'">
+                    <label for="fatSurveyAreaId">Survey Area ID</label>
+                    <input type="number" id="fatSurveyAreaId" [(ngModel)]="editingElement.surveyAreaId"
+                      [ngModelOptions]="{standalone: true}">
+                  </div>
+
+                  <div class="form-group" *ngIf="editingElementType === 'fat'">
+                    <label for="fatRemarks">Remarks</label>
+                    <textarea id="fatRemarks" [(ngModel)]="editingElement.remarks" [ngModelOptions]="{standalone: true}"
+                      rows="3"></textarea>
+                  </div>
+
+                  <div class="form-group" *ngIf="editingElementType === 'fat'">
+                    <label for="fatPowerLevels">Power Levels</label>
+                    <input type="number" id="fatPowerLevels" [(ngModel)]="editingElement.powerLevels"
+                      [ngModelOptions]="{standalone: true}">
+                  </div>
+
+                  <div class="form-group" *ngIf="editingElementType === 'fat'">
+                    <label for="fatUserId">User ID</label>
+                    <input type="number" id="fatUserId" [(ngModel)]="editingElement.userId"
+                      [ngModelOptions]="{standalone: true}">
+                  </div>
+
+                  <!-- Generic fields for other element types -->
+                  <div class="form-group" *ngIf="editingElementType !== 'fat'">
+                    <label for="elementName">Name</label>
+                    <input type="text" id="elementName" [(ngModel)]="editingElement.name"
+                      [ngModelOptions]="{standalone: true}" required>
+                  </div>
+
+                  <div class="form-group" *ngIf="editingElementType !== 'fat' && editingElement.status">
+                    <label for="elementStatus">Status</label>
+                    <input type="text" id="elementStatus" [(ngModel)]="editingElement.status"
+                      [ngModelOptions]="{standalone: true}">
+                  </div>
+
+                  <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" (click)="closeEditModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Delete Confirmation Modal -->
+          <div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeDeleteModal()">
+            <div class="modal-content" (click)="$event.stopPropagation()">
+              <div class="modal-header">
+                <h3>Confirm Delete</h3>
+                <button class="close-btn" (click)="closeDeleteModal()">&times;</button>
+              </div>
+              <div class="modal-body">
+                <p>Are you sure you want to delete this {{ deletingElementType | uppercase }} element?</p>
+                <p><strong>{{ deletingElement?.name }}</strong></p>
+                <div class="form-actions">
+                  <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()">Cancel</button>
+                  <button type="button" class="btn btn-danger" (click)="confirmDelete()">Delete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add this popup structure at the end of your template -->
+  <div class="image-popup-overlay" *ngIf="showImagePopup" (click)="closeImagePopup()">
+    <div class="image-popup-content" (click)="$event.stopPropagation()">
+      <div class="popup-header">
+        <h3>Image Viewer</h3>
+        <button class="close-btn" (click)="closeImagePopup()">&times;</button>
+      </div>
+
+      <div class="image-slider-container" *ngIf="currentImages && currentImages.length > 0">
+        <!-- Main image display -->
+        <div class="main-image-container">
+          <img [src]="currentImages[currentImageIndex]" alt="Image" class="main-image">
+        </div>
+
+        <!-- Navigation controls for multiple images -->
+        <div class="slider-controls" *ngIf="currentImages.length > 1">
+          <button class="nav-btn prev" (click)="prevImage()">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+
+          <div class="image-counter">
+            {{ currentImageIndex + 1 }} / {{ currentImages.length }}
+          </div>
+
+          <button class="nav-btn next" (click)="nextImage()">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+
+        <!-- Thumbnail strip for multiple images -->
+        <div class="thumbnail-container" *ngIf="currentImages.length > 1">
+          <div *ngFor="let image of currentImages; let i = index" class="thumbnail"
+            [class.active]="i === currentImageIndex" (click)="setImageIndex(i)">
+            <img [src]="image" alt="Thumbnail">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

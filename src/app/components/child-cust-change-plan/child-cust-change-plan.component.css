@@ -1,0 +1,25 @@
+.myclass {
+  border: 1px solid #dadad6;
+  text-align: center;
+}
+
+input[type="checkbox"][readonly] {
+  pointer-events: none;
+}
+.approve-btn {
+  box-shadow: none;
+  border: none;
+  padding: 0 4px 0 0;
+}
+
+.approve-btn[disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.pd-1 {
+  padding: 1rem;
+}
+.pd-2 {
+  padding: 2rem;
+}
