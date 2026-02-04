@@ -995,10 +995,4 @@ getAllSurveys(): Observable<any> {
     );
   }
 
-  getNearbyElements(payload: any): Observable<any> {
-  return this.http.post(`${environment.KEYANNA_API_GIS_CORE_PORT}/common/getNearbyMultipleElements`, payload);
-}
-
-
-
 }

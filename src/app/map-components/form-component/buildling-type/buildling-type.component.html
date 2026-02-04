@@ -57,11 +57,11 @@
 
 <!-- Towers Field -->
 <div class="form-field">
-  <label for="blocks">Blocks:
+  <label for="towers">Towers:
     <span class="required-star">*</span>
   </label>
-  <input id="blocks" type="number" formControlName="blocks" (keypress)="numericOnly($event)">
-  <span class="error-message" *ngIf="form.get('blocks')?.errors?.['pattern']">
+  <input id="towers" type="number" formControlName="towers" (keypress)="numericOnly($event)">
+  <span class="error-message" *ngIf="form.get('towers')?.errors?.['pattern']">
     Please enter numbers only
   </span>
 </div>

@@ -6,7 +6,6 @@ import {
   ChangeDetectorRef,
   HostListener,
 } from '@angular/core';
-import * as olProj from 'ol/proj';
 // import Map from 'ol/Map';
 import View from 'ol/View';
 import TileWMS from 'ol/source/TileWMS';
@@ -88,7 +87,6 @@ import { toStringHDMS } from 'ol/coordinate';
 import { MapService } from '../map.service';
 import { Modify } from 'ol/interaction';
 import jsPDF from 'jspdf';
-import { NearbyElementsService } from '../reusable-component/nearby-elements.service';
 // import { Modify } from 'ol/interaction';
 
 interface LayerConfig {
@@ -110,7 +108,6 @@ export interface CountryBorderData {
     coordinates: number[][][][];
   };
 }
-
 
 @Component({
   selector: 'app-ol-map',
@@ -240,15 +237,6 @@ export class OlMapComponent implements OnInit, OnDestroy, AfterViewInit {
   //area mappinglayer
   private areaMappingLayer: VectorLayer<VectorSource> | null = null;
   showAreaMappingPanel = false;
-  public showNearbyElementsPopup: boolean = false;
-  public nearbyElements: any = [];
-  public isLoadingNearbyElements: boolean = false;
-  public selectedElementForDetails: any = null;
-  selectedFromElement: any = null;
-  selectedToElement: any = null;
-  isMapSelectionMode: boolean = false;
-  isSelectingDestination: boolean = false;
-  mapSelectionCallback: ((coordinates: number[]) => void) | null = null;
 
   constructor(
     public componentFactoryResolver: ComponentFactoryResolver,
@@ -261,7 +249,6 @@ export class OlMapComponent implements OnInit, OnDestroy, AfterViewInit {
     public messageService: MessageService,
     private mapService: MapService,
     private confirmationService: ConfirmationService,
-    private nearbyElementsService: NearbyElementsService 
   ) { }
 
   ngOnInit() {
@@ -276,6 +263,12 @@ export class OlMapComponent implements OnInit, OnDestroy, AfterViewInit {
     this.checkNetworkElementEditPermission();
     this.checkNetworkElementDeletePermission();
     this.checkSurveyViewPermission();
+
+    this.items = [
+      { label: 'FAT' },
+      { label: 'SPLITTER' },
+      // { label: 'CABLE' }
+    ];
   }
 
   ngAfterViewInit(): void {
@@ -396,7 +389,7 @@ export class OlMapComponent implements OnInit, OnDestroy, AfterViewInit {
           ];
 
           if (showNameOnlyLayers.includes(layerName)) {
-            let tooltipHtml = `<strong>Name:</strong> ${props['name'] || props['cableId'] || 'No Name'} `;
+            let tooltipHtml = `<strong>Name:</strong> ${props['name'] || props['cableId']  || 'No Name'} `;
             if (layerName === 'cable') {
               const cableType = props['lookupCableType']?.name || '';
               if (cableType) {
@@ -449,15 +442,15 @@ export class OlMapComponent implements OnInit, OnDestroy, AfterViewInit {
     this.selectedSurveyAreaName = survey?.name || '';
 
     // this.selectedSurveyAreas = {}; // Clear previous
+    this.selectedSurveyAreas[survey.id] = true;
 
     // Set icon design mode
-     this.useAlternativeDesign = survey.surveyStageName?.toLowerCase() === 'digitalization' || 
-                             survey.surveyStageName?.toLowerCase() === 'design' || 
-                             survey?.surveyStageName === 'BOM';
-
+    this.useAlternativeDesign = survey.surveyStageName?.toLowerCase() === 'digitalization' || survey.surveyStageName?.toLowerCase() === 'design' || survey?.surveyStageName === 'BOM';
     this.currentSurveyStage = survey.surveyStageName;
-  this.refreshMapFeatures();
+
     this.showSurveyStage = false;
+    this.refreshMapFeatures();
+
     //  Directly call the appropriate API based on the stage
     if (this.useAlternativeDesign && this.selectedSurveyAreaId) {
       this.apiService.getSurveyDataForDigitalization(this.selectedSurveyAreaId).subscribe({
@@ -518,24 +511,17 @@ export class OlMapComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  isConnectivityBtn: boolean = false;
-
   onStageChanged(stageData: { selectedStage: string, isSurveyShow: boolean }) {
     this.vectorLayer.getSource()?.clear();
     this.isSurveyShow = stageData.isSurveyShow;
+
     // Automatically set icon mode based on stage
     if (stageData.selectedStage && stageData.selectedStage.toLowerCase() === 'digitalization') {
       this.useAlternativeDesign = true;
-      this.isConnectivityBtn = false;
-    } else if(stageData.selectedStage && stageData.selectedStage.toLowerCase() === 'design') {
+    } else {
       this.useAlternativeDesign = false;
-      this.isConnectivityBtn = true;
-    } else { 
-       this.useAlternativeDesign = false;
-      this.isConnectivityBtn = false;
     }
-
-
+    this.refreshMapFeatures();
   }
 
 onMultiSurveySelected(selectedSurveys: any[]) {
@@ -734,8 +720,6 @@ onMultiSurveySelected(selectedSurveys: any[]) {
           return 1.0; // Very small for FDC points
         case 'fat':
           return 1.0;
-        case 'fdt':
-          return 1.0;
         case 'fdc':
           return 1.0;
         case 'splice':
@@ -755,6 +739,7 @@ onMultiSurveySelected(selectedSurveys: any[]) {
       if (isCADStyle) {
         return type === 'cable' ? 0.8 : 0.5; // Thinner lines for CAD style
       }
+
       switch (type) {
         case 'cable':
           return status === 'active' ? 1.2 : 0.8; // Thinner for cables
@@ -767,6 +752,7 @@ onMultiSurveySelected(selectedSurveys: any[]) {
       case 'Point':
         const pointColor = getFeatureColor(featureType, status);
         const pointSize = getFeatureSize(featureType);
+
         // Use custom shapes that match PDF styling - no icon loading issues
         const currentZoom = this.olMap.getView().getZoom() || 15;
         const imageStyle = this.createFallbackShape(
@@ -775,15 +761,15 @@ onMultiSurveySelected(selectedSurveys: any[]) {
           pointSize,
           isCADStyle,
           currentZoom,
-          feature,
-          useAlternativeDesign
+          feature
         );
+
         return new Style({
           image: imageStyle,
           text:
             this.showLabels && feature.get('name')
               ? new Text({
-                // text: feature.get('name'),
+                text: feature.get('name'),
                 font: 'bold 12px Arial',
                 fill: new Fill({ color: '#222' }),
                 stroke: new Stroke({ color: '#fff', width: 3 }),
@@ -795,18 +781,18 @@ onMultiSurveySelected(selectedSurveys: any[]) {
       case 'LineString':
         const lineColor = getFeatureColor(featureType, status);
         const lineWidth = getLineWidth(featureType, status);
-        const layerName = feature.get('layerName')
+
         return new Style({
           stroke: new Stroke({
             color:
-              layerName === 'cable'
+              featureType === 'cable'
                 ? status === 'active'
                   ? '#0066FF'
                   : '#fe0000ff'
                 : lineColor,
-            width: getLineWidth(layerName, status),
+            width: getLineWidth(featureType, status),
             lineDash:
-              layerName === 'cable'
+              featureType === 'cable'
                 ? [6, 6]
                 : isCADStyle
                   ? [5, 5]
@@ -853,42 +839,14 @@ onMultiSurveySelected(selectedSurveys: any[]) {
     }
   }
 
-  private createFallbackShape(type: string, color: string, size: number, isCADStyle: boolean, zoom: number, feature?: any, useAlternativeDesign?: boolean ): any {
-     if (!useAlternativeDesign) {
-    const icons: Record<string, string> = {
-      pole: 'assets/poles.svg',
-      '8m': 'assets/icons/8m.svg',
-      '10m': 'assets/icons/10m.svg',
-      '12m': 'assets/icons/12m.svg',
-      'fat': 'assets/icons/fat.svg',
-      splitter: 'assets/icons/splitter.svg',
-      jointclosure: 'assets/icons/joint_closure.svg',
-      fdt: 'assets/icons/fdt.svg',
-      olt: 'assets/icons/olt.svg',
-      building: 'assets/building.svg',
-      fdc: 'assets/fdc.svg',
-      sdu: 'assets/icons/sdu.svg',
-      mdu: 'assets/icons/mdu.svg',
-      cdu: 'assets/icons/cdu.svg',
-      cable: 'assets/icons/cable.svg',
-    };
-
-    if (type === 'pole') {
-      const originalType = feature?.get('originalType');
-      const iconSrc = icons[originalType] || icons['pole'];
-      return new Icon({
-        src: iconSrc,
-        scale: 0.5,
-        anchor: [0.5, 0.5]
-      });
-    }
-    const iconSrc = icons[type];
-    return new Icon({
-      src: iconSrc,
-      scale: 0.5,
-      anchor: [0.5, 0.5]
-    });
-  }
+  private createFallbackShape(
+    type: string,
+    color: string,
+    size: number,
+    isCADStyle: boolean,
+    zoom: number,
+    feature?: any
+  ): any {
     // Create custom shapes that match PDF styling
     if (type === 'FAT' || type === 'fat') {
       // Generate dynamic SVG for FAT points
@@ -906,9 +864,9 @@ onMultiSurveySelected(selectedSurveys: any[]) {
       return new Icon({
         src: dataUrl,
         scale: baseScale * zoomScale,
-        anchor: [0.5, 0.5]
+        anchor: [0.5, 0.5],
       });
-    } else if (type == 'fdt') {
+    } else if (type === 'FDT' || type === 'fdt') {
       // Generate dynamic SVG for FDT points
       const baseScale = 0.3;
       const zoomScale = Math.pow(1.15, zoom - 15);
@@ -917,7 +875,7 @@ onMultiSurveySelected(selectedSurveys: any[]) {
       const splitters = feature?.get('splitters') || ['2x4 SPL', '2x16 SPL', '2x8 SPL'];
 
       // Generate dynamic SVG
-      const svgContent = this.generateDynamicFDTSvg(splitters);
+      const svgContent = ''
       const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgContent);
 
       return new Icon({
@@ -925,35 +883,111 @@ onMultiSurveySelected(selectedSurveys: any[]) {
         scale: baseScale * zoomScale,
         anchor: [0.5, 0.5]
       });
-    } else if (type === 'sdu') {
-      // Generate dynamic SVG for building points
+    } else if (type === 'FDC' || type === 'fdc') {
+      // Use SVG icon for FDC points with dynamic scaling
+      const baseScale = 0.4;
+      const zoomScale = Math.pow(1.2, zoom - 15);
+      return new Icon({
+        src: 'assets/fdc.svg',
+        scale: baseScale * zoomScale,
+        anchor: [0.5, 0.5]
+      });
+    } else if (type === 'POP') {
+      // Create circle for POP
+      return new CircleStyle({
+        radius: size,
+        fill: new Fill({ color: color }),
+        stroke: new Stroke({
+          color: isCADStyle ? '#ffffff' : '#ffffff',
+          width: 1,
+        }),
+      });
+    } else if (type === 'splice') {
+      // Use SVG icon for splice points with dynamic scaling
+      const baseScale = 0.4;
+      const zoomScale = Math.pow(1.2, zoom - 15);
+      return new Icon({
+        src: 'assets/splice.svg',
+        scale: baseScale * zoomScale,
+        anchor: [0.5, 0.5],
+      });
+    } else if (type === 'manhole') {
+      // Use SVG icon for manhole points with dynamic scaling
       const baseScale = 0.5;
       const zoomScale = Math.pow(1.15, zoom - 15);
-      // Get feature properties for dynamic text
-      const name = feature?.get('name');
-      const originalType = feature?.get('originalType') || 'Original-Type';
-      const homePasses = feature?.get('homePasses') || 'HomePasses';
-      const floors = feature?.get('floors') || '1F';
-      const units = feature?.get('units') || '1';
-      const fatId = feature?.get('fat_id') || 'FAT 00-00';
-      const count = feature?.get('count') || '1';
-      const location = feature?.get('location') || 'LOCATION';
-      const streetName = feature?.get('streetName') || 'Street Name'
-
-      // Generate dynamic SVG
-      const svgContent = this.generateDynamicSDUSvg(name, originalType, homePasses,floors, units, fatId, count, location,streetName);
+      const name = feature?.get('name') || 'MH';
+      const svgContent = this.generateManholeSvg(name);
       const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgContent);
 
       return new Icon({
         src: dataUrl,
         scale: baseScale * zoomScale,
-        anchor: [0.5, 0.5]
+        anchor: [0.5, 0.5],
       });
-    } else if (type === 'cdu') {
-      // Generate dynamic SVG for building points
+
+    } else if (type === 'handhole') {
       const baseScale = 0.5;
       const zoomScale = Math.pow(1.15, zoom - 15);
+      const name = feature?.get('name') || 'HH';
+      const svgContent = this.generateHandholeSvg(name);
+      const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgContent);
 
+      return new Icon({
+        src: dataUrl,
+        scale: baseScale * zoomScale,
+        anchor: [0.5, 0.5],
+      });
+
+    } else if (type === 'olt') {
+      const baseScale = 0.5;
+      const zoomScale = Math.pow(1.15, zoom - 15);
+      const name = feature?.get('name') || 'OLT';
+      const oltNo = feature?.get('oltNo') || '01';
+      const svgContent = this.generateOltSvg(name, oltNo);
+      const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgContent);
+
+      return new Icon({
+        src: dataUrl,
+        scale: baseScale * zoomScale,
+        anchor: [0.5, 0.5],
+      });
+    } else if (type === 'jointclosure') {
+      const baseScale = 0.5;
+      const zoomScale = Math.pow(1.15, zoom - 15);
+      const name = feature?.get('name') || 'JC';
+      const svgContent = this.generateJointClosureSvg(name);
+      const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgContent);
+
+      return new Icon({
+        src: dataUrl,
+        scale: baseScale * zoomScale,
+        anchor: [0.5, 0.5],
+      });
+    } else if (type === 'splitter') {
+      const baseScale = 0.4;
+      const zoomScale = Math.pow(1.2, zoom - 15);
+      const name = feature?.get('name') || 'Splitter';
+      const original = (feature?.get('originalType') || '').toLowerCase();
+
+      let svgContent: string;
+      if (original === 'fdt') {
+        // svgContent = this.generateFdtSplitterSvg(name);
+      } else {
+        svgContent = this.generateFatSplitterSvg(name);
+      }
+
+      const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgContent);
+      return new Icon({
+        src: dataUrl,
+        scale: baseScale * zoomScale,
+        anchor: [0.5, 0.5],
+      });
+    } else if (type === 'building' || type === 'building_center') {
+      const baseScale = 0.4;
+      const zoomScale = Math.pow(1.15, zoom - 15);
+
+      const original = (feature?.get('originalType') || '').toLowerCase();
+      const name = feature?.get('name') || 'B';
       // Get feature properties for dynamic text
       const street = feature?.get('street') || 'STREET NAME';
       const number = feature?.get('number') || '0';
@@ -966,153 +1000,107 @@ onMultiSurveySelected(selectedSurveys: any[]) {
       const location = feature?.get('location') || 'LOCATION';
       const status = feature?.get('status') || 'STATUS';
 
-      // Generate dynamic SVG
-      const svgContent = this.generateDynamicCDUSvg(street, number, floor, units, fatId, equipment, count, olt, location, status);
-      const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgContent);
+      let svgContent: string;
+      if (original === 'sdu') {
+        const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgContent);
+        svgContent = this.generateSduSvg(name, street, number, floor, units, fatId, equipment, count, olt, location, status);
+        return new Icon({
+          src: dataUrl,
+          scale: baseScale * zoomScale,
+          anchor: [0.5, 0.5]
+        });
+      } else if (original === 'cdu') {
+        svgContent = this.generateCduSvg(name, street, number, floor, units, fatId, equipment, count, olt, location);
+      } else {
+        svgContent = this.generateMduSvg(name, street, number, floor, units, fatId, equipment, count, olt, location);
+      }
+
+      const dataUrl =
+        'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgContent);
 
       return new Icon({
         src: dataUrl,
         scale: baseScale * zoomScale,
-        anchor: [0.5, 0.5]
+        anchor: [0.5, 0.5],
       });
-    } else if (type === 'mdu') {
-      // Generate dynamic SVG for building points
-      const baseScale = 0.5;
-      const zoomScale = Math.pow(1.15, zoom - 15);
-
-      // Get feature properties for dynamic text
-      const street = feature?.get('street') || 'STREET NAME';
-      const number = feature?.get('number') || '0';
-      const floor = feature?.get('floor') || '1F';
-      const units = feature?.get('units') || '1';
-      const fatId = feature?.get('fat_id') || 'FAT 00-00';
-      const equipment = feature?.get('equipment') || 'SFU';
-      const count = feature?.get('count') || '1';
-      const olt = feature?.get('mdu') || 'mdu 00-00';
-      const location = feature?.get('location') || 'LOCATION';
-      const status = feature?.get('status') || 'STATUS';
-
-      // Generate dynamic SVG
-      const svgContent = this.generateDynamicMDUSvg(street, number, floor, units, fatId, equipment, count, olt, location, status);
-      const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgContent);
-
-      return new Icon({
-        src: dataUrl,
-        scale: baseScale * zoomScale,
-        anchor: [0.5, 0.5]
-      });
-    } else if (type === 'pole') {
+    } else if (type === '8m poles' || type === '10m poles' || type === '12m poles') {
       // Use SVG icon for pole points with dynamic scaling
       const baseScale = 0.4;
       const zoomScale = Math.pow(1.2, zoom - 15);
-      const layerName = feature?.get('layerName') || '8m';
-      const name = feature?.get('name') || 'NAME';
-      const originalType = feature?.get('originalType') || '8m';
-      const useAlternativeDesign = feature?.get('useAlternativeDesign') || 'STREET NAME';
-      const surveyStage = feature?.get('surveyStage') || 'STREET NAME';
-      const poleId = feature.get('poleId') || 'Pole';
 
-      if (originalType == '8m') {
-        const svgContent = this.generateDynamic8mSvg(name, poleId);
-        const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgContent);
-        return new Icon({
-          src: dataUrl,
-          scale: baseScale * zoomScale,
-          anchor: [0.5, 0.5]
-        });
-      } else if (originalType == '10m') {
-        const svgContent = this.generateDynamic10mSvg(name, poleId);
-        const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgContent);
-        return new Icon({
-          src: dataUrl,
-          scale: baseScale * zoomScale,
-          anchor: [0.5, 0.5]
-        });
-      } else if (originalType == '12m') {
-        const svgContent = this.generateDynamic12mSvg(name, poleId);
-        const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgContent);
-        return new Icon({
-          src: dataUrl,
-          scale: baseScale * zoomScale,
-          anchor: [0.5, 0.5]
-        });
+      const sn = feature?.get('sn') || 'SN';
+      const poleId = feature?.get('poleId') || 'NP_SAV-0001';
+      const height = (feature?.get('height') || '').toLowerCase(); // example: '8m', '10m', '12m'
+
+      let svgContent: string;
+
+      // Choose SVG based on pole height
+      if (type === '8m poles') {
+        svgContent = this.generate8mPoleSvg(sn, poleId);
+      } else if (type === '10m poles') {
+        svgContent = this.generate10mPoleSvg(sn, poleId);
+      } else {
+        svgContent = this.generate12mPoleSvg(sn, poleId);
       }
-    } else if (type === 'olt') {
-      // Generate dynamic SVG for building points
-      const baseScale = 0.5;
-      const zoomScale = Math.pow(1.15, zoom - 15);
-      const name = feature?.get('name') || 'OLT 00-00';
-      // Generate dynamic SVG
-      const svgContent = this.generateDynamicOLTSvg(name, '001');
-      const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgContent);
+
+      const dataUrl =
+        'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgContent);
 
       return new Icon({
         src: dataUrl,
         scale: baseScale * zoomScale,
-        anchor: [0.5, 0.5]
+        anchor: [0.5, 0.5],
       });
-    } else if (type === 'jointclosure') {
-      // Generate dynamic SVG for building points
+    } else if (type === 'cable') {
       const baseScale = 0.5;
       const zoomScale = Math.pow(1.15, zoom - 15);
-      const name = feature?.get('name') || 'OLT 00-00';
-      // Generate dynamic SVG
-      const svgContent = this.generateDynamicJointClosurevg(name);
+      const name = feature?.get('name') || 'Cable';
+
+      const svgContent = this.generateCableSvg(name);
       const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgContent);
 
       return new Icon({
         src: dataUrl,
         scale: baseScale * zoomScale,
-        anchor: [0.5, 0.5]
+        anchor: [0.5, 0.5],
       });
-    } else if (type === 'splitter') {
-      // Generate dynamic SVG for building points
+    } else if (type === 'trench') {
       const baseScale = 0.5;
       const zoomScale = Math.pow(1.15, zoom - 15);
-      const name = feature?.get('name') || 'OLT 00-00';
-      // Generate dynamic SVG
-      const svgContent = this.generateDynamicSplitterSvg(name);
+      const name = feature?.get('name') || 'Trench';
+
+      const svgContent = this.generateTrenchSvg(name);
       const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgContent);
 
       return new Icon({
         src: dataUrl,
         scale: baseScale * zoomScale,
-        anchor: [0.5, 0.5]
+        anchor: [0.5, 0.5],
+      });
+    } else if (type === 'duct') {
+      const baseScale = 0.5;
+      const zoomScale = Math.pow(1.15, zoom - 15);
+      const name = feature?.get('name') || 'Duct';
+
+      const svgContent = this.generateDuctSvg(name);
+      const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgContent);
+
+      return new Icon({
+        src: dataUrl,
+        scale: baseScale * zoomScale,
+        anchor: [0.5, 0.5],
       });
     } else {
       // Default circle for other features
-      // return new CircleStyle({
-      //   radius: size,
-      //   fill: new Fill({ color: color }),
-      //   stroke: new Stroke({ 
-      //     color: isCADStyle ? '#ffffff' : '#ffffff', 
-      //     width: 1 
-      //   })
-      // });
+      return new CircleStyle({
+        radius: size,
+        fill: new Fill({ color: color }),
+        stroke: new Stroke({
+          color: isCADStyle ? '#ffffff' : '#ffffff',
+          width: 1,
+        }),
+      });
     }
-  }
-  generateDynamicSplitterSvg(name: string): any {
-    return `<svg width="200" height="120" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg" style="shape-rendering: crispEdges; text-rendering: optimizeLegibility;">
-  <!-- Splitter Box -->
-  <rect x="20" y="20" width="160" height="80" rx="10" ry="10"
-        stroke="blue" stroke-width="2" fill="none" />
-
-  <!-- Splitter Title -->
-  <text x="100" y="40" text-anchor="middle" fill="blue" font-size="12" font-family="Arial, sans-serif">
-    Splitter
-  </text>
-
-  <!-- Splitter Name -->
-  <text x="100" y="60" text-anchor="middle" fill="black" font-size="10" font-family="Arial, sans-serif">
- ${name}
-  </text>
-
-  <!-- Splitter Number -->
-  <text x="100" y="80" text-anchor="middle" fill="black" font-size="10" font-family="Arial, sans-serif">
-    No: 12
-  </text>
-</svg>
-`;
   }
 
   private generateDynamicFATSvg(name: string, homepasses: string): string {
@@ -1132,7 +1120,12 @@ onMultiSurveySelected(selectedSurveys: any[]) {
 </svg>`;
   }
 
-  private generateDynamicSDUSvg(name: string, originalType: string, homePasses: string, floors: string, units: string, fatId: string,  count: string, location: string, streetName: string): string {
+  private generateSduSvg(
+    name: string,
+    street: string, number: string, floor: string, units: string,
+    fatId: string, equipment: string, count: string, olt: string,
+    location: string, status: string, size: number = 200
+  ): string {
     return `<svg width="200" height="200" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="shape-rendering: crispEdges; text-rendering: optimizeLegibility;">
   <!-- Rotated Rounded Rectangle -->
   <g transform="rotate(-10, 50, 50)">
@@ -1141,55 +1134,6 @@ onMultiSurveySelected(selectedSurveys: any[]) {
 
     <!-- Multi-line Text -->
     <text x="50" y="25" text-anchor="middle" fill="lime" font-size="5" font-family="Arial, sans-serif" style="text-rendering: optimizeLegibility;">
-      <tspan x="50" dy="0">BUILDING NAME: ${name}</tspan>
-      <tspan x="50" dy="6">UNITs Number: ${originalType}</tspan>
-      <tspan x="50" dy="6">HOMEPASSES: ${homePasses}</tspan>
-      <tspan x="50" dy="6">Floors :${floors}</tspan>
-      <tspan x="50" dy="6">ROAD/STREET: ${streetName}</tspan>
-      <tspan x="50" dy="6">UNITS: ${units}</tspan>
-      <tspan x="50" dy="6">FDT No: ${fatId}</tspan>
-      <tspan x="50" dy="6">FAT No: ${count}</tspan>
-      <tspan x="50" dy="12">OLT-NAME: ${location}</tspan>
-    </text>
-  </g>
-</svg>`;
-  }
-
-  private generateDynamicCDUSvg(street: string, number: string, floor: string, units: string, fatId: string, equipment: string, count: string, olt: string, location: string, status: string, size: number = 200): string {
-    return `<svg width="200" height="200" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="shape-rendering: crispEdges; text-rendering: optimizeLegibility;">
-  <!-- Rotated Rounded Rectangle -->
-  <g transform="rotate(-10, 50, 50)">
-    <rect x="10" y="10" width="80" height="80" rx="8" ry="8"
-          stroke="cyan" stroke-width="1.5" fill="none" />
-
-    <!-- Multi-line Text -->
-    <text x="50" y="25" text-anchor="middle" fill="cyan" font-size="5" font-family="Arial, sans-serif" style="text-rendering: optimizeLegibility;">
-      <tspan x="50" dy="0">OFF ${street} ${number}</tspan>
-      <tspan x="50" dy="6">${floor}</tspan>
-      <tspan x="50" dy="6">${units}</tspan>
-      <tspan x="50" dy="6">OFF ${street}</tspan>
-      <tspan x="50" dy="6">${number}</tspan>
-      <tspan x="50" dy="6">${fatId}</tspan>
-      <tspan x="50" dy="6">${equipment}</tspan>
-      <tspan x="50" dy="6">${count}</tspan>
-      <tspan x="50" dy="6">${olt}</tspan>
-      <tspan x="50" dy="6">${location}</tspan>
-      <tspan x="50" dy="6">${status}</tspan>
-    </text>
-  </g>
-</svg>
-`;
-  }
-
-  private generateDynamicMDUSvg(street: string, number: string, floor: string, units: string, fatId: string, equipment: string, count: string, olt: string, location: string, status: string, size: number = 200): string {
-    return `<svg width="200" height="200" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="shape-rendering: crispEdges; text-rendering: optimizeLegibility;">
-  <!-- Rotated Rounded Rectangle -->
-  <g transform="rotate(-10, 50, 50)">
-    <rect x="10" y="10" width="80" height="80" rx="8" ry="8"
-          stroke="blue" stroke-width="1.5" fill="none" />
-
-    <!-- Multi-line Text -->
-    <text x="50" y="25" text-anchor="middle" fill="blue" font-size="5" font-family="Arial, sans-serif" style="text-rendering: optimizeLegibility;">
       <tspan x="50" dy="0">OFF ${street} ${number}</tspan>
       <tspan x="50" dy="6">${floor}</tspan>
       <tspan x="50" dy="6">${units}</tspan>
@@ -1205,41 +1149,104 @@ onMultiSurveySelected(selectedSurveys: any[]) {
   </g>
 </svg>`;
   }
-  private generateDynamic12mSvg(sn: string, poleId: string): string {
+
+  private generateMduSvg(street: string, number: string, floor: string, units: string, fatId: string, equipment: string, count: string, olt: string, location: string, status: string, size: number = 200): string {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="shape-rendering: crispEdges; text-rendering: optimizeLegibility;">
+  <!-- Rotated Rounded Rectangle -->
+  <g transform="rotate(-10, 50, 50)">
+    <rect x="10" y="10" width="80" height="80" rx="8" ry="8"
+          stroke="lime" stroke-width="1.5" fill="none" />
+
+    <!-- Multi-line Text -->
+    <text x="50" y="25" text-anchor="middle" fill="lime" font-size="5" font-family="Arial, sans-serif" style="text-rendering: optimizeLegibility;">
+      <tspan x="50" dy="0">OFF ${street} ${number}</tspan>
+      <tspan x="50" dy="6">${floor}</tspan>
+      <tspan x="50" dy="6">${units}</tspan>
+      <tspan x="50" dy="6">OFF ${street}</tspan>
+      <tspan x="50" dy="6">${number}</tspan>
+      <tspan x="50" dy="6">${fatId}</tspan>
+      <tspan x="50" dy="6">${equipment}</tspan>
+      <tspan x="50" dy="6">${count}</tspan>
+      <tspan x="50" dy="6">${olt}</tspan>
+      <tspan x="50" dy="6">${location}</tspan>
+      <tspan x="50" dy="6">${status}</tspan>
+    </text>
+  </g>
+</svg>`;
+  }
+
+  private generateCduSvg(street: string, number: string, floor: string, units: string, fatId: string, equipment: string, count: string, olt: string, location: string, status: string, size: number = 200): string {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="shape-rendering: crispEdges; text-rendering: optimizeLegibility;">
+  <!-- Rotated Rounded Rectangle -->
+  <g transform="rotate(-10, 50, 50)">
+    <rect x="10" y="10" width="80" height="80" rx="8" ry="8"
+          stroke="lime" stroke-width="1.5" fill="none" />
+
+    <!-- Multi-line Text -->
+    <text x="50" y="25" text-anchor="middle" fill="lime" font-size="5" font-family="Arial, sans-serif" style="text-rendering: optimizeLegibility;">
+      <tspan x="50" dy="0">OFF ${street} ${number}</tspan>
+      <tspan x="50" dy="6">${floor}</tspan>
+      <tspan x="50" dy="6">${units}</tspan>
+      <tspan x="50" dy="6">OFF ${street}</tspan>
+      <tspan x="50" dy="6">${number}</tspan>
+      <tspan x="50" dy="6">${fatId}</tspan>
+      <tspan x="50" dy="6">${equipment}</tspan>
+      <tspan x="50" dy="6">${count}</tspan>
+      <tspan x="50" dy="6">${olt}</tspan>
+      <tspan x="50" dy="6">${location}</tspan>
+      <tspan x="50" dy="6">${status}</tspan>
+    </text>
+  </g>
+</svg>`;
+  }
+  private generate12mPoleSvg(sn: string, poleId: string): string {
     return `
-<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
-  <!-- Circle -->
-  <circle cx="100" cy="70" r="40" stroke="cyan" fill="none" stroke-width="1" />
+<svg width="200" height="200" viewBox="0 0 100 100"
+     xmlns="http://www.w3.org/2000/svg"
+     style="shape-rendering: crispEdges; text-rendering: optimizeLegibility;">
 
-  <!-- Letters S and N -->
-  <text x="82" y="78" font-size="28" fill="cyan" font-family="Arial">S</text>
-  <text x="108" y="78" font-size="28" fill="cyan" font-family="Arial">N</text>
+  <!-- Green Circle -->
+  <circle cx="50" cy="35" r="20" stroke="green" stroke-width="1" fill="none" />
 
-  <!-- Code below -->
-  <text x="50%" y="130" text-anchor="middle" font-size="18" fill="cyan" font-family="Arial">
+  <!-- SN Text in Green -->
+  <text x="50" y="40" text-anchor="middle" fill="green"
+        font-size="10" font-family="Arial" font-weight="bold">
     ${sn}
+  </text>
+
+  <!-- Red Dot (optional for consistency) -->
+  <circle cx="60" cy="35" r="1.5" fill="red" />
+
+  <!-- 12m Pole ID in Green -->
+  <text x="50" y="70" text-anchor="middle" fill="green"
+        font-size="8" font-family="Arial" font-weight="bold">
+    ${poleId.replace('_', '  ')}
   </text>
 </svg>`;
   }
 
-  private generateDynamic10mSvg(sn: string, poleId: string): string {
-    return ` 
-<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
-  <!-- Circle -->
-  <circle cx="100" cy="70" r="40" stroke="blue" fill="none" stroke-width="1" />
+  private generate10mPoleSvg(sn: string, poleId: string): string {
+    return `
+<svg width="200" height="200" viewBox="0 0 100 100"
+     xmlns="http://www.w3.org/2000/svg"
+     style="shape-rendering: crispEdges; text-rendering: optimizeLegibility;">
+  
+  <!-- Outer Circle -->
+  <circle cx="50" cy="35" r="20" stroke="red" stroke-width="1.5" fill="none" />
 
-  <!-- Letters S and N -->
-  <text x="82" y="78" font-size="28" fill="blue" font-family="Arial">S</text>
-  <text x="108" y="78" font-size="28" fill="blue" font-family="Arial">N</text>
-
-  <!-- Code below -->
-  <text x="50%" y="130" text-anchor="middle" font-size="18" fill="blue" font-family="Arial">
+  <!-- SN Text Inside Circle -->
+  <text x="50" y="40" text-anchor="middle" fill="red" font-size="10" font-family="Arial" font-weight="bold">
     ${sn}
+  </text>
+
+  <!-- Pole ID Text Below Circle -->
+  <text x="50" y="70" text-anchor="middle" fill="red" font-size="8" font-family="Arial" font-weight="bold">
+    ${poleId}
   </text>
 </svg>`;
   }
 
-  private generateDynamic8mSvg(sn: string, poleId: string): string {
+  private generate8mPoleSvg(sn: string, poleId: string): string {
     return `
 <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
   <!-- Circle -->
@@ -1250,8 +1257,8 @@ onMultiSurveySelected(selectedSurveys: any[]) {
   <text x="108" y="78" font-size="28" fill="red" font-family="Arial">N</text>
 
   <!-- Code below -->
-  <text x="50%" y="130" text-anchor="middle" font-size="18" fill="red" font-family="Arial">
-    ${sn}
+  <text x="50%" y="150" text-anchor="middle" font-size="18" fill="red" font-family="Arial">
+    NP_SAV-0001
   </text>
 </svg>`;
   }
@@ -1280,7 +1287,7 @@ onMultiSurveySelected(selectedSurveys: any[]) {
   </svg>`;
   }
 
-  private generateDynamicOLTSvg(name: string, oltNo: string): string {
+  private generateOltSvg(name: string, oltNo: string): string {
     return `
 <svg width="200" height="200" viewBox="0 0 100 100"
      xmlns="http://www.w3.org/2000/svg"
@@ -1317,7 +1324,7 @@ onMultiSurveySelected(selectedSurveys: any[]) {
 </svg>`;
   }
 
-  private generateDynamicJointClosurevg(name: string): string {
+  private generateJointClosureSvg(name: string): string {
     return `
 <svg width="200" height="200" viewBox="0 0 100 100"
      xmlns="http://www.w3.org/2000/svg"
@@ -1371,52 +1378,58 @@ onMultiSurveySelected(selectedSurveys: any[]) {
   }
 
 
-  private generateDynamicFDTSvg(splitters: string[]): string {
-    const splitterHeight = 100;
-    const spacing = 20;
-    const splitterWidth = 200;
-    const triangleWidth = 35;
-    const fanoutLength = 30;
+  //   private generateFdtSplitterSvg(name: string): string {
+  //     return `
+  // <svg width="200" height="200" viewBox="0 0 100 100"
+  //      xmlns="http://www.w3.org/2000/svg"
+  //      style="shape-rendering: crispEdges; text-rendering: optimizeLegibility;">
 
-    const totalHeight = splitters.length * (splitterHeight + spacing) - spacing;
-    const outerWidth = 200;
+  //   <!-- Outer Box -->
+  //   <rect x="15" y="10" width="70" height="80" rx="5" ry="5"
+  //         stroke="red" stroke-width="1.5" fill="none" />
 
-    let svgContent = `<svg width="${outerWidth}" height="${totalHeight + 40}" xmlns="http://www.w3.org/2000/svg" style="shape-rendering: crispEdges; text-rendering: optimizeLegibility;">`;
+  //   <!-- Splitter Tree (4 branches × 4 outputs) -->
+  //   <g stroke="red" stroke-width="1">
+  //     <!-- First Row -->
+  //     <line x1="20" y1="25" x2="40" y2="25" />
+  //     <line x1="40" y1="25" x2="50" y2="20" />
+  //     <line x1="40" y1="25" x2="50" y2="25" />
+  //     <line x1="40" y1="25" x2="50" y2="30" />
+  //     <line x1="40" y1="25" x2="50" y2="35" />
 
-    // Outer rectangle
-    svgContent += `<rect x="5" y="5" width="${outerWidth - 10}" height="${totalHeight + 30}" stroke="red" fill="none" stroke-width="1"/>`;
+  //     <!-- Second Row -->
+  //     <line x1="20" y1="40" x2="40" y2="40" />
+  //     <line x1="40" y1="40" x2="50" y2="35" />
+  //     <line x1="40" y1="40" x2="50" y2="40" />
+  //     <line x1="40" y1="40" x2="50" y2="45" />
+  //     <line x1="40" y1="40" x2="50" y2="50" />
 
-    splitters.forEach((label, index) => {
-      const yOffset = index * (splitterHeight + spacing) + 20;
-      const numFanouts = parseInt(label.split("x")[1]);
+  //     <!-- Third Row -->
+  //     <line x1="20" y1="55" x2="40" y2="55" />
+  //     <line x1="40" y1="55" x2="50" y2="50" />
+  //     <line x1="40" y1="55" x2="50" y2="55" />
+  //     <line x1="40" y1="55" x2="50" y2="60" />
+  //     <line x1="40" y1="55" x2="50" y2="65" />
 
-      // Label
-      svgContent += `<text x="20" y="${yOffset + 58}" fill="red" font-family="Arial, sans-serif" font-size="12">${label}</text>`;
+  //     <!-- Fourth Row -->
+  //     <line x1="20" y1="70" x2="40" y2="70" />
+  //     <line x1="40" y1="70" x2="50" y2="65" />
+  //     <line x1="40" y1="70" x2="50" y2="70" />
+  //     <line x1="40" y1="70" x2="50" y2="75" />
+  //     <line x1="40" y1="70" x2="50" y2="80" />
+  //   </g>
 
-      // Box lines
-      svgContent += `<line x1="35" y1="${yOffset + 40}" x2="75" y2="${yOffset + 40}" stroke="red" stroke-width="1"/>`; // Top
-      svgContent += `<line x1="75" y1="${yOffset + 40}" x2="75" y2="${yOffset + 70}" stroke="red" stroke-width="1"/>`; // Right
-      svgContent += `<line x1="75" y1="${yOffset + 70}" x2="35" y2="${yOffset + 70}" stroke="red" stroke-width="1"/>`; // Bottom
+  //   <!-- Name Label -->
+  //   <text x="50" y="8" text-anchor="middle" fill="red" font-size="7" font-family="Arial">
+  //     ${name}
+  //   </text>
 
-      // Triangle
-      svgContent += `<polygon points="${75},${yOffset + 55} ${110},${yOffset + 20} ${110},${yOffset + 90}" fill="none" stroke="red" stroke-width="1"/>`;
-
-      // Fanout lines
-      const startY = yOffset + 20;
-      const endY = yOffset + 90;
-      const step = (endY - startY) / (numFanouts - 1);
-      for (let i = 0; i < numFanouts; i++) {
-        const y = startY + i * step;
-        svgContent += `<line x1="110" y1="${y}" x2="130" y2="${y}" stroke="red" stroke-width="1"/>`;
-      }
-
-      // Rotated text
-      svgContent += `<text x="155" y="${yOffset + 80}" fill="red" font-family="Arial, sans-serif" font-size="12" transform="rotate(270 ${155},${yOffset + 80})">BOX SPL</text>`;
-    });
-
-    svgContent += '</svg>';
-    return svgContent;
-  }
+  //   <!-- Core Count -->
+  //   <text x="20" y="95" fill="red" font-size="6" font-family="Arial">
+  //     16 Core
+  //   </text>
+  // </svg>`;
+  //   }
 
 
   private generateFatSplitterSvg(name: string): string {
@@ -1458,11 +1471,7 @@ onMultiSurveySelected(selectedSurveys: any[]) {
       '48C': '#FF8000',  // Orange
       '96C': '#8B0000',  // Dark Red
       '144C': '#F4A7B9', // Pink
-      '288C': '#D11C6B',  // Rose Red
-      'Drop': '#8000FF',        // Violet for drop cables
-      'Distribution': '#00FF00', // Green for distribution
-      'Feeder': '#0000FF',      // Blue for feeder
-      'Backbone': '#FF0000',    // Red for backbone
+      '288C': '#D11C6B'  // Rose Red
     };
 
     const color = colorMap[name] || '#000000'; // Default to black
@@ -1482,6 +1491,84 @@ onMultiSurveySelected(selectedSurveys: any[]) {
     <rect x="84" y="2" width="10" height="10" />
   </g>
 </svg>`;
+  }
+
+  //   private generateFdtSplitterAlternativeSvg(name: string): string {
+  //     return `
+  // <svg width="200" height="200" viewBox="0 0 100 100"
+  //      xmlns="http://www.w3.org/2000/svg"
+  //      style="shape-rendering: crispEdges; text-rendering: optimizeLegibility;">
+
+  //   <!-- Alternative Design - Circular with ports -->
+  //   <circle cx="50" cy="50" r="40" stroke="blue" stroke-width="2" fill="none" />
+
+  //   <!-- Central circle -->
+  //   <circle cx="50" cy="50" r="10" fill="blue" />
+
+  //   <!-- Ports -->
+  //   <circle cx="20" cy="30" r="5" fill="blue" />
+  //   <circle cx="80" cy="30" r="5" fill="blue" />
+  //   <circle cx="20" cy="70" r="5" fill="blue" />
+  //   <circle cx="80" cy="70" r="5" fill="blue" />
+
+  //   <!-- Connections -->
+  //   <line x1="50" y1="50" x2="20" y2="30" stroke="blue" stroke-width="1" />
+  //   <line x1="50" y1="50" x2="80" y2="30" stroke="blue" stroke-width="1" />
+  //   <line x1="50" y1="50" x2="20" y2="70" stroke="blue" stroke-width="1" />
+  //   <line x1="50" y1="50" x2="80" y2="70" stroke="blue" stroke-width="1" />
+
+  //   <!-- Name Label -->
+  //   <text x="50" y="20" text-anchor="middle" fill="blue" font-size="8" font-family="Arial">
+  //     ${name}
+  //   </text>
+  // </svg>`;
+  //   }
+
+  private generateFdtSplitterAlternativeSvg(splitters: any): string {
+    const splitterHeight = 100;
+    const spacing = 20;
+    const splitterWidth = 200;
+    const triangleWidth = 35;
+    const fanoutLength = 30;
+
+    const totalHeight = splitters.length * (splitterHeight + spacing) - spacing;
+    const outerWidth = 200;
+
+    let svgContent = `<svg width="${outerWidth}" height="${totalHeight + 40}" xmlns="http://www.w3.org/2000/svg" style="shape-rendering: crispEdges; text-rendering: optimizeLegibility;">`;
+
+    // Outer rectangle
+    svgContent += `<rect x="5" y="5" width="${outerWidth - 10}" height="${totalHeight + 30}" stroke="red" fill="none" stroke-width="1"/>`;
+
+    splitters.forEach((label: any, index: any) => {
+      const yOffset = index * (splitterHeight + spacing) + 20;
+      const numFanouts = parseInt(label.split("x")[1]);
+
+      // Label
+      svgContent += `<text x="20" y="${yOffset + 58}" fill="red" font-family="Arial, sans-serif" font-size="12">${label}</text>`;
+
+      // Box lines
+      svgContent += `<line x1="35" y1="${yOffset + 40}" x2="75" y2="${yOffset + 40}" stroke="red" stroke-width="1"/>`; // Top
+      svgContent += `<line x1="75" y1="${yOffset + 40}" x2="75" y2="${yOffset + 70}" stroke="red" stroke-width="1"/>`; // Right
+      svgContent += `<line x1="75" y1="${yOffset + 70}" x2="35" y2="${yOffset + 70}" stroke="red" stroke-width="1"/>`; // Bottom
+
+      // Triangle
+      svgContent += `<polygon points="${75},${yOffset + 55} ${110},${yOffset + 20} ${110},${yOffset + 90}" fill="none" stroke="red" stroke-width="1"/>`;
+
+      // Fanout lines
+      const startY = yOffset + 20;
+      const endY = yOffset + 90;
+      const step = (endY - startY) / (numFanouts - 1);
+      for (let i = 0; i < numFanouts; i++) {
+        const y = startY + i * step;
+        svgContent += `<line x1="110" y1="${y}" x2="130" y2="${y}" stroke="red" stroke-width="1"/>`;
+      }
+
+      // Rotated text
+      svgContent += `<text x="155" y="${yOffset + 80}" fill="red" font-family="Arial, sans-serif" font-size="12" transform="rotate(270 ${155},${yOffset + 80})">BOX SPL</text>`;
+    });
+
+    svgContent += '</svg>';
+    return svgContent;
   }
 
 
@@ -2111,7 +2198,6 @@ onMultiSurveySelected(selectedSurveys: any[]) {
   }
 
   private getStyleForType(type: string, selectedLayer?: string): Style {
-
     switch (type) {
       case 'Point':
         switch (selectedLayer) {
@@ -2254,6 +2340,7 @@ onMultiSurveySelected(selectedSurveys: any[]) {
             lineDash: [10, 5],
           }),
         });
+
       case 'Rectangle':
         return new Style({
           fill: new Fill({
@@ -2386,7 +2473,6 @@ onMultiSurveySelected(selectedSurveys: any[]) {
       this.layersConfig['districts'],
       this.layersConfig['building'],
       this.layersConfig['cableLines'],
-      this.layersConfig['cable'],
       this.layersConfig['customerPoints'],
       this.layersConfig['fat'],
       this.layersConfig['fdt'],
@@ -2571,7 +2657,7 @@ onMultiSurveySelected(selectedSurveys: any[]) {
   }
 
   private displaySelectedFeature(featureData: any, layerName: string): void {
-       this.clearSelections();
+    this.clearSelections();
     // Create a blue circle marker for the selected feature
     const coordinates = featureData.geom.coordinates;
     const point = new Point(fromLonLat(coordinates));
@@ -2587,6 +2673,14 @@ onMultiSurveySelected(selectedSurveys: any[]) {
       fat: [255, 0, 0], // Red
       building: [255, 140, 0], // Orange
     }[layerName];
+    // Style for selected feature (blue circle)
+    // feature.setStyle(new Style({
+    //   image: new CircleStyle({
+    //     radius: 10,
+    //     fill: new Fill({ color: `rgba(${color.join(',')}, 0.7)` }),
+    //     stroke: new Stroke({ color: 'white', width: 2 })
+    //   })
+    // }));
     feature.setStyle(
       new Style({
         image: new CircleStyle({
@@ -2596,18 +2690,18 @@ onMultiSurveySelected(selectedSurveys: any[]) {
         }),
       })
     );
+
     this.vectorLayer.getSource()?.addFeature(feature);
     this.showFeatureDetailsPopup(featureData, layerName);
- 
   }
 
   private showFeatureDetailsPopup(featureData: any, layerName: string): void {
-  this.selectedFeatureDetails = {
-    ...featureData,
-    layerName: layerName,
-  };
-  this.showFeatureDetails = true;
-}
+    this.selectedFeatureDetails = {
+      ...featureData,
+      layerName: layerName,
+    };
+    this.showFeatureDetails = true;
+  }
 
   OpenControls() {
     this.isShowLayers = !this.isShowLayers;
@@ -3208,7 +3302,7 @@ onMultiSurveySelected(selectedSurveys: any[]) {
     this.drawingType = null; // reset
   }
 
-  private getInvalidStyleForLayer(layerType: string): any {
+  private getInvalidStyleForLayer(layerType: string): Style {
     switch (layerType.toLowerCase()) {
       case 'fat':
         return new Style({
@@ -3327,16 +3421,16 @@ onMultiSurveySelected(selectedSurveys: any[]) {
           }),
         });
 
-      // default:
-      //   return new Style({
-      //     image: new Icon({
-      //       src: 'assets/default.svg',
-      //       scale: 0.5,
-      //       anchor: [0.5, 1],
-      //       anchorXUnits: 'fraction',
-      //       anchorYUnits: 'fraction',
-      //     }),
-      //   });
+      default:
+        return new Style({
+          image: new Icon({
+            src: 'assets/default.svg', // fallback image if needed
+            scale: 0.5,
+            anchor: [0.5, 1],
+            anchorXUnits: 'fraction',
+            anchorYUnits: 'fraction',
+          }),
+        });
     }
   }
 
@@ -3433,11 +3527,7 @@ onMultiSurveySelected(selectedSurveys: any[]) {
                       : null;
           }
 
-          if (layerName == 'olt'|| layerName == 'jointclosure'|| layerName == 'fdt') {
-            const geom = featureData.geom;
-            this.showParentConnectionDialog = true;
-            this.loadNearbyElements(geom);
-          } else {
+          if (featureData) {
             this.displaySelectedFeature(featureData, layerName);
           }
         }
@@ -3498,99 +3588,99 @@ onMultiSurveySelected(selectedSurveys: any[]) {
     this.isShowLayers = false;
   }
 
-  //Area mapping
+//Area mapping
 
-  openAreaMapping() {
-    this.showAreaMappingPanel = !this.showAreaMappingPanel;
-    if (!this.showAreaMappingPanel) {
-      // Remove area mapping polygons from map when closing
-      this.onAreaMappingData(null);
-    }
+openAreaMapping() {
+  this.showAreaMappingPanel = !this.showAreaMappingPanel;
+  if (!this.showAreaMappingPanel) {
+    // Remove area mapping polygons from map when closing
+    this.onAreaMappingData(null);
+  }
+}
+
+onAreaMappingData(data: any) {
+  // Remove previous area mapping layer if it exists
+  if (this.areaMappingLayer) {
+    this.olMap.removeLayer(this.areaMappingLayer);
+    this.areaMappingLayer = null;
+  }
+  if (!data) return;
+
+  const features: Feature[] = [];
+
+  // Country
+  if (data.country && Array.isArray(data.country)) {
+    data.country.forEach((country: any) => {
+      if (country.geom) {
+        features.push(new Feature({
+          geometry: this.geoJSONFormat.readGeometry(country.geom, { dataProjection: 'EPSG:4326' }),
+          name: country.countryName || 'Country',
+          type: 'areaMapping'
+        }));
+      }
+    });
+  }
+  // State
+  if (data.state && Array.isArray(data.state)) {
+    data.state.forEach((state: any) => {
+      if (state.geom) {
+        features.push(new Feature({
+          geometry: this.geoJSONFormat.readGeometry(state.geom, { dataProjection: 'EPSG:4326' }),
+          name: state.stateName || 'State',
+          type: 'areaMapping'
+        }));
+      }
+    });
+  }
+  // District
+  if (data.district && Array.isArray(data.district)) {
+    data.district.forEach((district: any) => {
+      if (district.geom) {
+        features.push(new Feature({
+          geometry: this.geoJSONFormat.readGeometry(district.geom, { dataProjection: 'EPSG:4326' }),
+          name: district.district || 'District',
+          type: 'areaMapping'
+        }));
+      }
+    });
   }
 
-  onAreaMappingData(data: any) {
-    // Remove previous area mapping layer if it exists
-    if (this.areaMappingLayer) {
-      this.olMap.removeLayer(this.areaMappingLayer);
-      this.areaMappingLayer = null;
-    }
-    if (!data) return;
+  if (features.length === 0) return;
 
-    const features: Feature[] = [];
+  const vectorSource = new VectorSource({ features });
+  this.areaMappingLayer = new VectorLayer({
+    source: vectorSource,
+    style: new Style({
+      fill: new Fill({ color: 'rgba(255, 193, 7, 0.2)' }),
+      stroke: new Stroke({ color: '#FFC107', width: 3, lineDash: [8, 4] }),
+    }),
+    zIndex: 100
+  });
 
-    // Country
-    if (data.country && Array.isArray(data.country)) {
-      data.country.forEach((country: any) => {
-        if (country.geom) {
-          features.push(new Feature({
-            geometry: this.geoJSONFormat.readGeometry(country.geom, { dataProjection: 'EPSG:4326' }),
-            name: country.countryName || 'Country',
-            type: 'areaMapping'
-          }));
-        }
-      });
-    }
-    // State
-    if (data.state && Array.isArray(data.state)) {
-      data.state.forEach((state: any) => {
-        if (state.geom) {
-          features.push(new Feature({
-            geometry: this.geoJSONFormat.readGeometry(state.geom, { dataProjection: 'EPSG:4326' }),
-            name: state.stateName || 'State',
-            type: 'areaMapping'
-          }));
-        }
-      });
-    }
-    // District
-    if (data.district && Array.isArray(data.district)) {
-      data.district.forEach((district: any) => {
-        if (district.geom) {
-          features.push(new Feature({
-            geometry: this.geoJSONFormat.readGeometry(district.geom, { dataProjection: 'EPSG:4326' }),
-            name: district.district || 'District',
-            type: 'areaMapping'
-          }));
-        }
-      });
-    }
-
-    if (features.length === 0) return;
-
-    const vectorSource = new VectorSource({ features });
-    this.areaMappingLayer = new VectorLayer({
-      source: vectorSource,
-      style: new Style({
-        fill: new Fill({ color: 'rgba(255, 193, 7, 0.2)' }),
-        stroke: new Stroke({ color: '#FFC107', width: 3, lineDash: [8, 4] }),
-      }),
-      zIndex: 100
-    });
-
-    this.olMap.addLayer(this.areaMappingLayer);
+  this.olMap.addLayer(this.areaMappingLayer);
 
     // Zoom to area if only one area is selected and zoomGeom is present
-    if (data && data.zoomGeom) {
-      this.zoomToAreaMappingGeometry(data.zoomGeom);
-    }
+  if (data && data.zoomGeom) {
+    this.zoomToAreaMappingGeometry(data.zoomGeom);
   }
+}
 
-  zoomToAreaMappingGeometry(geom: any) {
-    if (!geom || !geom.coordinates) return;
-    // Assuming MultiPolygon
-    const coords = geom.coordinates.flat(2); // flatten to array of [lng, lat]
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-    coords.forEach(([lng, lat]: [number, number]) => {
-      if (lng < minX) minX = lng;
-      if (lng > maxX) maxX = lng;
-      if (lat < minY) minY = lat;
-      if (lat > maxY) maxY = lat;
-    });
-    this.olMap.getView().fit([minX, minY, maxX, maxY], {
-      padding: [50, 50, 50, 50],
-      duration: 500,
-    });
-  }
+zoomToAreaMappingGeometry(geom: any) {
+  if (!geom || !geom.coordinates) return;
+  // Assuming MultiPolygon
+  const coords = geom.coordinates.flat(2); // flatten to array of [lng, lat]
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  coords.forEach(([lng, lat]: [number, number]) => {
+    if (lng < minX) minX = lng;
+    if (lng > maxX) maxX = lng;
+    if (lat < minY) minY = lat;
+    if (lat > maxY) maxY = lat;
+  });
+  this.olMap.getView().fit([minX, minY, maxX, maxY], {
+    padding: [50, 50, 50, 50],
+    duration: 500,
+  });
+}
 
   private surveyAreaWmsLayers: { [id: number]: TileLayer } = {};
 
@@ -3995,11 +4085,12 @@ onMultiSurveySelected(selectedSurveys: any[]) {
         this.displayLayerFeatures(data[layerType], layerType);
       }
     });
-
   }
+
 
   private displayLayerFeatures(features: any[], layerType: string): void {
     let normalizedLayerType = layerType;
+
     let feature = features;
     if (layerType === '8m') normalizedLayerType = '8m poles';
     if (layerType === '10m') normalizedLayerType = '10m poles';
@@ -4014,12 +4105,15 @@ onMultiSurveySelected(selectedSurveys: any[]) {
     ) {
       normalizedLayerType = 'jointclosure';
     }
+    const color = this.getColorForLayer(normalizedLayerType);
+    const icon = this.getIconForLayer(normalizedLayerType);
 
     if (!this.allFeatures[layerType]) this.allFeatures[layerType] = {};
     if (!this.featureVisibility[layerType])
       this.featureVisibility[layerType] = {};
 
     features.forEach((feature) => {
+      // --- ADD THIS BLOCK ---
       let rawType = (feature.layerName || layerType || '').toLowerCase();
       let type = rawType;
       if (type === '8m' || type === '10m' || type === '12m') type = 'pole';
@@ -4029,32 +4123,21 @@ onMultiSurveySelected(selectedSurveys: any[]) {
         type === 'jointclosures' || type === 'joint_closure'
       ) type = 'jointclosure';
       else if (type === 'splitter') type = 'splitter';
-      if (layerType === 'cable') {
-        this.debugCableFeatures(features);
-        const cableType = feature.type || feature.cableCore || feature.lookupCableType?.name || 'Drop';
-        normalizedLayerType = 'cable';
-        // Store it in the feature for later use
-        feature.cableCore = cableType;
-      }
-      else if (layerType == 'cable') type = 'cable';
-      else if (type === 'olt') type = 'olt';
-      else if (type === 'fdt') type = 'fdt';
+      else if (type === 'fdt') type = 'splitter';
       else if (['2c', '6c', '12c', '24c', '48c', '96c', '144c', '288c'].includes(type)) type = 'cable';
       else if (type === 'trench') type = 'trench';
       else if (type === 'duct') type = 'duct';
       else if (type === 'fat') type = 'fat';
+
+      // --- END BLOCK ---
 
       const geoJSON = {
         type: 'Feature',
         properties: {
           ...feature,
           layerName: layerType,
-          type: type,
-          originalType: rawType,
-          cableCore: layerType === 'cable' ? feature.cableCore : undefined,
-          // Store the survey stage context with the feature
-          useAlternativeDesign: this.useAlternativeDesign,
-          surveyStage: this.currentSurveyStage
+          type: type,           // <-- Set type
+          originalType: rawType // <-- Set originalType
         },
         geometry: feature.geom,
       };
@@ -4064,8 +4147,27 @@ onMultiSurveySelected(selectedSurveys: any[]) {
       ) as Feature<Geometry>;
       olFeature.setId(feature.publicId);
 
-      // Use a style function instead of static style
-      olFeature.setStyle(this.createFeatureStyle.bind(this, olFeature));
+      let style: Style;
+
+      if (feature.geom.type === 'Point') {
+        style = new Style({
+          image: new Icon({
+            src: icon,
+            scale: 0.5,
+            anchor: [0.5, 1],
+          }),
+        });
+      } else if (feature.geom.type === 'LineString') {
+        style = new Style({
+          stroke: new Stroke({
+            color: color,
+            width: 3,
+          }),
+        });
+      }
+
+      olFeature.set('originalStyle', style);
+      olFeature.setStyle(style);
 
       this.allFeatures[layerType][feature.publicId] = olFeature;
 
@@ -4081,20 +4183,6 @@ onMultiSurveySelected(selectedSurveys: any[]) {
       }
     });
   }
-
-  private debugCableFeatures(features: any[]): void {
-    features.forEach((feature, index) => {
-      console.log(`Cable ${index + 1}:`, {
-        type: feature.type,
-        cableType: feature.cableType,
-        lookupCableType: feature.lookupCableType,
-        cableCore: feature.cableCore,
-        allProperties: feature
-      });
-    });
-  }
-
-
 
   getColorForLayer(layerType: string): string {
     const colors: Record<string, string> = {
@@ -4112,53 +4200,81 @@ onMultiSurveySelected(selectedSurveys: any[]) {
     return colors[layerType] || colors['default'];
   }
 
-  getIconForLayer(layerType: string, feature?: Feature<Geometry>, useAlternativeDesign?: any): any {
-    if (useAlternativeDesign) {
-      const name = feature.get('name') || 'NAME';
-      const street = feature.get('street') || 'STREET NAME';
-      const number = feature.get('number') || '0';
-      const floor = feature.get('floor') || '1F';
-      const units = feature.get('units') || '1';
-      const fatId = feature.get('fat_id') || 'FAT 00-00';
-      const equipment = feature.get('equipment') || 'SFU';
-      const count = feature.get('count') || '1';
-      const olt = feature.get('olt') || 'OLT 00-00';
-      const location = feature.get('location') || 'LOCATION';
-      const status = feature.get('status') || 'STATUS';
+  getIconForLayer(layerType: string, useAlternativeDesign?:any): string {
+    
+    const features = this.vectorLayer.getSource()?.getFeatures() || [];
+    // Find a feature that matches the given layerType
+    // Check what properties each feature actually has
+    features.forEach((f, index) => {
+      const props = f.getProperties();
+    });
 
+    // Use the correct property name that exists in your data
+    const feature = features.find(f => f.get('name') === layerType);
+    const name = feature?.get('name') || 'Name';
+    const street = feature?.get('street') || 'STREET NAME';
+    const number = feature?.get('number') || '0';
+    const floor = feature?.get('floor') || '1F';
+    const units = feature?.get('units') || '1';
+    const fatId = feature?.get('fat_id') || 'FAT 00-00';
+    const equipment = feature?.get('equipment') || 'SFU';
+    const count = feature?.get('count') || '1';
+    const olt = feature?.get('olt') || 'OLT 00-00';
+    const location = feature?.get('location') || 'LOCATION';
+    const status = feature?.get('status') || 'STATUS';
+
+    // Get feature properties for dynamic splitters
+    const splitters = feature?.get('splitters') || ['2x4 SPL', '2x16 SPL', '2x8 SPL'];
+
+    // Generate dynamic SVG
+    const svgContent = this.generateFdtSplitterAlternativeSvg(splitters);
+    // const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgContent);
+
+    // return new Icon({
+    //   src: dataUrl,
+    //   scale: baseScale * zoomScale,
+    //   anchor: [0.5, 0.5]
+    // });
+
+
+    if (this.useAlternativeDesign) {
       switch (layerType) {
         case 'fat':
           return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(this.generateDynamicFATSvg('FAT', '0'));
         case 'fdt':
-          const splitters = feature.get('splitters') || ['2x4 SPL', '2x16 SPL', '2x8 SPL'];
-          return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(this.generateDynamicFDTSvg(splitters));
+          return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgContent);
         case 'olt':
-          return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(this.generateDynamicOLTSvg('OLT', '01'));
+          return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(this.generateOltSvg('OLT', '01'));
         case 'sdu':
-          const svgSdu = this.generateDynamicSDUSvg(street, number, floor, units, fatId, equipment, count, olt, location);
+          const svgSdu = this.generateSduSvg(name, street, number, floor, units, fatId, equipment, count, olt, location, status);
           return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgSdu);
         case 'mdu':
-          const svgMdu = this.generateDynamicMDUSvg(name, street, number, floor, units, fatId, equipment, count, olt, location);
+          const svgMdu = this.generateMduSvg(name, street, number, floor, units, fatId, equipment, count, olt, location);
           return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgMdu);
         case 'cdu':
-          const svgCdu = this.generateDynamicCDUSvg(name, street, number, floor, units, fatId, equipment, count, olt, location);
+          const svgCdu = this.generateCduSvg(name, street, number, floor, units, fatId, equipment, count, olt, location);
           return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgCdu);
         case '8m poles':
-          return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(this.generateDynamic8mSvg('SN', 'NP_SAV-0001'));
+          return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(this.generate8mPoleSvg('SN', 'NP_SAV-0001'));
         case '10m poles':
-          return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(this.generateDynamic10mSvg('SN', 'NP_SAV-0001'));
+          return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(this.generate10mPoleSvg('SN', 'NP_SAV-0001'));
+        case 'jointclosure':
+          return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(this.generateJointClosureSvg(name));
         case '12m poles':
-          return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(this.generateDynamic12mSvg('SN', 'NP_SAV-0001'));
+          return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(this.generate12mPoleSvg('SN', 'NP_SAV-0001'));
+        // case 'cable':
+        //   const cable = this.generateCableSvg(name,);
+        //   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(cable);
         default:
           break;
       }
     }
-    // Fallback to regular icons
+
     const icons: Record<string, string> = {
       pole: 'assets/poles.svg',
-      '8m': 'assets/icons/8m.svg',
-      '10m': 'assets/icons/10m.svg',
-      '12m': 'assets/icons/12m.svg',
+      '8m poles': 'assets/icons/8m.svg',
+      '10m poles': 'assets/icons/10m.svg',
+      '12m poles': 'assets/icons/12m.svg',
       'fat': 'assets/icons/fat.svg',
       splitter: 'assets/icons/splitter.svg',
       jointclosure: 'assets/icons/joint_closure.svg',
@@ -4170,14 +4286,56 @@ onMultiSurveySelected(selectedSurveys: any[]) {
       mdu: 'assets/icons/mdu.svg',
       cdu: 'assets/icons/cdu.svg',
     };
-     if (layerType === 'pole') {
-      const originalType = feature?.get('originalType') || '8m';
-      return icons[originalType] || icons['pole'];
-    }
-    
-    return icons[layerType]
+    return icons[layerType];
   }
 
+
+  private generateDynamicFDTSvg(splitters: string[]): string {
+    const splitterHeight = 100;
+    const spacing = 20;
+    const splitterWidth = 200;
+    const triangleWidth = 35;
+    const fanoutLength = 30;
+
+    const totalHeight = splitters.length * (splitterHeight + spacing) - spacing;
+    const outerWidth = 200;
+
+    let svgContent = `<svg width="${outerWidth}" height="${totalHeight + 40}" xmlns="http://www.w3.org/2000/svg" style="shape-rendering: crispEdges; text-rendering: optimizeLegibility;">`;
+
+    // Outer rectangle
+    svgContent += `<rect x="5" y="5" width="${outerWidth - 10}" height="${totalHeight + 30}" stroke="red" fill="none" stroke-width="1"/>`;
+
+    splitters.forEach((label, index) => {
+      const yOffset = index * (splitterHeight + spacing) + 20;
+      const numFanouts = parseInt(label.split("x")[1]);
+
+      // Label
+      svgContent += `<text x="20" y="${yOffset + 58}" fill="red" font-family="Arial, sans-serif" font-size="12">${label}</text>`;
+
+      // Box lines
+      svgContent += `<line x1="35" y1="${yOffset + 40}" x2="75" y2="${yOffset + 40}" stroke="red" stroke-width="1"/>`; // Top
+      svgContent += `<line x1="75" y1="${yOffset + 40}" x2="75" y2="${yOffset + 70}" stroke="red" stroke-width="1"/>`; // Right
+      svgContent += `<line x1="75" y1="${yOffset + 70}" x2="35" y2="${yOffset + 70}" stroke="red" stroke-width="1"/>`; // Bottom
+
+      // Triangle
+      svgContent += `<polygon points="${75},${yOffset + 55} ${110},${yOffset + 20} ${110},${yOffset + 90}" fill="none" stroke="red" stroke-width="1"/>`;
+
+      // Fanout lines
+      const startY = yOffset + 20;
+      const endY = yOffset + 90;
+      const step = (endY - startY) / (numFanouts - 1);
+      for (let i = 0; i < numFanouts; i++) {
+        const y = startY + i * step;
+        svgContent += `<line x1="110" y1="${y}" x2="130" y2="${y}" stroke="red" stroke-width="1"/>`;
+      }
+
+      // Rotated text
+      svgContent += `<text x="155" y="${yOffset + 80}" fill="red" font-family="Arial, sans-serif" font-size="12" transform="rotate(270 ${155},${yOffset + 80})">BOX SPL</text>`;
+    });
+
+    svgContent += '</svg>';
+    return svgContent;
+  }
   // Add this to your OlMapComponent class
   getFeatureProperties(feature: any): { key: string; value: any }[] {
     if (!feature) return [];
@@ -4514,13 +4672,14 @@ onMultiSurveySelected(selectedSurveys: any[]) {
     isHighlighted = false,
     isHidden = false
   ): Style {
-    const iconSrc = this.getIconForLayer(layer);
+    const iconSrc = this.getIconForLayer(layer); // Get icon path using your helper
+
     // If it's a point feature with icon, use Icon style
     const iconStyle = new Style({
       image: new Icon({
         src: iconSrc,
         scale: 0.1,
-        anchor: [0.5, 0.5],
+        anchor: [0.5, 1],
       }),
     });
 
@@ -4530,7 +4689,7 @@ onMultiSurveySelected(selectedSurveys: any[]) {
         image: new Icon({
           src: iconSrc,
           scale: 0.1,
-          anchor: [0.5, 0.5],
+          anchor: [0.5, 1],
           opacity: 0, // Completely transparent, but still reserving space
         }),
       });
@@ -4853,20 +5012,20 @@ onMultiSurveySelected(selectedSurveys: any[]) {
   }
   performFeatureDelete(layer: string, publicId: string, feature: any): void {
 
-    if (layer === 'cable') {
-      this.apiService.deleteCable(publicId).subscribe({
-        next: () => {
-          this.toastr.success('Cable deleted successfully');
-          // Remove from map immediately
-          this.removeCableFromMap(publicId);
-          this.refreshMapLayer('cable'); // Optionally reload from server
-        },
-        error: (err) => {
-          this.toastr.error('Failed to delete cable');
-        }
-      });
-      return;
-    }
+  if (layer === 'cable') {
+    this.apiService.deleteCable(publicId).subscribe({
+      next: () => {
+        this.toastr.success('Cable deleted successfully');
+        // Remove from map immediately
+        this.removeCableFromMap(publicId);
+        this.refreshMapLayer('cable'); // Optionally reload from server
+      },
+      error: (err) => {
+        this.toastr.error('Failed to delete cable');
+      }
+    });
+    return;
+  }
 
     const poleTypes = ['8m poles', '10m poles', '12m poles'];
     if (poleTypes.includes(layer)) {
@@ -4917,18 +5076,18 @@ onMultiSurveySelected(selectedSurveys: any[]) {
     });
   }
 
-  // Add this helper:
-  private removeCableFromMap(publicId: string) {
-    const source = this.vectorLayer.getSource();
-    if (!source) return;
-    const features = source.getFeatures();
-    const cableFeature = features.find(f =>
-      f.get('publicId') === publicId || f.getId() === publicId
-    );
-    if (cableFeature) {
-      source.removeFeature(cableFeature);
-    }
+    // Add this helper:
+private removeCableFromMap(publicId: string) {
+  const source = this.vectorLayer.getSource();
+  if (!source) return;
+  const features = source.getFeatures();
+  const cableFeature = features.find(f =>
+    f.get('publicId') === publicId || f.getId() === publicId
+  );
+  if (cableFeature) {
+    source.removeFeature(cableFeature);
   }
+}
 
 
   /**
@@ -4965,31 +5124,8 @@ onMultiSurveySelected(selectedSurveys: any[]) {
     //   error: () => this.toastr.error('Failed to connect FAT to SDU.'),
     // });
   }
-parentConnectionDestination:any;
 
- onNearbyElementSelected(event: { type: 'from' | 'to'; element: any }) {
-    if (this.isSelectingDestination) {
-      // This is a destination selection
-      this.selectedToElement = event.element;
-      this.showNearbyElementsPopup = false;
-      this.isSelectingDestination = false;
-      this.showParentConnectionDialog = true;
-    } else {
-
-      if (event.type === 'from') {
-        this.selectedFromElement = event.element;
-      } else if (event.type === 'to') {
-        this.selectedToElement = event.element;
-      }
-      
-      this.showNearbyElementsPopup = false;
-      this.showParentConnectionDialog = true;
-    }
-
-    // Your existing highlight code...
-    this.showFeatureDetails = true;
-    this.displaySelectedElementOnMap(event.element);
-    
+  onNearbyElementSelected(event: { type: 'from' | 'to', element: any }) {
     // Remove previous highlight for this type
     const source = this.vectorLayer.getSource();
     source.getFeatures().forEach(f => {
@@ -5004,9 +5140,10 @@ parentConnectionDestination:any;
     // Add highlight for selected element
     const coords = event.element.geom.coordinates;
     const layerName = event.element.layername || event.element.layercode || '';
-    const highlightType = this.isSelectingDestination ? 'isHighlightedTo' : 'isHighlightedFrom';
-    const highlightColor = this.isSelectingDestination ? '#4CAF50' : '#e91e63';
-    const highlightRadius = this.isSelectingDestination ? 32 : 40;
+    const highlightType = event.type === 'from' ? 'isHighlightedFrom' : 'isHighlightedTo';
+
+    const highlightColor = event.type === 'from' ? '#e91e63' : '#4CAF50';
+    const highlightRadius = event.type === 'from' ? 40 : 32;
 
     const areaFeature = new Feature({
       geometry: new Point(coords),
@@ -5015,12 +5152,11 @@ parentConnectionDestination:any;
       layerName,
       [highlightType]: true
     });
-    
     areaFeature.setStyle(
       new Style({
         image: new CircleStyle({
           radius: highlightRadius,
-          fill: new Fill({ color: this.isSelectingDestination ? 'rgba(76,175,80,0.15)' : 'rgba(233,30,99,0.15)' }),
+          fill: new Fill({ color: event.type === 'from' ? 'rgba(233,30,99,0.15)' : 'rgba(76,175,80,0.15)' }),
           stroke: new Stroke({
             color: highlightColor,
             width: 3,
@@ -5039,7 +5175,6 @@ parentConnectionDestination:any;
       layerName,
       [highlightType]: true
     });
-    
     pointFeature.setStyle(
       new Style({
         image: new CircleStyle({
@@ -5053,50 +5188,6 @@ parentConnectionDestination:any;
       })
     );
     source.addFeature(pointFeature);
-  }
-
-  // Update the template to pass both source and destination
-  get parentConnectionDialogParams() {
-    return {
-      sourceElement: this.selectedFromElement,
-      destinationElement: this.selectedToElement,
-      selectedSurveyAreaId: this.selectedSurveyAreaId,
-      nearbyElements: this.nearbyElements
-    };
-  }
-
-
-   private displaySelectedElementOnMap(element: any): void {
-    // Clear previous selections
-    this.clearSelections();
-
-    // Create a feature for the selected element
-    const coordinates = element.geom.coordinates;
-    const point = new Point(fromLonLat(coordinates));
-
-    const feature = new Feature({
-      geometry: point,
-      ...element,
-      isSelected: true,
-      layerName: element.layername,
-    });
-
-    // Style for selected element
-    feature.setStyle(
-      new Style({
-        image: new CircleStyle({
-          radius: 10,
-          fill: new Fill({ color: 'rgba(66, 133, 244, 0.7)' }),
-          stroke: new Stroke({ color: 'white', width: 2 }),
-        }),
-      })
-    );
-
-    this.vectorLayer.getSource()?.addFeature(feature);
-  }
- onNearbyElementsPopupClose(): void {
-    this.showNearbyElementsPopup = false;
-    this.nearbyElements = [];
   }
 
   private zoomToSelectedElements(coordsArr: number[][]) {
@@ -5165,109 +5256,35 @@ parentConnectionDestination:any;
     }, 50);
   }
 
-  AddConnectivity(param: string, featureData: any) {
-  if (
-    !this.selectedSurvey ||
-    (this.selectedSurvey.surveyStatusName || '').toLowerCase() !== 'in progress'
-  ) {
-    this.toastr.warning('Please change the survey status to In Progress.');
-    return;
-  }
 
-  if (!this.selectedSurveyAreaId || !this.selectedSurveyAreas[this.selectedSurveyAreaId]) {
-    this.toastr.warning('Please select a survey area first before adding points');
-    this.currentDrawingMode = null;
-    return;
-  }
+  AddConnectivity(featureData: any) {
+    if (
+      !this.selectedSurvey ||
+      (this.selectedSurvey.surveyStatusName || '').toLowerCase() !== 'in progress'
+    ) {
+      this.toastr.warning('Please change the survey status to In Progress.');
+      return;
+    }
 
-  if (param === 'connectivity') {
-     const coordinates = featureData.geom;
-        if (!coordinates || coordinates.length < 2) {
-        this.toastr.error('Could not get coordinates for this feature');
-        return;
-      }
-  } else {
     const layerName = this.selectedFeatureDetails?.layerName?.toLowerCase();
-    if (layerName === 'fat') {
-      const coordinates = featureData.geom;
-      this.fatCoordinates = coordinates;
-      if (!coordinates || coordinates.length < 2) {
-        this.toastr.error('Could not get coordinates for this feature');
-        return;
-      }
-      this.active = 0;
-      this.connectivityFeatureData = this.selectedFeatureDetails;
 
-      // For FAT: show popup
-      this.showFeatureDetails = false;
-      this.showDialog = true;
-      this.showParentConnectionDialog = false;
-    }
+ if (layerName === 'fat') {
+    // Open FAT connection dialog
+    this.active = 0;
+    this.connectivityFeatureData = this.selectedFeatureDetails;
+    this.showFeatureDetails = false;
+    this.showDialog = true;
+    this.showParentConnectionDialog = false;
+  } else if (layerName === 'olt' || layerName === 'jointclosure' || layerName === 'fdt') {
+    // Open OLT parent connection dialog (sidebar)
+    this.parentConnectionFeatureData = this.selectedFeatureDetails;
+    this.showFeatureDetails = false;
+    this.showDialog = false;
+    this.showParentConnectionDialog = true; // This will trigger the sidebar
+  }  else {
+    this.toastr.error('Connectivity is only available for FAT and OLT features.');
   }
-}
-
-
-  private loadNearbyElements(coordinates: number[]): void {
-
-  const mvnoId = this.apiService.getMvnoId();
-  
-  if (!mvnoId) {
-    this.toastr.error('MVNO ID not found');
-    return;
   }
-
-
-  console.log("coordinates", coordinates);
-
-  const payload = {
-    geom: coordinates,
-    mvnoId: mvnoId
-  };
-
-  this.isLoading = true;
-  
-  this.apiService.getNearbyElements(payload).subscribe({
-    next: (response: any) => {
-      this.isLoading = false;
-      
-      if (response.success && response.data) {
-        // Process the nearby elements data
-        this.processNearbyElements(response.data);
-         this.nearbyElements = response.data; 
-        this.toastr.success('Nearby elements loaded successfully', 'Success');
-      } else {
-        this.toastr.error(response.message || 'Failed to load nearby elements');
-      }
-    },
-    error: (error: any) => {
-      this.isLoading = false;
-      this.toastr.error('Error loading nearby elements');
-      console.error('Error loading nearby elements:', error);
-    }
-  });
-}
-
-private processNearbyElements(data: any[]): void {
-  // Group elements by type
-  const elementsByType: { [key: string]: any[] } = {};
-  
-  data.forEach(element => {
-      const type = element.layername || 'unknown';
-      if (!elementsByType[type]) {
-        elementsByType[type] = [];
-      }
-      elementsByType[type].push(element);
-    });
-
-  // You can now use this data in your connection dialog
-  // For example, pass it to your dialog component or store it in a service
-  console.log('Nearby elements by type:', elementsByType);
-  
-  // You might want to emit an event or update a service with this data
-  // so your connection dialog can access it
-     this.nearbyElements = elementsByType;
-}
-
   toggleBasemap() {
     if (!this.currentBackgroundLayer) {
       console.warn('Basemap layer not initialized yet');
@@ -5756,8 +5773,6 @@ private getMapCanvasAsImage(bounds?: any): Promise<string> {
             return [0, 255, 0]; // Green for CSA
           case 'fat':
             return [255, 0, 0];
-          case 'fdt':
-            return [255, 0, 0];
           case 'fdc':
             return [255, 102, 0];
           case 'splice':
@@ -5782,8 +5797,6 @@ private getMapCanvasAsImage(bounds?: any): Promise<string> {
           case 'FDC':
             return 1.0; // Very small for FDC points
           case 'fat':
-            return 1.0;
-          case 'fdt':
             return 1.0;
           case 'fdc':
             return 1.0;
@@ -5821,41 +5834,9 @@ private getMapCanvasAsImage(bounds?: any): Promise<string> {
             height,
           );
         }
-      } else if (featureType === 'FDT' || featureType === 'fdt') {
-        // Draw FDT splitter diagram
-        const splitters = feature.get('splitters') || ['2x4 SPL', '2x16 SPL', '2x8 SPL'];
-        const boxSize = 12; // Bigger box for FDT diagram
-        const name = feature.get('id') || 'FAT';
-        const homepasses = feature.get('homepasses') || '0';
-        const svg = this.generateDynamicFATSvg(name, homepasses);
-
-        // Draw outer rectangle
-        pdf.setDrawColor(color[0], color[1], color[2]);
-        pdf.setLineWidth(0.3);
-        pdf.rect(pdfCoords[0] - boxSize, pdfCoords[1] - boxSize, boxSize * 2, boxSize * 2, 'D');
-
-        // Draw simplified splitter representation
-        const splitterHeight = boxSize * 2 / splitters.length;
-        splitters.forEach((splitter: string, index: number) => {
-          const y = pdfCoords[1] - boxSize + (index * splitterHeight) + splitterHeight / 2;
-          const numFanouts = parseInt(splitter.split("x")[1]);
-
-          // Draw splitter box
-          const splitterBoxSize = 3;
-          pdf.rect(pdfCoords[0] - splitterBoxSize, y - splitterBoxSize, splitterBoxSize * 2, splitterBoxSize * 2, 'D');
-
-          // Draw fanout lines
-          const lineLength = 4;
-          const startY = y - splitterBoxSize;
-          const endY = y + splitterBoxSize;
-          const step = (endY - startY) / (numFanouts - 1);
-          for (let i = 0; i < numFanouts; i++) {
-            const lineY = startY + i * step;
-            pdf.line(pdfCoords[0] + splitterBoxSize, lineY, pdfCoords[0] + splitterBoxSize + lineLength, lineY);
-          }
-        });
-
       } else if (
+        featureType === 'building' ||
+        featureType === 'building_center' ||
         featureType === 'sdu' ||
         featureType === 'mdu' ||
         featureType === 'cdu'
@@ -5876,28 +5857,13 @@ private getMapCanvasAsImage(bounds?: any): Promise<string> {
 
         let svg: string;
         if (original === 'sdu' || featureType === 'sdu') {
-          svg = this.generateDynamicSDUSvg(street, number, floor, units, fatId, equipment, count, olt, location);
+          svg = this.generateSduSvg(name, street, number, floor, units, fatId, equipment, count, olt, location, status, 150);
         } else if (original === 'cdu' || featureType === 'cdu') {
-          svg = this.generateDynamicCDUSvg(name, street, number, floor, units, fatId, equipment, count, olt, location, 150);
+          svg = this.generateCduSvg(name, street, number, floor, units, fatId, equipment, count, olt, location, 150);
         } else if (original === 'mdu' || featureType === 'mdu') {
-          svg = this.generateDynamicMDUSvg(name, street, number, floor, units, fatId, equipment, count, olt, location, 150);
-        } if (featureType === 'FAT' || featureType === 'fat') {
-          const name = feature.get('id') || 'FAT';
-          const homepasses = feature.get('homepasses') || '0';
-          const svg = this.generateDynamicFATSvg(name, homepasses);
-          const image = await this.svgToImage(svg);
-          if (image) {
-            const width = 12;
-            const height = 12;
-            pdf.addImage(
-              image,
-              'PNG',
-              pdfCoords[0] - width / 2,
-              pdfCoords[1] - height / 2,
-              width,
-              height,
-            );
-          }
+          svg = this.generateMduSvg(name, street, number, floor, units, fatId, equipment, count, olt, location, 150);
+        } else {
+          svg = this.generateMduSvg(name, street, number, floor, units, fatId, equipment, count, olt, location, 150);
         }
 
         const image = await this.svgToImage(svg);
@@ -5914,15 +5880,15 @@ private getMapCanvasAsImage(bounds?: any): Promise<string> {
           );
           return;
         }
-      } else if (featureType === '8m') {
+      } else if (featureType === 'pole') {
         const poleId = feature.get('poleId') || 'Pole';
         const sn = feature.get('sn') || 'SN';
         const type = (feature.get('originalType') || '').toLowerCase(); // optional: store original
 
         let svg: string;
-        if (type === '8m') svg = this.generateDynamic8mSvg(sn, poleId);
-        else if (type === '12m') svg = this.generateDynamic12mSvg(sn, poleId);
-        else svg = this.generateDynamic10mSvg(sn, poleId);
+        if (type === '8m') svg = this.generate8mPoleSvg(sn, poleId);
+        else if (type === '12m') svg = this.generate12mPoleSvg(sn, poleId);
+        else svg = this.generate10mPoleSvg(sn, poleId);
 
         const image = await this.svgToImage(svg);
         if (image) {
@@ -5959,7 +5925,7 @@ private getMapCanvasAsImage(bounds?: any): Promise<string> {
       } else if (featureType === 'olt') {
         const name = feature.get('name') || 'OLT';
         const oltNo = feature.get('oltNo') || '01';
-        const svg = this.generateDynamicOLTSvg(name, oltNo);
+        const svg = this.generateOltSvg(name, oltNo);
         const image = await this.svgToImage(svg);
         if (image) {
           const width = 16;
@@ -5968,7 +5934,7 @@ private getMapCanvasAsImage(bounds?: any): Promise<string> {
         }
       } else if (featureType === 'jointclosure') {
         const name = feature.get('name') || 'JC';
-        const svg = this.generateDynamicJointClosurevg(name);
+        const svg = this.generateJointClosureSvg(name);
         const image = await this.svgToImage(svg);
         if (image) {
           const width = 14;
@@ -6256,15 +6222,14 @@ private getMapCanvasAsImage(bounds?: any): Promise<string> {
           type = 'jointclosure'
         } else if (type === 'splitter') {
           type = 'splitter';
-        } else if (type === 'olt') {
-          type = 'olt';
         } else if (type === 'fdt') {
-          type = 'fdt';
+          type = 'splitter'; // same type, different originalType
         } else if (['2c', '6c', '12c', '24c', '48c', '96c', '144c', '288c'].includes(type)) {
           type = 'cable';
           cableCore = rawType.toUpperCase(); // preserve for color logic
         } else if (type === 'trench') {
           type = 'trench';
+
         } else if (type === 'duct') {
           type = 'duct';
         }
@@ -6365,89 +6330,8 @@ private getMapCanvasAsImage(bounds?: any): Promise<string> {
     }
   }
 
-  onMapClick(event: any) {
-    if (this.isMapSelectionMode && this.mapSelectionCallback) {
-      const coordinates = olProj.transform(
-        event.coordinate,
-        this.olMap.getView().getProjection(),
-        'EPSG:4326'
-      );
-      
-      // Execute the callback with the selected coordinates
-      this.mapSelectionCallback(coordinates);
-      
-      // Reset selection mode
-      this.isMapSelectionMode = false;
-      this.mapSelectionCallback = null;
-      
-      // Reset cursor
-      this.olMap.getTargetElement().style.cursor = '';
-    }
+  createConnectivity() {
+    
   }
-
-  onMapSelectionRequested() {
-    this.isMapSelectionMode = true;
-    
-    // Change cursor to question mark
-    this.olMap.getTargetElement().style.cursor = 'help';
-    
-    // Store callback to be executed when user clicks on map
-    this.mapSelectionCallback = (coordinates: number[]) => {
-      this.loadNearbyElementsForCoordinates(coordinates);
-    };
-  }
-
-   private loadNearbyElementsForCoordinates(coordinates: number[]): void {
-    const mvnoId = this.apiService.getMvnoId();
-    
-    if (!mvnoId) {
-      this.toastr.error('MVNO ID not found');
-      return;
-    }
-
-    const payload = {
-      geom: {
-        type: "Point",
-        coordinates: coordinates
-      },
-      mvnoId: mvnoId
-    };
-    console.log(payload);
-    
-    this.isLoadingNearbyElements = true;
-    
-    this.apiService.getNearbyElements(payload).subscribe({
-      next: (response: any) => {
-        this.isLoadingNearbyElements = false;
-        
-        if (response.success && response.data) {
-          this.nearbyElements = response.data;
-          this.showNearbyElementsPopup = true;
-          this.toastr.success('Nearby elements loaded successfully', 'Success');
-        } else {
-          this.toastr.error(response.message || 'Failed to load nearby elements');
-        }
-      },
-      error: (error: any) => {
-        this.isLoadingNearbyElements = false;
-        this.toastr.error('Error loading nearby elements');
-        console.error('Error loading nearby elements:', error);
-      }
-    });
-  }
-isFullscreen = false;
-  toggleFullscreen(): void {
-  const mapContainer = document.querySelector('.map-container') as HTMLElement;
-  this.mapService.toggleFullscreen(mapContainer);
-  
-  // Subscribe to fullscreen changes
-  this.mapService.isFullscreen$.subscribe(isFullscreen => {
-    this.isFullscreen = isFullscreen;
-    setTimeout(() => {
-      this.olMap.updateSize();
-    }, 100);
-  });
-}
-
 
 }

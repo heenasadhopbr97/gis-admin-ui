@@ -19,7 +19,7 @@ export class MapService {
   constructor(private http: HttpClient,private cache: HttpResponseCache,
     private messageService: MessageService
   ) { 
-     this.setupEventListeners();
+    
    }
 
   baseUrl = environment.KEYANNA_API_GATEWAY_COMMON_PORT;
@@ -55,54 +55,4 @@ export class MapService {
       }
     );
   }
-
-
-   private isFullscreenSubject = new BehaviorSubject<boolean>(false);
-  isFullscreen$ = this.isFullscreenSubject.asObservable();
-
-
-  toggleFullscreen(element: HTMLElement): void {
-    if (!this.isFullscreenSubject.value) {
-      this.enterFullscreen(element);
-    } else {
-      this.exitFullscreen();
-    }
-  }
-
-  private enterFullscreen(element: HTMLElement): void {
-    if (element.requestFullscreen) {
-      element.requestFullscreen();
-    } else if ((element as any).webkitRequestFullscreen) {
-      (element as any).webkitRequestFullscreen();
-    } else if ((element as any).msRequestFullscreen) {
-      (element as any).msRequestFullscreen();
-    }
-  }
-
-  private exitFullscreen(): void {
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-    } else if ((document as any).webkitExitFullscreen) {
-      (document as any).webkitExitFullscreen();
-    } else if ((document as any).msExitFullscreen) {
-      (document as any).msExitFullscreen();
-    }
-  }
-
-  private setupEventListeners(): void {
-    document.addEventListener('fullscreenchange', () => this.handleFullscreenChange());
-    document.addEventListener('webkitfullscreenchange', () => this.handleFullscreenChange());
-    document.addEventListener('mozfullscreenchange', () => this.handleFullscreenChange());
-    document.addEventListener('MSFullscreenChange', () => this.handleFullscreenChange());
-  }
-
-  private handleFullscreenChange(): void {
-    this.isFullscreenSubject.next(!!(
-      document.fullscreenElement ||
-      (document as any).webkitFullscreenElement ||
-      (document as any).mozFullScreenElement ||
-      (document as any).msFullscreenElement
-    ));
-  }
-
 }

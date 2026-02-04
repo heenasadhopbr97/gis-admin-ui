@@ -36,9 +36,9 @@
 
 <!-- Towers Field -->
 <div class="form-field">
-  <label for="blocks">Blocks:</label>
-  <input id="blocks" type="text" formControlName="blocks" (keypress)="numericOnly($event)">
-  <span class="error-message" *ngIf="form.get('blocks')?.errors?.['pattern']">
+  <label for="towers">Towers:</label>
+  <input id="towers" type="text" formControlName="towers" (keypress)="numericOnly($event)">
+  <span class="error-message" *ngIf="form.get('towers')?.errors?.['pattern']">
     Please enter numbers only
   </span>
 </div>

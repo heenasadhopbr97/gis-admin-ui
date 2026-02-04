@@ -5,41 +5,41 @@
 export const environment = {
   production: false,
   
-  APIGATEWAY_IP_PORT: (window as any)["env"]["APIGATEWAY_IP_PORT"] || "http://192.168.25.3:30080/api/v1/KeyannaGeneralGatewayCommon",
+  APIGATEWAY_IP_PORT: (window as any)["env"]["APIGATEWAY_IP_PORT"] || "http://164.52.212.187:30080/api/v1/KeyannaGeneralGatewayCommon",
   TACACS_IP_PORT: (window as any)["env"]["TACACS_IP_PORT"] || "localhost:30081",
   BILLINGENGINE_COMMON_IP_PORT: (window as any)["env"]["BILLINGENGINE_COMMON_IP_PORT"] || "localhost:40080",
   OTP_GENERATE_USERNAME: (window as any)["env"]["OTP_GENERATE_USERNAME"] || "OTP",
-  KEYANNASALESCRMS_IP_PORT: (window as any)["env"]["KEYANNASALESCRMS_IP_PORT"] || "http://192.168.25.3:30080",
+  KEYANNASALESCRMS_IP_PORT: (window as any)["env"]["KEYANNASALESCRMS_IP_PORT"] || "http://164.52.212.187:30080",
   KEYANNAINVENTORYMANAGEMENT_IP_PORT:
-    (window as any)["env"]["KEYANNAINVENTORYMANAGEMENT_IP_PORT"] || "http://192.168.25.3:30080/api/v1/KeyannaInventoryManagement",
+    (window as any)["env"]["KEYANNAINVENTORYMANAGEMENT_IP_PORT"] || "http://164.52.212.187:30080/api/v1/KeyannaInventoryManagement",
   KEYANNA_TICKET_IP_PORT: (window as any)["env"]["KEYANNA_TICKET_IP_PORT"] || "localhost:30084",
 
   KEYANNA_API_GATEWAY_COMMON_PORT:
-  (window as any)["env"]["KEYANNA_API_GATEWAY_COMMON_PORT"] || "http://192.168.25.3:30080/api/v1/KeyannaGeneralGatewayCommon",
+  (window as any)["env"]["KEYANNA_API_GATEWAY_COMMON_PORT"] || "http://164.52.212.187:30080/api/v1/KeyannaGeneralGatewayCommon",
 
   KEYANNA_API_GIS_CORE_PORT: (window as any)["env"]["KEYANNA_API_GIS_CORE_PORT"],
   PROJECT_MANAGEMENT_PORT: (window as any)["env"]["PROJECT_MANAGEMENT_PORT"],
    // This is specifically for service APIs
    KEYANNA_SERVICE_API_GATEWAY_PORT: 
-   (window as any)["env"]["KEYANNA_SERVICE_API_GATEWAY_PORT"] || "http://192.168.25.3:30080",
+   (window as any)["env"]["KEYANNA_SERVICE_API_GATEWAY_PORT"] || "http://164.52.212.187:30080",
 
   KEYANNA_API_GATEWAY_COMMON_MANAGEMENT:
   (window as any)["env"]["KEYANNA_API_GATEWAY_COMMON_MANAGEMENT"],
    
    KEYANNA_PMS_API_GATEWAY_PORT: 
-  (window as any)["env"]["KEYANNA_PMS_API_GATEWAY_PORT"] || "http://192.168.25.3:30080",
+  (window as any)["env"]["KEYANNA_PMS_API_GATEWAY_PORT"] || "http://164.52.212.187:30080",
 
   KEYANNA_LEAD_API_GATEWAY_PORT: 
-  (window as any)["env"]["KEYANNA_LEAD_API_GATEWAY_PORT"] || "http://192.168.25.3:30080",
+  (window as any)["env"]["KEYANNA_LEAD_API_GATEWAY_PORT"] || "http://164.52.212.187:30080",
 
   KEYANNA_Revenue_API_GATEWAY_PORT:
-  (window as any)["env"]["KEYANNA_Revenue_API_GATEWAY_PORT"] || "http://192.168.25.3:30080",
+  (window as any)["env"]["KEYANNA_Revenue_API_GATEWAY_PORT"] || "http://164.52.212.187:30080",
 
   KEYANNA_NOTIFICATION_API_GATEWAY_PORT:
-  (window as any)["env"]["KEYANNA_NOTIFICATION_API_GATEWAY_PORT"] || "http://192.168.25.3:30080",
+  (window as any)["env"]["KEYANNA_NOTIFICATION_API_GATEWAY_PORT"] || "http://164.52.212.187:30080",
 
   KEYANNA_ID_API_GATEWAY_PORT:
-  (window as any)["env"]["KEYANNA_ID_API_GATEWAY_PORT"] || "http://192.168.25.3:30080",
+  (window as any)["env"]["KEYANNA_ID_API_GATEWAY_PORT"] || "http://164.52.212.187:30080",
 
   SERVICEAREA_ID: (window as any)["env"]["SERVICEAREA_ID"] || "5",
   COUNTRY_ID: (window as any)["env"]["COUNTRY_ID"] || "2",

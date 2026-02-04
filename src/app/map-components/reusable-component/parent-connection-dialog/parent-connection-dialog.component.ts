@@ -18,6 +18,7 @@ interface FeatureData {
   geometry?: any;
 }
 
+
 @Component({
   selector: 'app-parent-connection-dialog',
   templateUrl: './parent-connection-dialog.component.html',
@@ -25,17 +26,12 @@ interface FeatureData {
   standalone: false
 })
 export class ParentConnectionDialogComponent implements OnInit, OnChanges {
+  @Input() featureData: any;
   @Input() selectedSurveyAreaId: number | null = null;
-  @Input() sourceElement: any;
-  @Input() destinationElement: any;
-  @Input() nearbyElements: any[] = [];
 
-  @Output() mapSelectionRequested = new EventEmitter<void>();
-  @Output() destinationSelected = new EventEmitter<any>();
-  @Output() highlightElement = new EventEmitter<number>();
   @Output() visibleChange = new EventEmitter<boolean>();
   @Output() connectivity = new EventEmitter<any>();
-  @Output() elementSelected = new EventEmitter<{ type: 'from' | 'to', element: any, geom?: any }>();
+  @Output() elementSelected = new EventEmitter<{ type: 'from' | 'to', element: any }>();
   fromLayerName: string = '';
   toLayerName: string = '';
 
@@ -43,6 +39,7 @@ export class ParentConnectionDialogComponent implements OnInit, OnChanges {
   oltId: number | null = null;
   splitterId: number | null = null;
 
+  nearbyElements: NetworkElement[] = [];
   selectedElementId: number | null = null;
   selectedElementToId: number | null = null;
 
@@ -51,9 +48,6 @@ export class ParentConnectionDialogComponent implements OnInit, OnChanges {
   connectionBuilderLayerId: number | null = null;
   connectionBuilderLayerCode: string | null = null;
 
-  sourceDeviceData: any = null;
-  destinationDeviceData: any = null;
-
   connectionTypes: any[] = [
     { label: 'Splice', value: 'Splice' },
     { label: 'Through', value: 'Through' }
@@ -61,51 +55,28 @@ export class ParentConnectionDialogComponent implements OnInit, OnChanges {
   selectedConnectionType: string = ''; // Default value
 
   // Device details properties
+  // selectedDeviceData: any = null;
   selectedDeviceData: NetworkElement | FeatureData | any | null = null;
+
 
   constructor(private http: HttpClient, private apiService: ApiService) { }
 
   ngOnInit() {
+    this.loadNearbyElements();
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    // Handle source element changes
-    if (changes['sourceElement'] && this.sourceElement) {
-      this.sourceDeviceData = this.sourceElement;
-      this.fromLayerName = this.sourceElement.layername || this.sourceElement.layerName || '';
-      if (this.sourceElement) {
-        this.selectedElementId = this.sourceElement.id;
-        if (this.sourceElement.id) {
-          this.highlightElement.emit(this.sourceElement.id);
-        }
+    if (changes['featureData'] || changes['visible']) {
+      if (this.visible && this.featureData && this.featureData.id && this.featureData.surveyAreaId) {
+        this.selectedDeviceData = this.featureData; // Set the feature data as selected device
+        this.selectedElementId = this.featureData.id; // Set the element ID
+        this.fromLayerName = this.featureData.layerName;
+        console.log(this.fromLayerName);
+        
+        this.loadNearbyElements();
       }
     }
-    if (changes['destinationElement'] && this.destinationElement) {
-       this.destinationDeviceData = this.destinationElement;
-      this.toLayerName = this.destinationElement.layername || this.destinationElement.layerName || '';
-      this.selectedElementToId = this.sourceElement.id;
-    if (this.destinationElement) {
-      if (this.destinationElement.id) {
-        this.highlightElement.emit(this.destinationElement.id);
-      }
-    }
-  }
-  }
-
-  selectDestinationOnMap() {
-    this.showParentConnectionDialog = false;
-    this.visibleChange.emit(false);
-    this.mapSelectionRequested.emit();
-  }
-
-  clearDestination() {
-    this.destinationDeviceData = null;
-    this.selectedElementToId = null;
-    this.toLayerName = '';
-    this.elementSelected.emit({ type: 'to', element: null });
-
-    // Emit event to remove highlight from map
-    this.highlightElement.emit(null);
+    
   }
 
   @Input() set visible(value: boolean) {
@@ -115,38 +86,104 @@ export class ParentConnectionDialogComponent implements OnInit, OnChanges {
   get visible(): boolean {
     return this.showParentConnectionDialog;
   }
+  layerCode : any = '';
+loadNearbyElements() {
+  if (!this.featureData?.id || !this.fromLayerName) {
+    console.warn('Missing required data');
+    return;
+  }
+
+  const layerConfig: any = {
+    olt: 'olt',
+    fdt: 'fdt'
+  };
+
+  const layerCode = layerConfig[this.fromLayerName];
+  if (!layerCode) {
+    console.warn(`Unsupported layer: ${this.fromLayerName}`);
+    return;
+  }
+
+  const payload = {
+    layerId: this.featureData.id,
+    layerCode,
+    surveyAreaId: this.featureData.surveyAreaId,
+    mvnoId: this.apiService.getMvnoId()
+  };
+  console.log(payload);
+  
+
+  this.layerCode = layerCode;
+  console.log('Loading nearby elements for:', { layerCode, featureId: this.featureData.id });
+
+  this.apiService.getNearbyAllNes(payload).subscribe({
+    next: (res: any) => {
+      this.nearbyElements = res?.data || [];
+      const clickedElement = this.nearbyElements.find(e => 
+        e.id === this.featureData.id || e.name === this.featureData.name
+      );
+      
+      if (clickedElement) {
+        this.selectedElementId = clickedElement.id;
+        this.selectedDeviceData = clickedElement;
+        this.elementSelected.emit({ type: 'from', element: clickedElement });
+      }
+    },
+    error: (error) => {
+      console.error('Error loading nearby elements:', error);
+      this.nearbyElements = [];
+    }
+  });
+}
+
+  openConnectionBuilder() {
+    if (!this.selectedElementId) {
+      console.error('No source element selected');
+      return;
+    }
+    const selectedElement = this.nearbyElements.find(e => e.id);
+   
+    this.connectionBuilderLayerId = selectedElement.id;
+    this.connectionBuilderLayerCode = selectedElement.layerCode || selectedElement.layername;
+    
+    this.showConnectionBuilder = true;
+    this.closeDialog();
+
+  }
 
   closeDialog() {
     this.showParentConnectionDialog = false;
     this.visibleChange.emit(false);
   }
 
+  getNetworkDetails() {
+
+  }
   onElementSelected(type: 'to', id: number) {
     const element = this.nearbyElements.find(e => e.id === id);
+    console.log(element);
+    
+
     if (element) {
       if (type === 'to') {
         this.selectedElementToId = id;
-        this.destinationDeviceData = element;
         this.elementSelected.emit({ type, element });
-        this.toLayerName = element.layername || element.layercode || '';
-
-        // Highlight the selected element on the map
-        this.highlightElement.emit(id);
-
-        // Reopen the dialog to show the selected destination
-        this.showParentConnectionDialog = true;
-
+         this.toLayerName = element.layername || element.layercode || '';
+         console.log( this.toLayerName);
+        
       }
     }
   }
 
   onConnectClick() {
+    if (!this.selectedElementId || !this.selectedElementToId) {
+      console.error('Both source and destination must be selected');
+      return;
+    }
 
-    this.showConnectionBuilder = true
     const fromElement = this.nearbyElements.find(e => e.id === this.selectedElementId);
     const toElement = this.nearbyElements.find(e => e.id === this.selectedElementToId);
-    console.log(fromElement, toElement);
-    console.log(this.sourceDeviceData, this.destinationDeviceData);
+    
 
     const payload = {
       fromId: this.selectedElementId,
@@ -159,11 +196,10 @@ export class ParentConnectionDialogComponent implements OnInit, OnChanges {
     this.connectivity.emit(payload);
     this.closeDialog();
   }
-
   onOltCreated(oltId: number) {
     this.oltId = oltId;
   }
-  connectionType(event: any) {
+  connectionType(event:any) {
     this.selectedConnectionType = event;
   }
 
@@ -195,6 +231,7 @@ export class ParentConnectionDialogComponent implements OnInit, OnChanges {
     this.closeDialog();
 
   }
-
-
+  canOpenConnectionBuilder(): boolean {
+    return !!this.selectedElementId;
+  }
 }

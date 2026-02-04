@@ -28,9 +28,6 @@
     <app-zoom (zoomIn)="onZoomIn()" (zoomOut)="onZoomOut()" (centerMap)="handleCenterMap($event)">
       <!-- (centerMap)="handleCenterMap($event) -->
     </app-zoom>
-    <button (click)="toggleFullscreen()" class="fullscreen-button" title="Toggle Fullscreen">
-  <i class="fa fa-expand"></i>
-</button>
   </div>
 
   <div id="map-container" class="map"></div>
@@ -68,9 +65,8 @@
     (closeLayerPanel)="onCloseLayerPanel()">
   </app-drawing-tools>
 </div>
-
-<button *ngIf="isConnectivityBtn && selectedSurvey?.surveyStageName?.toLowerCase() === 'design'" class="create-connection" (click)="AddConnectivity('connectivity',selectedFeatureDetails)">
-  Connectivity
+<button (click)="createConnectivity()" class="create-connection">
+ Connectivity
 </button>
 <button (click)="toggleBasemap()" class="control-btn-map">
   {{ basemapVisible ? 'Hide' : 'Show' }} Basemap
@@ -132,7 +128,7 @@
     <!-- <button *ngIf="['fat','olt', 'jointclosure', 'fdt'].includes(selectedFeatureDetails?.layerName) && selectedSurvey?.surveyStageName === 'Design'"
       class="action-btn assign-btn" (click)="AddConnectivity()"> -->
     <button *ngIf="['fat','olt', 'jointclosure', 'fdt'].includes(selectedFeatureDetails?.layerName) && selectedSurvey?.surveyStageName === 'Design'"
-      class="action-btn assign-btn" (click)="AddConnectivity('update',selectedFeatureDetails)">
+      class="action-btn assign-btn" (click)="AddConnectivity(selectedFeatureDetails)">
        Connectivity
     </button>
   </div>
@@ -158,7 +154,6 @@
   [fatCoordinates]="fatCoordinates"
   [selectedSurveyAreaId]="selectedSurveyAreaId"
   [mvnoId]="mvnoId"
-  [nearbyElementsData]="nearbyElements" 
   (activeChange)="active = $event"
   (splitterCreated)="onSplitterCreated($event)"
   (openCableForm)="openCableFormFromDialog()"
@@ -168,19 +163,8 @@
 
 <app-parent-connection-dialog
   [(visible)]="showParentConnectionDialog"
-  [sourceElement]="selectedFromElement"
-  [destinationElement]="selectedToElement"
+  [featureData]="parentConnectionFeatureData"
   [selectedSurveyAreaId]="selectedSurveyAreaId"
-  [nearbyElements]="nearbyElements" 
   (elementSelected)="onNearbyElementSelected($event)"
   (connectivity)="onParentConnectivity($event)"
-  (mapSelectionRequested)="onMapSelectionRequested()">
-</app-parent-connection-dialog>
-
-<app-nearby-elements-dialog
-  [(visible)]="showNearbyElementsPopup"
-  [nearbyElements]="nearbyElements"
-  [isLoading]="isLoadingNearbyElements"
-  (elementSelected)="onNearbyElementSelected($event)"
-  (close)="onNearbyElementsPopupClose()">
-</app-nearby-elements-dialog>
+></app-parent-connection-dialog>

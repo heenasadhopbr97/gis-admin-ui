@@ -26,7 +26,7 @@ export class DrawingToolsComponent implements OnInit{
   hasNetworkCreatePermission: boolean = false;
 
 
-  private aclSubscription: Subscription | null = null;
+  // private aclSubscription: Subscription | null = null;
 
   constructor( public messageService: MessageService,private mapService: MapService, public apiService: ApiService,
     private toastr: ToastrService

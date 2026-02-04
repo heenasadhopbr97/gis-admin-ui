@@ -3,7 +3,6 @@ import { Component, EventEmitter, Input, Output, OnInit, SimpleChanges } from '@
 import { HttpClient } from '@angular/common/http';
 import { ApiService } from 'src/app/service/api.service';
 import { ToastrService } from 'ngx-toastr';
-import { NearbyElementsService } from '../../nearby-elements.service';
 
 @Component({
   selector: 'app-connection-builder',
@@ -21,8 +20,6 @@ export class ConnectionBuilderComponent implements OnInit {
   @Input() connectionType: string;
   @Input() fromLayerName: string;
   @Input() toLayerName: string; 
-     public nearbyElements: any = null;
-  public selectedElement: any = null;
 
   @Output() visibleChange = new EventEmitter<boolean>();
   @Output() connectionCreated = new EventEmitter<any>();
@@ -74,16 +71,12 @@ export class ConnectionBuilderComponent implements OnInit {
   isCreatingConnection = false;
   successMessage = '';
 
-  constructor(private apiService: ApiService, private toastr: ToastrService,private nearbyElementsService: NearbyElementsService) { }
+  constructor(private apiService: ApiService, private toastr: ToastrService,) { }
 
   ngOnInit() {
     if (this.visible && this.layerId) {
       this.loadAllData();
     }
-     this.nearbyElementsService.nearbyElements$.subscribe(elements => {
-      this.nearbyElements = elements;
-      console.log('Received nearby elements:', this.nearbyElements);
-    });
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -94,11 +87,9 @@ export class ConnectionBuilderComponent implements OnInit {
       console.log(this.fromLayerName);
       
     }
-      if (changes['nearbyElementsData'] && changes['nearbyElementsData'].currentValue) {
-      this.nearbyElements = changes['nearbyElementsData'].currentValue;
-    }
    
-     
+      if (changes['connectionType']) {
+  }
   }
 
   loadAllData() {
@@ -590,68 +581,5 @@ processFromDeviceData(ports: any[]) {
     selectedCore => selectedCore.cableCoreId === core.cableCoreId
   );
 }
-
-getObjectKeys(obj: any): string[] {
-    return Object.keys(obj || {});
-  }
-
-   formatElementType(type: string): string {
-    const typeMap: { [key: string]: string } = {
-      'ne_joint_closure': 'Joint Closure',
-      'ne_olt': 'OLT',
-      'ne_fat': 'FAT',
-      'ne_fdt': 'FDT',
-      'ne_splitter': 'Splitter',
-      'ne_cable': 'Cable'
-    };
-    return typeMap[type] || type.replace('ne_', '').toUpperCase();
-  }
-
-  isElementSelected(element: any): boolean {
-    return this.selectedElement && this.selectedElement.id === element.id && this.selectedElement.layername === element.layername;
-  }
-
-    onElementSelected(element: any): void {
-    this.selectedElement = element;
-    
-    // You can automatically populate fields based on the selected element
-    this.populateFieldsFromElement(element);
-    
-    // Or you can just log it for now
-    console.log('Selected element:', element);
-  }
-
-   private populateFieldsFromElement(element: any): void {
-    const elementType = element.layername;
-    
-    switch (elementType) {
-      case 'ne_olt':
-        // Populate OLT fields
-        this.oltData.id = element.name;
-        this.activeTab = 'from';
-        break;
-        
-      case 'ne_joint_closure':
-        // Populate Joint Closure fields
-        this.jcData.id = element.name;
-        this.activeTab = 'to';
-        break;
-        
-      case 'ne_fat':
-        // Populate FAT fields
-        // You might need to adjust this based on your data structure
-        break;
-        
-      default:
-        console.log('Unknown element type:', elementType);
-    }
-  }
-
-    // Or if passed as input:
-  @Input() set nearbyElementsData(data: any) {
-    this.nearbyElements = data;
-}
-
- 
 
 }

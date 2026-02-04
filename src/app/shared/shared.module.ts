@@ -122,7 +122,6 @@ import { SidebarModule } from 'primeng/sidebar';
 import { ConnectionBuilderComponent } from "../map-components/reusable-component/parent-connection-dialog/connection-builder/connection-builder.component";
 import { DeviceDetailsComponent } from "../map-components/reusable-component/parent-connection-dialog/device-details/device-details.component";
 import { AreaMappingComponent } from "../map-components/ne-form/area-mapping/area-mapping.component";
-import { NearbyElementsDialogComponent } from "../map-components/reusable-component/parent-connection-dialog/nearby-elements-dialog/nearby-elements-dialog.component";
 
 
 @NgModule({
@@ -184,8 +183,7 @@ import { NearbyElementsDialogComponent } from "../map-components/reusable-compon
     SVGDiagramComponent,
     NetworkVisualizerComponent,
     ConnectionBuilderComponent,
-    DeviceDetailsComponent,
-    NearbyElementsDialogComponent
+    DeviceDetailsComponent
   ],
   imports: [
     CommonModule,
@@ -348,8 +346,7 @@ import { NearbyElementsDialogComponent } from "../map-components/reusable-compon
     SVGDiagramComponent,
     NetworkVisualizerComponent,
     ConnectionBuilderComponent,
-    DeviceDetailsComponent,
-    NearbyElementsDialogComponent
+    DeviceDetailsComponent
     // All your exported components...
   ],
   providers: [

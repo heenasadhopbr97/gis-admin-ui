@@ -249,27 +249,3 @@
     </div>
   </div>
 </div>
-
-<!-- Add this section after the To Device Section and before the Connection Map Section -->
-<div *ngIf="nearbyElements && getObjectKeys(nearbyElements).length > 0"  class="nearby-elements-section">
-  <h3>Nearby Network Elements</h3>
-  <p>Select from available nearby elements</p>
-  
-  <div class="nearby-elements-grid">
-    <div *ngFor="let elementType of getObjectKeys(nearbyElements)" class="element-category">
-      <h4>{{ formatElementType(elementType) }}</h4>
-      <div class="element-list">
-        <div *ngFor="let element of nearbyElements[elementType]" 
-             class="element-item"
-             [class.selected]="isElementSelected(element)"
-             (click)="onElementSelected(element)">
-          <div class="element-name">{{ element.name }}</div>
-          <div class="element-type">{{ formatElementType(elementType) }}</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Connection Map Section -->
-<div class="divider"></div>
