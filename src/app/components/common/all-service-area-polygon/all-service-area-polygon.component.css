@@ -1,8 +1,0 @@
-:host ::ng-deep .p-dialog .p-dialog-header {
-  background: darkblue !important ;
-}
-
-agm-map {
-  height: 300px;
-  width: 960px;
-}

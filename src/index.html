@@ -1,97 +1,30 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <!-- <meta charset="utf-8"> -->
-    <base href="./" />
-    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
-    <!-- <link rel="icon" type="image/x-icon" href="favicon.ico"> -->
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
-    />
-    <!-- VENDOR CSS -->
-    <link rel="stylesheet" href="../assets/vendor/bootstrap/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="../assets/vendor/font-awesome/css/font-awesome.min.css" />
-    <link rel="stylesheet" href="../assets/vendor/linearicons/style.css" />
-    <link rel="stylesheet" href="../assets/vendor/chartist/css/chartist-custom.css" />
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-      rel="stylesheet"
-    />
 
-    <!-- MAIN CSS -->
-    <link rel="stylesheet" href="../assets/css/main.css" />
-    <link
-      href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700"
-      rel="stylesheet"
-    />
-    <!-- ICONS -->
+<head>
+  <base href="/">
+  <!-- <base href="/angular/template/"> -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Dreams POS is a powerful Bootstrap based Inventory Management Admin Template designed for businesses, offering seamless invoicing, project tracking, and estimates.">
+  <meta name="keywords" content="inventory management, admin dashboard, bootstrap template, invoicing, estimates, business management, responsive admin, POS system">
+  <meta name="author" content="Dreams Technologies">
+  <meta name="robots" content="index, follow">
+  <title>Dreams POS - Inventory Management & Admin Dashboard Template</title>
+  
+      <title>Dreams Pos Admin Template</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link rel="icon" type="image/x-icon" href="assets/img/favicon.png" />
+  <!-- Apple Touch Icon -->
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/img/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
 
-    <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon.png" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap"
-      rel="stylesheet"
-    />
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-    <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet"/>
+</head>
 
-    <!-- <script src="assets/env.js"></script> -->
-    <script>
-      fetch("./assets/env.js", {
-        method: "GET",
-        headers: {
-          "X-Script-Tag-Request": "true" // Set custom header
-        }
-      })
-        .then(response => {
-          if (response.ok) {
-            return response.text();
-          } else {
-            console.error("Failed to load env.js:", response.status, response.statusText);
-          }
-        })
-        .then(text => {
-          // console.log("response body:::", text); 
-          eval(text); // Evaluate the retrieved script content
-        })
-        .catch(error => {
-          console.error("Error fetching env.js:", error);
-        });
-    </script>
-  </head>
+<body>
+  <app-root></app-root>
+</body>
 
-  <body>
-    <app-root></app-root>
-    <!-- Javascript -->
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
-      integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg=="
-      crossorigin="anonymous"
-    ></script>
-    <script src="../assets/vendor/jquery/jquery.min.js"></script>
-    <!-- <script src="../assets/vendor/bootstrap/js/bootstrap.js"></script> -->
-    <!-- <script src="../assets/vendor/bootstrap/js/bootstrap.min.js"></script> -->
-    <script src="../assets/vendor/jquery-slimscroll/jquery.slimscroll.min.js"></script>
-    <script src="../assets/vendor/jquery.easy-pie-chart/jquery.easypiechart.min.js"></script>
-    <script src="../assets/vendor/chartist/js/chartist.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.2/bootstrap3-typeahead.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/3.1.62/jquery.inputmask.bundle.js"></script>
-    <script src="../assets/scripts/keyanna-common.js"></script>
-    <script>
-      if (window.env && window.env.GOOGLE_MAPS_API_KEY) {
-        var script = document.createElement("script");
-
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${window.env.GOOGLE_MAPS_API_KEY}&libraries=places,drawing,geometry&language=en`;
-
-        document.head.appendChild(script);
-      } else {
-        console.error("Google Maps API key not found in env.js");
-      }
-    </script>
-    <div class="clearfix"></div>
-  </body>
 </html>
